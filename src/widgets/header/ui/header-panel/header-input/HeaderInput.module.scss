@@ -1,0 +1,84 @@
+.search_form {
+  display: flex;
+  align-items: center;
+  // flex: 1;
+  width: 500px;
+  border: 1.5px solid #708a99;
+  border-radius: 10px;
+  background-color: #ffffff;
+  height: 52px;
+
+  overflow: hidden;
+  padding-left: 16px;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+  &:focus-within {
+    border-color: #4f6b7c;
+    box-shadow: 0 0 0 3px rgba(112, 138, 153, 0.15);
+  }
+}
+
+.search_input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 0;
+  background-color: transparent;
+  font-size: 20px;
+  font-weight: 400;
+  color: black;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+  &::placeholder {
+    color: rgba(102, 136, 153, 0.4);
+    font-weight: 400;
+  }
+}
+
+.clear_button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: #8fa4b0;
+  cursor: pointer;
+  padding: 8px;
+  margin-right: 8px;
+  border-radius: 50%;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease;
+  &:hover {
+    color: #333333;
+  }
+}
+
+
+
+.search_button {
+  background-color: #628194;
+  color: #ffffff;
+  border: none;
+  height: 100%;
+  padding: 0 28px;
+  font-size: 28px;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 0;
+  transition: background-color 0.2s ease;
+  &:hover {
+    background-color: #4f6b7c;
+  }
+  &:active {
+    background-color: #3e5564;
+  }
+}
