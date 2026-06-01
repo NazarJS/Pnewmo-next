@@ -1,0 +1,229 @@
+.contacts_address {
+  font-style: normal;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.email_block {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.email_text {
+  color: rgba(0, 0, 0, 1);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.accordion_wrapper {
+  position: relative;
+}
+
+.accordion_trigger {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.phone_link {
+  color: rgba(51, 153, 255, 1);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.arrow_icon {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.arrow_rotated {
+  transform: rotate(180deg);
+}
+
+.contacts_dropdown {
+  position: absolute;
+  top: calc(100% + 8px); 
+  right: 0; 
+  z-index: 999;
+  width: 320px; 
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12); 
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  padding: 24px;
+  animation: slideDown 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.close_button {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #a0a0a0;
+  cursor: pointer;
+  line-height: 1;
+  padding: 4px;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: #333333;
+  }
+}
+
+.dropdown_header {
+  margin-bottom: 16px;
+}
+
+.dropdown_phone {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 4px 0;
+}
+
+.dropdown_subtitle {
+  font-size: 13px;
+  color: #707070;
+  margin: 0;
+}
+
+.callback_button {
+  width: 100%;
+  background-color: #2bb396; 
+  color: #ffffff;
+  border: none;
+  border-radius: 24px; 
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    transform 0.1s ease;
+  margin-bottom: 8px;
+
+  &:hover {
+    background-color: #209980; 
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid #ededed;
+  margin: 16px 0;
+}
+
+.dropdown_section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.section_label {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: #909090;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.section_link {
+  font-size: 14px;
+  color: #1a1a1a;
+  text-decoration: none;
+  font-weight: 500;
+
+  &:hover {
+    text-decoration: underline;
+    color: #337eff;
+  }
+}
+
+
+.dropdown_messengers {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.messenger_item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid #eaeaea;
+  border-radius: 10px;
+  text-decoration: none;
+  color: #333333;
+  font-size: 13px;
+  font-weight: 500;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+
+  &:hover {
+    background-color: #f7f9fa;
+    border-color: #d0d0d0;
+  }
+}
+
+
+.dropdown_schedules {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.schedule_block {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.schedule_label {
+  font-size: 11px;
+  color: #909090;
+  font-weight: 500;
+}
+
+.schedule_time {
+  font-size: 13px;
+  color: #1a1a1a;
+  margin: 0;
+  font-weight: 600;
+}
+
+.address_text {
+  font-size: 13px;
+  color: #1a1a1a;
+  margin: 0;
+  line-height: 1.4;
+  font-weight: 500;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

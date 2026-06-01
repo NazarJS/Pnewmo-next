@@ -1,0 +1,24 @@
+.catalog_button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background-color: #d10000;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  padding: 11px 24px;
+  font-size: 28px;
+  font-family: sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    transform 0.1s ease;
+  &:hover {
+    background-color: #b00000;
+  }
+  &:active {
+    transform: scale(0.97);
+  }
+}
