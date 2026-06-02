@@ -1,4 +1,4 @@
-import styles from '../header-loc/HeaderLocation.module.scss';
+import styles from "../header-loc/HeaderLocation.module.scss";
 import Image from "next/image";
 
 const HeaderLocation = () => {
@@ -10,15 +10,9 @@ const HeaderLocation = () => {
           alt="Часы"
           width={20}
           height={20}
-          style={{ width: 'auto', height: 'auto' }} 
+          style={{ width: "auto", height: "auto" }}
         />
-        <Image
-          src="/header-icons/Label.svg"
-          alt="График работы"
-          width={150}
-          height={20}
-          style={{ width: 'auto', height: 'auto' }} 
-        />
+        <p className={styles.p}>Пн - Пт: 9:00 - 18:00</p>
       </div>
       <div className={styles.header_locBlocks}>
         <Image
@@ -26,15 +20,9 @@ const HeaderLocation = () => {
           alt="Локация"
           width={20}
           height={20}
-          style={{ width: 'auto', height: 'auto' }} 
+          style={{ width: "auto", height: "auto" }}
         />
-        <Image
-          src="/header-icons/Label2.svg"
-          alt="Город"
-          width={150}
-          height={20}
-          style={{ width: 'auto', height: 'auto' }} 
-        />
+        <p className={styles.p}>г. Гомель, ул. Базовая 6</p>
       </div>
     </div>
   );

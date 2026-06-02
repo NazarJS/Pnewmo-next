@@ -24,6 +24,7 @@ const HeaderInput = () => {
       <form onChange={handleSearch} className={styles.search_form}>
         <input
           ref={inputRef}
+          name="search-input"
           type="text"
           placeholder="Найти товары"
           className={styles.search_input}
