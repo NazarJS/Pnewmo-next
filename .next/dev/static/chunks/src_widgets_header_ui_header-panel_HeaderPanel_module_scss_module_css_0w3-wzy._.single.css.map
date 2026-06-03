@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 1, "column": 0}, "map": {"version":3,"sources":["turbopack:///D:/Pn-next/src/widgets/header/ui/header-panel/HeaderPanel.module.scss"],"sourcesContent":["\r\n\r\n.header_catalog_main {\r\n  display: flex;\r\n  height: 104px;\r\n  justify-content: center;\r\n}\r\n\r\n.header_catalog_block {\r\n  display: flex;\r\n  width: 1400px;\r\n  height: 100px;\r\n  gap: 14px;\r\n  padding: 24px;\r\n}\r\n\r\n\r\n"],"names":[],"mappings":"AAEA;;;;;;AAMA"}}]
-}
