@@ -1,0 +1,77 @@
+/* [project]/src/widgets/header/ui/header-panel/header-input/HeaderInput.module.scss.module.css [app-client] (css) */
+.HeaderInput-module-scss-module__S9b38a__search_form {
+  background-color: #fff;
+  border: 1.5px solid #708a99;
+  border-radius: 10px;
+  align-items: center;
+  width: 500px;
+  height: 52px;
+  padding-left: 16px;
+  transition: border-color .2s, box-shadow .2s;
+  display: flex;
+  overflow: hidden;
+}
+
+.HeaderInput-module-scss-module__S9b38a__search_form:focus-within {
+  border-color: #4f6b7c;
+  box-shadow: 0 0 0 3px #708a9926;
+}
+
+.HeaderInput-module-scss-module__S9b38a__search_input {
+  color: #000;
+  background-color: #0000;
+  border: none;
+  outline: none;
+  flex: 1;
+  padding: 0;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 20px;
+  font-weight: 400;
+}
+
+.HeaderInput-module-scss-module__S9b38a__search_input::placeholder {
+  color: #6896;
+  font-weight: 400;
+}
+
+.HeaderInput-module-scss-module__S9b38a__clear_button {
+  color: #8fa4b0;
+  cursor: pointer;
+  background: none;
+  border: none;
+  border-radius: 50%;
+  justify-content: center;
+  align-items: center;
+  margin-right: 8px;
+  padding: 8px;
+  transition: color .2s, background-color .2s;
+  display: flex;
+}
+
+.HeaderInput-module-scss-module__S9b38a__clear_button:hover {
+  color: #333;
+}
+
+.HeaderInput-module-scss-module__S9b38a__search_button {
+  color: #fff;
+  cursor: pointer;
+  background-color: #628194;
+  border: none;
+  border-radius: 0;
+  height: 100%;
+  padding: 0 28px;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 28px;
+  font-weight: 500;
+  transition: background-color .2s;
+}
+
+.HeaderInput-module-scss-module__S9b38a__search_button:hover {
+  background-color: #4f6b7c;
+}
+
+.HeaderInput-module-scss-module__S9b38a__search_button:active {
+  background-color: #3e5564;
+}
+
+/*# sourceMappingURL=03u7_header_ui_header-panel_header-input_HeaderInput_module_scss_module_css_0w3-wzy._.single.css.map*/

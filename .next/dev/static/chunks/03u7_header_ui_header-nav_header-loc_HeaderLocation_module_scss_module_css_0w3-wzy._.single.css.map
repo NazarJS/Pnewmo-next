@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 1, "column": 0}, "map": {"version":3,"sources":["turbopack:///D:/Pn-next/src/widgets/header/ui/header-nav/header-loc/HeaderLocation.module.scss"],"sourcesContent":["\r\n\r\n.header_location {\r\n  display: flex;\r\n  align-items: center;\r\n  gap: 30px;\r\n}\r\n\r\n.header_locBlocks {\r\n  display: flex;\r\n  gap: 10px;\r\n}\r\n"],"names":[],"mappings":"AAEA;;;;;;AAMA"}}]
+}
