@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 1, "column": 0}, "map": {"version":3,"sources":["turbopack:///turbopack:///[project]/src/widgets/header/ui/header-panel/header-favorites/HeaderFavorites.module.scss"],"sourcesContent":["\n\n\n.favorites_block{\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n}\n.span{\n  padding-top: 10px;\n}\n\n\n.mobile_catalog{\n  @media (min-width: 1025px) {\n    display: none;\n  }\n}\n"],"names":[],"mappings":"AAGA;;;;;;AAKA;;;;AAME;EADF"}}]
-}
