@@ -6,7 +6,6 @@ import Image from "next/image";
 const HeaderCatalog = () => {
   return (
     <>
-      
       <button className={styles.catalog_button} type="button">
         <Image
           src="/header-icons/Burger.svg"
@@ -15,7 +14,7 @@ const HeaderCatalog = () => {
           height={28}
           style={{ width: 'auto', height: 'auto' }} 
         />
-        <span>Каталог</span>
+        <span className={styles.span}>Каталог</span>
       </button>
     </>
   );

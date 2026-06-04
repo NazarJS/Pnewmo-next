@@ -3,6 +3,11 @@ import styles from "./HeaderInput.module.scss";
 import Image from "next/image";
 
 const HeaderInput = () => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const toggleDropdown = () => {
+    setIsOpen(!isOpen);
+  };
   const [search, setSearch] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 

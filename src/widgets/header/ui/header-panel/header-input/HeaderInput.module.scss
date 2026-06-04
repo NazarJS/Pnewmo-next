@@ -1,15 +1,13 @@
 .search_form {
   display: flex;
   align-items: center;
-  width: 500px;
   border: 1.5px solid #708a99;
   border-radius: 10px;
+  width: 100%;
   background-color: #ffffff;
   height: 55px;
-
   overflow: hidden;
   padding-left: 16px;
-
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease;
@@ -17,10 +15,15 @@
     border-color: #4f6b7c;
     box-shadow: 0 0 0 3px rgba(112, 138, 153, 0.15);
   }
+  @media (max-width:1024px) {
+    display: none;
+    margin-left: auto;
+  }
 }
 
 .search_input {
-  flex: 1;
+  flex:1;
+  min-width: 0;
   border: none;
   outline: none;
   padding: 0;
@@ -28,6 +31,7 @@
   font-size: 20px;
   font-weight: 400;
   color: black;
+  
   font-family:
     system-ui,
     -apple-system,
@@ -42,8 +46,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: none;
-  border: none;
   color: #8fa4b0;
   cursor: pointer;
   padding: 8px;

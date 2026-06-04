@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 1, "column": 0}, "map": {"version":3,"sources":["turbopack:///turbopack:///[project]/src/widgets/header/ui/header-nav/header-loc/HeaderLocation.module.scss"],"sourcesContent":["\n\n.header_location {\n  display: flex;\n  align-items: center;\n  gap: 30px;\n}\n\n.header_locBlocks {\n  display: flex;\n  gap: clamp(6px, 1.5vw, 10px);\n}\n\n.p {\n  font-size: clamp(12px, 1.1vw, 15px);\n  white-space: nowrap;\n}\n"],"names":[],"mappings":"AAEA;;;;;;AAMA;;;;;AAME"}}]
+}

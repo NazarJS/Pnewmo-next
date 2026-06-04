@@ -1,7 +1,27 @@
-.header_menu {
+.header_nav_menu {
+  width: 100%;
+  max-width: 640px;
   display: flex;
-  justify-content: center;
-  gap: 1.25rem;
+  align-items: center;
+}
+
+.header_ul {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+
   font-family: sans-serif;
   font-weight: 500;
+
+  font-size: clamp(12px, 1.1vw, 15px);
+
+  gap: clamp(10px, 1.5vw, 20px);
+
+  li {
+    white-space: nowrap;
+  }
 }

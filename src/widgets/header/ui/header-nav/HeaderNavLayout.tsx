@@ -5,8 +5,10 @@ import styles from "./HeaderNavLayout.module.scss";
 const HeaderNavLayout = () => {
   return (
     <div className={styles.header_container}>
-      <HeaderMenu />
-      <HeaderLocation />
+      <div className={styles.header_nav_content}>
+        <HeaderMenu />
+        <HeaderLocation />
+      </div>
     </div>
   );
 };

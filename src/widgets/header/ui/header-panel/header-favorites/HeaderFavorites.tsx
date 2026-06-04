@@ -1,6 +1,7 @@
 import Image from "next/image";
 import styles from './HeaderFavorites.module.scss'
-import React from "react";
+import HeaderCatalog from "@/widgets/header/ui/header-panel/header-catalog/HeaderCatalog";
+
 
 const HeaderFavorites = () => {
   return (
@@ -25,6 +26,7 @@ const HeaderFavorites = () => {
         />
         <span className={styles.span}> Корзина</span>
       </div>
+      <div className={styles.mobile_catalog}><HeaderCatalog/></div>
       <div className={styles.favorites_block}>
         <Image
           src="/header-icons/Entrance.svg"
