@@ -6,9 +6,10 @@ import HeaderCatalog from "./header-catalog/HeaderCatalog";
 import HeaderInput from "./header-input/HeaderInput";
 import HeaderAccordion from "./header-accordion/HeaderAccordion";
 import HeaderFavorites from "./header-favorites/HeaderFavorites";
+import {useOpenInput} from './hooks/useOpenInput'
 
 const HeaderPanel = () => {
-  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+  const { isSearchOpen, isCatalogOpen, closeAll , togglePanel } = useOpenInput();
   const [isMobile, setIsMobile] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -16,24 +17,24 @@ const HeaderPanel = () => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth <= 1024);
       if (window.innerWidth > 1024) {
-        setIsMobileSearchOpen(false);
+        closeAll();
       }
     };
     checkMobile();
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
-  }, []);
+  }, [closeAll]);
 
   useEffect(() => {
-    if (isMobileSearchOpen && inputRef.current) {
+    if (isSearchOpen && inputRef.current) {
       inputRef.current.focus();
     }
-  }, [isMobileSearchOpen]);
+  }, [isSearchOpen]);
 
   return (
     <main className={styles.header_catalog_main}>
       <div
-        className={`${styles.header_catalog_block} ${isMobileSearchOpen ? styles.extends : ""}`}
+        className={`${styles.header_catalog_block} ${isSearchOpen ? "" : ""}`}
       >
         <Image
           src="/header-icons/Rectangle.svg"
@@ -50,7 +51,7 @@ const HeaderPanel = () => {
           <HeaderInput ref={inputRef} />
         </div>
         <div className={styles.desktop_input_search}>
-          <button onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}>
+          <button onClick={() => togglePanel('search')}>
             <Image
               src="/header-icons/lupa.svg"
               alt="Лупа"
@@ -62,8 +63,11 @@ const HeaderPanel = () => {
           </button>
         </div>
         <HeaderAccordion />
-        <HeaderFavorites />
-        {isMobile && isMobileSearchOpen && (
+        <HeaderFavorites onCatalogClick={() => togglePanel('search')} />
+          {isCatalogOpen && (
+            <HeaderCatalog />
+          )}
+        {isMobile && isSearchOpen && (
           <div className={styles.mobile_search_row}>
             <HeaderInput ref={inputRef} />
           </div>
