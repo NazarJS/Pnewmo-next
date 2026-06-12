@@ -1,0 +1,65 @@
+.catalog_button {
+  width: 148px; 
+  height: 59px; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  background-color: #0054b0;
+  color: #ffffff;
+  border: none;
+  border-radius: 11px;
+  font-family: sans-serif;
+  cursor: pointer;
+  font-size: 25px; 
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.catalog_button:active {
+  transform: scale(0.97);
+}
+
+.icon_wrapper {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.4s ease-in-out; 
+}
+
+
+
+.burger_closed {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+}
+
+.burger_open {
+  opacity: 0;
+  transform: scale(0.5) rotate(-45deg); /* Уменьшается и крутится влево */
+}
+
+
+.cross_closed {
+  opacity: 0;
+  transform: scale(0.5) rotate(90deg); 
+}
+
+
+.cross_open {
+  opacity: 1;
+  transform: scale(1) rotate(0deg); 
+}
+
+
+@media (max-width: 1024px) {
+  .catalog_button {
+    width: 70px;
+    height: 59px; 
+  }
+  .span {
+    display: none;
+  }
+}

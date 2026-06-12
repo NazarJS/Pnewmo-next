@@ -1,11 +1,11 @@
 import { useCallback, useState } from "react";
 
 export const useOpenInput = () => {
-  const [activePanel, setActivePanel] = useState<"search" | "catalog" | null>(
+  const [activePanel, setActivePanel] = useState<"search" | "catalog" | "mobileCatalog" | null>(
     null,
   );
 
-  const togglePanel = (panel: "search" | "catalog") => {
+  const togglePanel = (panel: "search" | "catalog" | "mobileCatalog") => {
     setActivePanel((prev) => (prev === panel ? null : panel));
   };
 
@@ -18,6 +18,7 @@ export const useOpenInput = () => {
     togglePanel,
     closeAll,
     isSearchOpen: activePanel === "search",
-    isCatalogOpen: activePanel === "catalog",
+    isMobileCatalogOpen: activePanel === "mobileCatalog",
+    isCatalogOpen: activePanel === "catalog"
   };
 };
