@@ -2,14 +2,22 @@
 import { useState, useRef, useEffect } from "react";
 import styles from "./HeaderPanel.module.scss";
 import Image from "next/image";
-import HeaderCatalog from "./header-catalog/HeaderCatalog";
+import CatalogButton from "./header-catalog/ui/CatalogButton";
 import HeaderInput from "./header-input/HeaderInput";
 import HeaderAccordion from "./header-accordion/HeaderAccordion";
 import HeaderFavorites from "./header-favorites/HeaderFavorites";
-import {useOpenInput} from './hooks/useOpenInput'
+import HeaderCatalog from "@/widgets/header/ui/header-panel/header-catalog/HeaderCatalog";
+import { useOpenInput } from "./hooks/useOpenInput";
+import Loupe from "@/shared/ui/icons/loupe/Loupe";
 
 const HeaderPanel = () => {
-  const { isSearchOpen, isCatalogOpen, closeAll , togglePanel } = useOpenInput();
+  const {
+    isSearchOpen,
+    isCatalogOpen,
+    isMobileCatalogOpen,
+    closeAll,
+    togglePanel,
+  } = useOpenInput();
   const [isMobile, setIsMobile] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -44,29 +52,36 @@ const HeaderPanel = () => {
           style={{ width: "auto", height: "auto" }}
           loading="eager"
         />
-        <div className={styles.desktop_catalog}>
-          <HeaderCatalog />
+        <div className={styles.desktop_catalog_button}>
+          <CatalogButton
+            isOpen={isCatalogOpen}
+            onClick={() => togglePanel("catalog")}
+          />
+          {isCatalogOpen && (
+            <div className={styles.desktop_catalog_dropdown}>
+              <HeaderCatalog isOpen={isCatalogOpen} showSearch={false} />
+            </div>
+          )}
         </div>
         <div className={styles.desktop_input}>
           <HeaderInput ref={inputRef} />
         </div>
         <div className={styles.desktop_input_search}>
-          <button onClick={() => togglePanel('search')}>
-            <Image
-              src="/header-icons/lupa.svg"
-              alt="Лупа"
-              width={36}
-              height={36}
-              style={{ width: "37", height: "37" }}
-            />
+          <button onClick={() => togglePanel("search")}>
+            <Loupe />
             <span>Поиск</span>
           </button>
         </div>
         <HeaderAccordion />
-        <HeaderFavorites onCatalogClick={() => togglePanel('search')} />
-          {isCatalogOpen && (
-            <HeaderCatalog />
-          )}
+        <HeaderFavorites
+          isMobileCatalogOpen={isMobileCatalogOpen}
+          onCatalogClick={() => togglePanel("mobileCatalog")}
+        />
+        {isMobileCatalogOpen && (
+          <div className={styles.mobile_catalog}>
+            <HeaderCatalog isOpen={isCatalogOpen} showSearch={true} />
+          </div>
+        )}
         {isMobile && isSearchOpen && (
           <div className={styles.mobile_search_row}>
             <HeaderInput ref={inputRef} />

@@ -2,6 +2,7 @@
   display: flex;
   width: 100%;
   justify-content: center;
+  position: relative;
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
@@ -30,10 +31,11 @@
   }
 }
 
-.desktop_catalog {
+.desktop_catalog_button {
   display: none;
   @media (min-width: 1025px) {
     display: block;
+    
   }
 }
 
@@ -46,27 +48,39 @@
 }
 
 .desktop_input_search {
-  flex-direction: row;
+  display: flex;
+  flex-direction: column;
   align-items: center;
   margin-left: auto;
   @media (min-width: 1025px) {
     display: none;
+    width: 100%;
     margin-left: 0;
   }
 }
 
 .desktop_input_search button {
-  display: flex;
-  background: none;
-  border: none;
   cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-
 .mobile_search_row {
+  display: block;
+  width: 100%;
+  order: 120;
+  padding-top: 12px;
+}
+
+// .desktop_catalog_dropdown {
+//   display: block;
+//   width: 100%;
+//   order: 120;
+//   padding-top: 12px;
+
+// }
+.mobile_catalog {
   display: block;
   width: 100%;
   order: 120;
