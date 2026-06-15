@@ -1,7 +1,8 @@
 import { useState } from "react";
 import Image from "next/image";
 import styles from "./HeaderAccordion.module.scss";
-import Email from "../../../../../shared/ui/email/Email";
+import Email from "@/shared/ui/icons/email/Email";
+import Phone from "@/shared/ui/icons/phone/Phone"
 
 const HeaderAccordion = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -13,13 +14,7 @@ const HeaderAccordion = () => {
   return (
     <address className={styles.contacts_address}>
       <div className={styles.bigPhone_block} onClick={toggleDropdown}>
-        <Image
-          src="/header-icons/3.svg"
-          alt="Контакты"
-          width={28}
-          height={28}
-          style={{ width: "auto", height: "auto" }}
-        />
+        <Phone/>
         <span className={styles.span}>Контакты</span>
       </div>
       <div className={styles.email_block}>
