@@ -1,11 +1,31 @@
-
-
 .header_container {
-  display: flex;
-  justify-content: space-evenly;
   width: 100%;
   background-color: rgba(0, 0, 0, 0.04);
-  padding-block: 10px;
 }
 
+.header_nav_content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 1440px;
+  margin-inline: auto;
+  padding-block: 10px;
+  padding-inline: 16px;
+  gap: clamp(10px, 100vw, 100px);
 
+  @media (min-width: 768px) {
+    padding-inline: 24px;
+  }
+
+  @media (min-width: 1024px) {
+    
+    padding-inline: 90px;
+    
+    
+  }
+
+  @media (min-width: 1400px) {
+    padding-inline: 80px;
+  }
+}

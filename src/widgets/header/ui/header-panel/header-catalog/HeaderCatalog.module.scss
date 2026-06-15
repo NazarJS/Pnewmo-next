@@ -3,23 +3,31 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
-  background-color: #d10000;
+  background-color: #0054b0;
   color: #ffffff;
   border: none;
   border-radius: 11px;
-  width: 146px;
+  max-width: 148px;
   font-family: sans-serif;
+  padding: 14 20px;
   font-weight: 500;
   cursor: pointer;
-  font-size: 22px;
+  font-size: 25px;
   transition:
     background-color 0.2s ease,
     transform 0.1s ease;
-  &:hover {
-    background-color: #b00000;
-  }
   &:active {
     transform: scale(0.97);
   }
 }
 
+@media (max-width: 1024px) {
+  .catalog_button {
+    width: 70px;
+    height: 56px;
+    padding: 5 5px;
+  }
+  .span {
+    display: none;
+  }
+}

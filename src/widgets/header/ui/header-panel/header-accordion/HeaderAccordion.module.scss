@@ -3,12 +3,31 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
+  position: relative;
+  @media (max-width: 1024px) {
+    gap: 0px;
+  }
+}
+
+.bigPhone_block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  @media (min-width: 1025px) {
+    display: none;
+  }
 }
 
 .email_block {
   display: flex;
   align-items: center;
   gap: 5px;
+  white-space: nowrap;
+
+  @media (max-width: 1024px) {
+    display: none;
+  }
 }
 
 .email_text {
@@ -22,16 +41,17 @@
   }
 }
 
-.accordion_wrapper {
-  position: relative;
-}
-
 .accordion_trigger {
   display: flex;
   align-items: center;
   gap: 5px;
   cursor: pointer;
   user-select: none;
+  white-space: nowrap;
+
+  @media (max-width: 1024px) {
+    display: none;
+  }
 }
 
 .phone_link {
@@ -51,13 +71,13 @@
 
 .contacts_dropdown {
   position: absolute;
-  top: calc(100% + 8px); 
-  right: 0; 
+  top: calc(100% + 8px);
+  right: 0;
   z-index: 999;
-  width: 320px; 
+  width: 320px;
   background-color: #ffffff;
   border-radius: 16px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12); 
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
   border: 1px solid rgba(0, 0, 0, 0.06);
   padding: 24px;
   animation: slideDown 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -100,10 +120,10 @@
 
 .callback_button {
   width: 100%;
-  background-color: #2bb396; 
+  background-color: #2bb396;
   color: #ffffff;
   border: none;
-  border-radius: 24px; 
+  border-radius: 24px;
   padding: 12px 20px;
   font-size: 14px;
   font-weight: 600;
@@ -114,7 +134,7 @@
   margin-bottom: 8px;
 
   &:hover {
-    background-color: #209980; 
+    background-color: #209980;
   }
 
   &:active {
@@ -155,7 +175,6 @@
   }
 }
 
-
 .dropdown_messengers {
   display: flex;
   gap: 12px;
@@ -182,7 +201,6 @@
     border-color: #d0d0d0;
   }
 }
-
 
 .dropdown_schedules {
   display: flex;

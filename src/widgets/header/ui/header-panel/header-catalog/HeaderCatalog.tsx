@@ -3,19 +3,22 @@ import React, { useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
-const HeaderCatalog = () => {
+interface onClickProps {
+  onClick?: () => void;
+}
+
+const HeaderCatalog = ({ onClick }: onClickProps) => {
   return (
     <>
-      
-      <button className={styles.catalog_button} type="button">
+      <button onClick={onClick} className={styles.catalog_button} type="button">
         <Image
           src="/header-icons/Burger.svg"
           alt="Бургер"
           width={28}
           height={28}
-          style={{ width: 'auto', height: 'auto' }} 
+          style={{ width: "auto", height: "auto" }}
         />
-        <span>Каталог</span>
+        <span className={styles.span}>Каталог</span>
       </button>
     </>
   );
