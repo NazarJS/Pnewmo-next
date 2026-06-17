@@ -1,28 +1,21 @@
 .header_container {
-  width: 100%;
   background-color: rgba(0, 0, 0, 0.04);
+  padding-inline: 90px;
 }
 
 .header_nav_content {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 100%;
-  max-width: 1440px;
   margin-inline: auto;
   padding-block: 10px;
   padding-inline: 16px;
   gap: clamp(10px, 100vw, 100px);
-
   @media (min-width: 768px) {
-    padding-inline: 24px;
+    padding-inline: 1px;
   }
-
   @media (min-width: 1024px) {
-    
-    padding-inline: 90px;
-    
-    
+    padding-inline: 0px;
   }
 
   @media (min-width: 1400px) {

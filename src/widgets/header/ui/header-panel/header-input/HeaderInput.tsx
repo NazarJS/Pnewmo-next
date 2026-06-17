@@ -36,10 +36,6 @@ const HeaderInput = ({ ref, onClose }: HeaderInputProps) => {
     return () => resizeObserver.disconnect();
   }, []);
 
-  const toggleDropdown = () => {
-    setIsOpen(!isOpen);
-  };
-
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (search.trim()) {
@@ -73,12 +69,10 @@ const HeaderInput = ({ ref, onClose }: HeaderInputProps) => {
             onClick={handleClear}
             aria-label="Очистить поиск"
           >
-            <Image
-              src="/header-icons/cross.svg"
-              alt="Крестик"
-              width={25}
-              height={25}
-            />
+              <div className={styles.button_cross}>
+              
+              </div>
+           
           </button>
         )}
         {search && (

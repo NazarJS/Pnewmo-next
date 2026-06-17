@@ -58,7 +58,8 @@ const HeaderCatalog = ({
   const activeCategoryData = data.find((cat) => cat.id === catalogActive);
 
   return (
-    <main className={styles.main_container}>
+  
+    <div className={styles.main_container}>
       {showSearch && (
         <div className={styles.search_wrapper}>
           <HeaderInput />
@@ -96,7 +97,8 @@ const HeaderCatalog = ({
           </nav>
         )}
       </div>
-    </main>
+    </div>
+
   );
 };
 

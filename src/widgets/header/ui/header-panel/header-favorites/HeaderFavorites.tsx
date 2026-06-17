@@ -32,9 +32,6 @@ const HeaderFavorites = ({ isMobileCatalogOpen, onCatalogClick}: onClickProps) =
         />
         <span className={styles.span}> Корзина</span>
       </div>
-      <div className={styles.mobile_catalog_container}>
-        <CatalogButton isOpen={isMobileCatalogOpen} onClick={onCatalogClick} />
-      </div>
       <div className={styles.favorites_block}>
         <Image
           src="/header-icons/Entrance.svg"
@@ -44,6 +41,9 @@ const HeaderFavorites = ({ isMobileCatalogOpen, onCatalogClick}: onClickProps) =
           style={{ width: "28", height: "30" }}
         />
         <span className={styles.span}>Вход</span>
+      </div>
+      <div className={styles.mobile_catalog_container}>
+        <CatalogButton isOpen={isMobileCatalogOpen} onClick={onCatalogClick} />
       </div>
     </>
   );
