@@ -1,11 +1,15 @@
+
 .header_catalog_main {
   display: flex;
   width: 100%;
   justify-content: center;
   position: relative;
-  padding-inline: 90px;
+  margin:0 auto;
+  width: 100%;
+  max-width: 1440px;
+  padding-left: 40px;
+  padding-right: 70px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-
   @media (max-width: 1024px) {
     padding-right: 40px;
   }
@@ -29,9 +33,16 @@
     padding-inline: 0px;
   }
 
-  @media (min-width: 1400px) {
-    padding-inline: 80px;
-  }
+  // @media (min-width: 1400px) {
+  //   padding-inline: 80px;
+  // }
+}
+
+.container{
+  margin:0 auto;
+  width: 100%;
+  max-width: 1440px;
+  padding-left: 40px;
 }
 
 .desktop_catalog_button {

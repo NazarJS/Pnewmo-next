@@ -4,13 +4,12 @@
 .catalog_container {
   display: flex;
   position: absolute;
-  overflow: hidden;
   top: 100%;
   left: 0%;
-  padding-inline: 170px;
   width: 100%;
-  z-index: 100;
-  height: 500;
+  height: 100%;
+  z-index: 1;
+  min-height: 500px; 
   box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
   @media (max-width: 768px) {
     padding-inline: 90px;
@@ -27,18 +26,32 @@
   position: relative;
   background-color: #f4f4f4;
   z-index: 2;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 100%;
+    width: 100vw;
+    height: 100%;
+    background-color: #f4f4f4;
+  }
 }
 
 .categories_list {
   display: flex;
+  width: 100%;
+  margin: 0 auto;
+  position: relative;
   flex-direction: column;
+  padding-left: 40px;
 }
 
 .category_item {
   padding: 16px 20px;
   font-size: 16px;
   font-weight: 500;
-  color: #333;
+  
   cursor: pointer;
   position: relative;
   transition:
@@ -48,8 +61,10 @@
 
 .category_item:hover,
 .category_item.active {
-  color: #0054b0;
+   background-color: #0054b0;
+  color: #f4f4f4;
 }
+
 
 .active_arrow {
   position: absolute;
@@ -63,26 +78,38 @@
   border-right: 12px solid #ffffff;
   z-index: 3;
   @media (min-width: 768px) {
-    right: -151%;
+    right: 0%;
     top: 50%;
   }
 
   @media (min-width: 992px) {
-    width: 740px;
+    width: 0px;
     padding-inline: 200px;
-    
   }
 
   @media (min-width: 1440px) {
-    right: -151%;
+    right: 0%;
   }
  
 }
 
 .mega_menu {
   flex: 1;
-  background-color: #ffffff;
-  padding: 40px;
+  background-color: #ffffff; /* Если нужен другой серый, поменяйте здесь */
+  padding: 16px 20px;
+  position: relative;
+
+  /* Вытягиваем фон вправо на всю ширину экрана */
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 100%;
+    width: 100vw;
+    height: 100%;
+    background-color: #ffffff; /* И здесь такой же цвет */
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08); /* Продолжаем тень */
+  }
 }
 
 .subcategory_grid {

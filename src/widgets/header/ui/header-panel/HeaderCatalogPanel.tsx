@@ -58,9 +58,9 @@ const HeaderCatalogPanel = () => {
             onClick={() => togglePanel("catalog")}
           />
           {isCatalogOpen && (
-            
-              <HeaderCatalog  isOpen={isCatalogOpen} showSearch={false}  />
-            
+            <div className={styles.container}>
+            <HeaderCatalog isOpen={isCatalogOpen} showSearch={false} />
+            </div>
           )}
         </div>
         <div className={styles.desktop_input}>

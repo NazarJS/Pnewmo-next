@@ -1,15 +1,16 @@
 .catalog_button {
-  width: 148px;
-  height: 59px;
   display: flex;
   align-items: center;
   flex-direction: row;
   gap: 5;
+  width: 148px;
+  height: 59px;
   overflow: hidden;
   background-color: #0054b0;
   color: #ffffff;
   border: none;
   border-radius: 11px;
+  outline: none;
   font-family: sans-serif;
   cursor: pointer;
   font-size: 25px;

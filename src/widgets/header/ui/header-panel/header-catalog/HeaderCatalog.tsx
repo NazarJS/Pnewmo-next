@@ -69,7 +69,7 @@ const HeaderCatalog = ({
         className={styles.catalog_container}
         onMouseLeave={() => setCatalogActive(null)}
       >
-        <nav className={styles.sidebar}>
+        <div className={styles.sidebar}>
           <ul className={styles.categories_list}>
             {data.map((cat) => (
               <li
@@ -84,7 +84,7 @@ const HeaderCatalog = ({
               </li>
             ))}
           </ul>
-        </nav>
+        </div>
         {activeCategoryData && (
           <nav className={styles.mega_menu}>
             <ul className={styles.subcategory_grid}>

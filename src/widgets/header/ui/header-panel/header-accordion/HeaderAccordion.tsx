@@ -2,7 +2,7 @@ import { useState } from "react";
 import Image from "next/image";
 import styles from "./HeaderAccordion.module.scss";
 import Email from "@/shared/ui/icons/email/Email";
-import Phone from "@/shared/ui/icons/phone/Phone"
+import Phone from "@/shared/ui/icons/phone/Phone";
 
 const HeaderAccordion = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -14,7 +14,7 @@ const HeaderAccordion = () => {
   return (
     <address className={styles.contacts_address}>
       <div className={styles.bigPhone_block} onClick={toggleDropdown}>
-        <Phone/>
+        <Phone />
         <span className={styles.span}>Контакты</span>
       </div>
       <div className={styles.email_block}>
@@ -37,14 +37,18 @@ const HeaderAccordion = () => {
             className={styles.phone_icon}
           />
           <span className={styles.phone_link}>+375 (232) 214-222</span>
-          <Image
+          {/* <Image
             src="/header-icons/arrow.svg"
             alt="стрелка"
             width={20}
             height={20}
             style={{ width: "auto", height: "auto" }}
             className={`${styles.arrow_icon} ${isOpen ? styles.arrow_rotated : ""}`}
-          />
+          /> */}
+
+          <div className={`${styles.burger} ${isOpen ? styles.active : ""}`}>
+            <span></span>
+          </div>
         </div>
         {isOpen && (
           <div className={styles.contacts_dropdown}>
@@ -56,10 +60,10 @@ const HeaderAccordion = () => {
             >
               &times;
             </button>
-            <div className={styles.dropdown_header}>
-              <h3 className={styles.dropdown_phone}>+375 (232) 214-222</h3>
-              <p className={styles.dropdown_subtitle}>Пн - Пт: 9:00 - 18:00</p>
-            </div>
+            <p className={styles.dropdown_header}>
+              <a  href=" tel:+375(232)21-42-22" className={styles.dropdown_phone}><bdi>+375 (232)214-222</bdi></a>
+              <small className={styles.dropdown_subtitle}>Пн - Пт: 9:00 - 18:00</small>
+            </p>
             <button type="button" className={styles.callback_button}>
               Заказать обратный звонок
             </button>
