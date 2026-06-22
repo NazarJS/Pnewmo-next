@@ -1,6 +1,6 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import styles from "./HeaderPanel.module.scss";
+import styles from "./HeaderCatalogPanel.module.scss";
 import Image from "next/image";
 import CatalogButton from "./header-catalog/ui/CatalogButton";
 import HeaderInput from "./header-input/HeaderInput";
@@ -10,7 +10,7 @@ import HeaderCatalog from "@/widgets/header/ui/header-panel/header-catalog/Heade
 import { useOpenInput } from "./hooks/useOpenInput";
 import Loupe from "@/shared/ui/icons/loupe/Loupe";
 
-const HeaderPanel = () => {
+const HeaderCatalogPanel = () => {
   const {
     isSearchOpen,
     isCatalogOpen,
@@ -40,7 +40,7 @@ const HeaderPanel = () => {
   }, [isSearchOpen]);
 
   return (
-    <main className={styles.header_catalog_main}>
+    <div className={styles.header_catalog_main}>
       <div
         className={`${styles.header_catalog_block} ${isSearchOpen ? "" : ""}`}
       >
@@ -58,9 +58,9 @@ const HeaderPanel = () => {
             onClick={() => togglePanel("catalog")}
           />
           {isCatalogOpen && (
-            <div className={styles.desktop_catalog_dropdown}>
-              <HeaderCatalog isOpen={isCatalogOpen} showSearch={false} />
-            </div>
+            
+              <HeaderCatalog  isOpen={isCatalogOpen} showSearch={false}  />
+            
           )}
         </div>
         <div className={styles.desktop_input}>
@@ -88,8 +88,8 @@ const HeaderPanel = () => {
           </div>
         )}
       </div>
-    </main>
+    </div>
   );
 };
 
-export default HeaderPanel;
+export default HeaderCatalogPanel;

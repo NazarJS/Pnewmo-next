@@ -46,7 +46,7 @@
   color: #8fa4b0;
   cursor: pointer;
   padding: 8px;
-  margin-right: 8px;
+  margin-right: 1px;
   border-radius: 50%;
   transition:
     color 0.2s ease,
@@ -55,6 +55,33 @@
     color: #333333;
   }
 }
+
+.button_cross{
+ position: relative;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+}
+
+.button_cross::before, .button_cross::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 80%;
+  height: 3px; 
+  background-color: #333; 
+  border-radius: 2px;
+}
+
+.button_cross::before {
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.button_cross::after {
+  transform: translateY(-50%) rotate(-45deg);
+}
+
 
 .search_button {
   background-color: #628194;
