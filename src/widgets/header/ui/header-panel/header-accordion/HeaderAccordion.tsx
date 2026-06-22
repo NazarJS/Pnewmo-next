@@ -1,23 +1,24 @@
 import { useState } from "react";
 import Image from "next/image";
 import styles from "./HeaderAccordion.module.scss";
+import Email from "@/shared/ui/icons/email/Email";
+import Phone from "@/shared/ui/icons/phone/Phone"
 
 const HeaderAccordion = () => {
   const [isOpen, setIsOpen] = useState(false);
+
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
 
   return (
     <address className={styles.contacts_address}>
+      <div className={styles.bigPhone_block} onClick={toggleDropdown}>
+        <Phone/>
+        <span className={styles.span}>Контакты</span>
+      </div>
       <div className={styles.email_block}>
-        <Image
-          src="/header-icons/email.svg"
-          alt="почта"
-          width={20}
-          height={20}
-          style={{ width: "auto", height: "auto" }}
-        />
+        <Email />
         <a href="mailto:info@pneumo-center.by" className={styles.email_text}>
           info@pneumo-center.by
         </a>

@@ -1,25 +1,108 @@
-.catalog_button {
+.search_wrapper {
+  padding: 0 10px 10px 10px;
+}
+.catalog_container {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  background-color: #d10000;
-  color: #ffffff;
-  border: none;
-  border-radius: 11px;
-  width: 146px;
-  font-family: sans-serif;
-  font-weight: 500;
-  cursor: pointer;
-  font-size: 22px;
-  transition:
-    background-color 0.2s ease,
-    transform 0.1s ease;
-  &:hover {
-    background-color: #b00000;
+  position: absolute;
+  overflow: hidden;
+  top: 100%;
+  left: 0%;
+  padding-inline: 170px;
+  width: 100%;
+  z-index: 100;
+  height: 500;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
+  @media (max-width: 768px) {
+    padding-inline: 90px;
   }
-  &:active {
-    transform: scale(0.97);
+  @media (max-width: 1024px) {
+    padding-inline: 90px;
   }
 }
 
+.sidebar {
+  width: 340px;
+  display: flex;
+  justify-content: start;
+  position: relative;
+  background-color: #f4f4f4;
+  z-index: 2;
+}
+
+.categories_list {
+  display: flex;
+  flex-direction: column;
+}
+
+.category_item {
+  padding: 16px 20px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+  cursor: pointer;
+  position: relative;
+  transition:
+    color 0.2s,
+    background-color 0.2s;
+}
+
+.category_item:hover,
+.category_item.active {
+  color: #0054b0;
+}
+
+.active_arrow {
+  position: absolute;
+  right: -215%;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 12px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-right: 12px solid #ffffff;
+  z-index: 3;
+  @media (min-width: 768px) {
+    right: -151%;
+    top: 50%;
+  }
+
+  @media (min-width: 992px) {
+    width: 740px;
+    padding-inline: 200px;
+    
+  }
+
+  @media (min-width: 1440px) {
+    right: -151%;
+  }
+ 
+}
+
+.mega_menu {
+  flex: 1;
+  background-color: #ffffff;
+  padding: 40px;
+}
+
+.subcategory_grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px 40px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.subcategory_item {
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  transition: color 0.2s;
+  line-height: 1.5;
+}
+
+.subcategory_item:hover {
+  color: #cc0000;
+  text-decoration: underline;
+}

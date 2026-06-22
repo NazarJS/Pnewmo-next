@@ -1,10 +1,40 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import styles from "./HeaderInput.module.scss";
 import Image from "next/image";
 
-const HeaderInput = () => {
+interface HeaderInputProps {
+  ref?: React.Ref<HTMLInputElement>;
+  onClose?: () => void;
+}
+
+const HeaderInput = ({ ref, onClose }: HeaderInputProps) => {
+  const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const input = inputRef.current;
+    if (!input) return;
+
+    const updatePlaceholderByWidth = () => {
+      const width = input.offsetWidth;
+      const size =
+        width < 100
+          ? "..."
+          : width < 150
+            ? "Найти..."
+            : width < 160
+              ? "Найти товар..."
+              : "Найти товары"; // подумать: оставлять или нет
+      input.placeholder = size;
+    };
+    updatePlaceholderByWidth();
+
+    const resizeObserver = new ResizeObserver(updatePlaceholderByWidth);
+    resizeObserver.observe(input);
+
+    return () => resizeObserver.disconnect();
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,12 +69,10 @@ const HeaderInput = () => {
             onClick={handleClear}
             aria-label="Очистить поиск"
           >
-            <Image
-              src="/header-icons/cross.svg"
-              alt="Крестик"
-              width={25}
-              height={25}
-            />
+              <div className={styles.button_cross}>
+              
+              </div>
+           
           </button>
         )}
         {search && (

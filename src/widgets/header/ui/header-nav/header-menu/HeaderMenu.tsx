@@ -1,12 +1,12 @@
 "use client";
 
-import React from "react";
+
 import Link from "next/link";
 import styles from "./HeaderMenu.module.scss";
 const HeaderMenu = () => {
   return (
-    <nav>
-      <ul className={styles.header_menu}>
+    <nav className={styles.header_nav_menu}>
+      <ul className={styles.header_ul} >
         <li>
           <Link href="/">О компании</Link>
         </li>

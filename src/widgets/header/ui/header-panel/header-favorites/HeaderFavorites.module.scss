@@ -10,3 +10,9 @@
   padding-top: 10px;
 }
 
+
+.mobile_catalog_container{
+  @media (min-width: 1025px) {
+    display: none;
+  }
+}
