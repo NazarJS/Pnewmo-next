@@ -1,4 +1,4 @@
-import Image from "next/image";
+
 import Header from "@/widgets/header/Header";
 import styles from "@/app/page.module.scss"
 

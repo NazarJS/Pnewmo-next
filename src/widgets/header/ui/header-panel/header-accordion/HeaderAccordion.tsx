@@ -46,7 +46,7 @@ const HeaderAccordion = () => {
             className={`${styles.arrow_icon} ${isOpen ? styles.arrow_rotated : ""}`}
           /> */}
 
-          <div className={`${styles.burger} ${isOpen ? styles.active : ""}`}>
+          <div className={`${styles.arrow} ${isOpen ? styles.active : ""}`}>
             <span></span>
           </div>
         </div>
