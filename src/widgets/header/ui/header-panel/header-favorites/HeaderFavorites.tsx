@@ -1,8 +1,6 @@
 import Image from "next/image";
 import styles from "./HeaderFavorites.module.scss";
-import HeaderCatalog from "@/widgets/header/ui/header-panel/header-catalog/ui/CatalogButton";
 import CatalogButton from "@/widgets/header/ui/header-panel/header-catalog/ui/CatalogButton";
-import { useOpenInput } from "../hooks/useOpenInput";
 
 interface onClickProps {
   onCatalogClick: ()=> void;
@@ -12,7 +10,7 @@ const HeaderFavorites = ({ isMobileCatalogOpen, onCatalogClick}: onClickProps) =
 
   return (
     <>
-      <div className={styles.favorites_block}>
+      <div className={`${styles.favorites_block} ${styles.hiddenOnMobile}`}>
         <Image
           src="/header-icons/Heart.svg"
           alt="Heart"
