@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 1, "column": 0}, "map": {"version":3,"sources":["turbopack:///turbopack:///[project]/src/widgets/header/ui/header-nav/HeaderNavLayout.module.scss"],"sourcesContent":["\n\n.header_container {\n  display: flex;\n  justify-content: space-evenly;\n  width: 100%;\n  background-color: rgba(0, 0, 0, 0.04);\n  padding-block: 10px;\n}\n\n\n"],"names":[],"mappings":"AAEA"}}]
-}
