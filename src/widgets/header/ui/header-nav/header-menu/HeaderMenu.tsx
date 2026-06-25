@@ -1,8 +1,9 @@
 "use client";
 
-
 import Link from "next/link";
 import styles from "./HeaderMenu.module.scss";
+
+
 const HeaderMenu = () => {
   return (
     <nav className={styles.header_nav_menu}>

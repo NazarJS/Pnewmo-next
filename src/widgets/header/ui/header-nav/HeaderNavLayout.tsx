@@ -6,8 +6,14 @@ const HeaderNavLayout = () => {
   return (
     <div className={styles.header_container}>
       <div className={styles.header_nav_content}>
-        <HeaderMenu />
-        <HeaderLocation />
+        <div className={styles.header_row_wrapper}>
+          <div className={styles.header_row_1}>
+            <HeaderMenu />
+          </div>
+          <div className={styles.header_row_2}>
+            <HeaderLocation />
+          </div>
+        </div>
       </div>
     </div>
   );
