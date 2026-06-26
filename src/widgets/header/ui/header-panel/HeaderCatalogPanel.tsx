@@ -40,7 +40,7 @@ const HeaderCatalogPanel = () => {
   }, [isSearchOpen]);
 
   return (
-    <div className={styles.header_catalog_main}>
+    <div className={` ${'container'} ${styles.header_catalog_main}`}>
       <div
         className={`${styles.header_catalog_block} ${isSearchOpen ? "" : ""}`}
       >

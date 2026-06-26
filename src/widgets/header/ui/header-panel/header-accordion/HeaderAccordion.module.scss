@@ -109,9 +109,9 @@
 }
 
 .arrow span::after {
-  bottom: -1px;
+  bottom: 0px;
   left: 2px;
-  transform: rotate(53deg);
+  transform: rotate(58deg);
 }
 
 .arrow.active span::before {

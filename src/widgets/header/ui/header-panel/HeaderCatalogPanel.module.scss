@@ -2,11 +2,6 @@
   position: relative;
   display: flex;
   justify-content: center;
-  width: 100%;
-  margin: 0 auto;
-  max-width: 1440px;
-  padding-left: 40px;
-  padding-right: 40px;
   border-bottom: 1px solid rgb(0 0 0 / 5%);
 
   @media (width<= 1024px) {
@@ -85,18 +80,18 @@
   gap: 16px;
 }
 
-
-@media (width>= 368px) {
+@media (width <= 1024px) {
   .desktop_input_search,
   .header_main_menu,
   .header_main_block > div { 
     display: contents; 
   }
-  
 }
+
 
 .header_main_menu {
   display: flex;
+  gap:16px
 }
 
 .desktop_catalog_dropdown {

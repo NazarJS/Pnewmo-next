@@ -5,7 +5,7 @@ import styles from "./HeaderNavLayout.module.scss";
 const HeaderNavLayout = () => {
   return (
     <div className={styles.header_top}>
-      <div className={styles.container}>
+      <div className='container'>
         <div className={styles.header_wrap}> 
             <HeaderMenu />
             <HeaderLocation />
