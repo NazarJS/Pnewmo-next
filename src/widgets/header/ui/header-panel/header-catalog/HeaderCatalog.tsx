@@ -66,7 +66,7 @@ const HeaderCatalog = ({
 
   return (
   
-    <div className={styles.main_container}>
+    <div className={styles.container}>
       {showSearch && (
         <div className={styles.search_wrapper}>
           <HeaderInput />
