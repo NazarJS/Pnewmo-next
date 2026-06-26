@@ -1,45 +1,27 @@
-.header_menu {
-  text-align: right;
+.header{
+  &_info{
+    display: flex;
+    column-gap: 12px;
 
+    &_icon{
+      display: inline-block;
+      height: 16px;
+      width: 16px;
+    }
+
+    &_wrap{
+      position: relative;
+      display: flex;
+      align-items: center;
+      column-gap: 8px;
+    }
+
+    &_box{
+      font-size: clamp(.75rem, 1.1vw, .9375rem);
+      font-weight: 500;
+    }
+  }
 }
 
-.header_location {
-  justify-content: space-between;
-  align-items: center;
-  
-}
-
-.header_menu_icon {
-  position: absolute;
-  bottom: -6px;
-  left: -26px;
-  height: 24px;
-  max-width: 24px;
-  
-}
-
-
-
-.header_locBlocks {
-  position: relative;
-  display: inline-block;
-  margin-right: 56px;
-}
-
-.header_menu_time {
-  position: relative;
-  display: inline-block;
-  margin-right: 56px;
-}
-
-.header_meu_address {
-  position: relative;
-  display: inline-block;
-}
-
-.p {
-  font-size: clamp(12px, 1.1vw, 15px);
-  white-space: nowrap;
-}
 
 
