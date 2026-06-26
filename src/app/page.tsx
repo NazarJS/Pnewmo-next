@@ -6,7 +6,7 @@ import styles from "@/app/page.module.scss"
 export default function MainPage() {
   return (
     <>
-      <main className={styles.main_container}>
+      <main>
       <Header/>
       </main>
     </>
