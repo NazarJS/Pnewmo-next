@@ -1,3 +1,5 @@
+@use "../../../../../shared/styles/breakpoints" as *;
+
 .contacts_address {
   position: relative;
   display: flex;
@@ -17,6 +19,12 @@
   gap: 8px;
 
   @media (width >= 1025px) {
+    display: none;
+  }
+}
+
+@include xs {
+  .span {
     display: none;
   }
 }
@@ -63,14 +71,6 @@
   letter-spacing: 0.3px;
 }
 
-// .arrow_icon {
-//   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-// }
-
-// .arrow_rotated {
-//   transform: rotate(180deg);
-// }
-
 .arrow {
   position: relative;
   display: flex;
@@ -109,14 +109,14 @@
 }
 
 .arrow span::after {
-  bottom: 0px;
+  bottom: -0.5px;
   left: 2px;
-  transform: rotate(58deg);
+  transform: rotate(55deg);
 }
 
 .arrow.active span::before {
-  top: -1px;
-  transform: rotate(50deg);
+  top: -0.5px;
+  transform: rotate(55deg);
   transition:
     top 250ms,
     transform 150ms 0ms cubic-bezier(0.68, -0.55, 0.265, 1.55);
@@ -124,7 +124,7 @@
 }
 
 .arrow.active span::after {
-  bottom: -0.3px;
+  bottom: -1px;
   left: 2.4px;
   transform: rotate(-50deg);
   transition:
@@ -145,6 +145,11 @@
   box-shadow: 0 10px 40px #0000001f;
   border: 1px solid #0000000f;
   animation: slideDown 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+
+  @include xs {
+    top: calc(100% + 20px);
+    right: -100;
+  }
 }
 
 .close_button {
@@ -179,19 +184,19 @@
 }
 
 .dropdown_subtitle {
-  font-size: 13px;
-  color: #707070;
   margin: 0;
+  color: #707070;
+  font-size: 13px;
 }
 
 .callback_button {
   width: 100%;
+  padding: 12px 20px;
   background-color: #2bb396;
-  color: #ffffff;
+  color: #fff;
+  font-size: 14px;
   border: none;
   border-radius: 24px;
-  padding: 12px 20px;
-  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   transition:
@@ -209,9 +214,9 @@
 }
 
 .divider {
+  margin: 16px 0;
   border: none;
   border-top: 1px solid #ededed;
-  margin: 16px 0;
 }
 
 .dropdown_section {
@@ -222,22 +227,22 @@
 }
 
 .section_label {
+  color: #909090;
   font-size: 11px;
   text-transform: uppercase;
-  color: #909090;
   font-weight: 600;
   letter-spacing: 0.5px;
 }
 
 .section_link {
-  font-size: 14px;
   color: #1a1a1a;
+  font-size: 14px;
   text-decoration: none;
   font-weight: 500;
 
   &:hover {
-    text-decoration: underline;
     color: #337eff;
+    text-decoration: underline;
   }
 }
 
@@ -250,13 +255,13 @@
 .messenger_item {
   display: flex;
   align-items: center;
-  gap: 8px;
   padding: 8px 12px;
+  color: #333;
+  font-size: 13px;
+  gap: 8px;
   border: 1px solid #eaeaea;
   border-radius: 10px;
   text-decoration: none;
-  color: #333333;
-  font-size: 13px;
   font-weight: 500;
   transition:
     background-color 0.2s ease,
@@ -281,22 +286,22 @@
 }
 
 .schedule_label {
-  font-size: 11px;
   color: #909090;
+  font-size: 11px;
   font-weight: 500;
 }
 
 .schedule_time {
-  font-size: 13px;
-  color: #1a1a1a;
   margin: 0;
+  color: #1a1a1a;
+  font-size: 13px;
   font-weight: 600;
 }
 
 .address_text {
-  font-size: 13px;
-  color: #1a1a1a;
   margin: 0;
+  color: #1a1a1a;
+  font-size: 13px;
   line-height: 1.4;
   font-weight: 500;
 }
@@ -306,6 +311,7 @@
     opacity: 0;
     transform: translateY(-8px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

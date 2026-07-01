@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
- /* :root {
+/* :root {
   --background: #ffffff;
 
 } 
@@ -17,16 +17,18 @@
   }
 } */
 
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
 .container {
   width: 100%;
   margin: 0 auto;
   padding: 0 40px;
   max-width: 1440px;
+
+  @media (width >= 300px) and (width <= 638px) {
+    padding: 0 10px;
+  }
 }
-
-
-body {
-  margin:0;
-  font-family: Arial, Helvetica, sans-serif;
-}
-

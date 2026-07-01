@@ -17,6 +17,10 @@
     border-color: #0054b0;
     box-shadow: 0 0 0 3px #708a9926;
   }
+
+  @media (width <= 375px) {
+    height: 44px;
+  }
 }
 
 .search_input {

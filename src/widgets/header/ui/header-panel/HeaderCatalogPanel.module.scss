@@ -1,12 +1,19 @@
+@use "../../../../shared/styles/breakpoints" as *;
+
 .header_catalog_main {
   position: relative;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   border-bottom: 1px solid rgb(0 0 0 / 5%);
 
-  @media (width<= 1024px) {
-    padding-right: 40px;
-  }
+  // @media (width <= 1024px) {
+  //   padding-right: 40px;
+  // }
+
+  // @media (width >= 300px) {
+  //   padding-right: 40px;
+  // }
 }
 
 .header_catalog_block {
@@ -14,33 +21,36 @@
   justify-content: flex-start;
   align-items: center;
   width: 100%;
-  flex-wrap: wrap;
   margin-inline: auto;
   padding-block: 16px;
   padding-left: 80px;
   padding-right: 60px;
   gap: 14px;
 
-  @media (width>= 300px) {
+  @media (width >= 300px) {
+    display: flex;
+    justify-content: space-between;
+    padding: 16 0 16px; 
+    gap: 7px;
+       
+  }
+
+  @media (width >= 768px) {
     justify-content: space-between;
     padding-inline: 1px;
   }
 
-  @media (width>= 768px) {
-    justify-content: space-between;
-    padding-inline: 1px;
-  }
-
-  @media (width>= 1024px) {
+  @media (width >= 1024px) {
     padding-inline: 0;
   }
 }
 
-.container {
-  width: 100%;
-  margin: 0 auto;
-  max-width: 1440px;
-  padding-left: 40px;
+
+
+@include xs {
+  .header_catalog_logo {
+    width: 150px;
+  }
 }
 
 .desktop_catalog_button {
@@ -74,24 +84,38 @@
   }
 }
 
+@include xs {
+  .span_input_search {
+    display: none;
+  }
+}
+
 .header_main_block {
   display: flex;
   align-items: center;
   gap: 16px;
+
+  
 }
 
-@media (width <= 1024px) {
-  .desktop_input_search,
-  .header_main_menu,
-  .header_main_block > div { 
-    display: contents; 
+@include xs {
+  .header_main_block {
+    gap: 8px;
   }
 }
 
 
+@media (width <= 1024px) {
+  .desktop_input_search,
+  .header_main_menu,
+  .header_main_block > div {
+    display: contents;
+  }
+}
+
 .header_main_menu {
   display: flex;
-  gap:16px
+  gap: 16px;
 }
 
 .desktop_catalog_dropdown {
@@ -110,7 +134,12 @@
   width: 100%;
   order: 120;
   padding-top: 12px;
+
+  @media (width >= 300px) {
+    padding: 0 0 15px;
+  }
 }
+
 
 .mobile_catalog {
   display: block;
