@@ -10,8 +10,5 @@ export default function MainPage() {
       <Header/>
       </main>
     </>
-  );
-
-
-  
+  );  
 }
