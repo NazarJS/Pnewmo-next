@@ -40,7 +40,7 @@ const HeaderCatalogPanel = () => {
   }, [isSearchOpen]);
 
   return (
-    <div className={` ${'container'} ${styles.header_catalog_main}`}>
+    <div className={` ${"container"} ${styles.header_catalog_main}`}>
       <div
         className={`${styles.header_catalog_block} ${isSearchOpen ? "" : ""}`}
       >
@@ -72,7 +72,7 @@ const HeaderCatalogPanel = () => {
           <div className={styles.desktop_input_search}>
             <button onClick={() => togglePanel("search")}>
               <Loupe />
-              <span>Поиск</span>
+              <span className={styles.span_input_search}>Поиск</span>
             </button>
           </div>
           <div>
@@ -85,18 +85,18 @@ const HeaderCatalogPanel = () => {
             />
           </div>
         </div>
-        {isMobileCatalogOpen && (
+        
+      </div>
+      {isMobileCatalogOpen && (
           <div className={styles.mobile_catalog}>
             <HeaderCatalog isOpen={isCatalogOpen} showSearch={true} />
           </div>
         )}
-
-        {isMobile && isSearchOpen && (
-          <div className={styles.mobile_search_row}>
-            <HeaderInput ref={inputRef} />
-          </div>
-        )}
-      </div>
+      {isMobile && isSearchOpen && (
+        <div className={styles.mobile_search_row}>
+          <HeaderInput ref={inputRef} />
+        </div>
+      )}
     </div>
   );
 };
