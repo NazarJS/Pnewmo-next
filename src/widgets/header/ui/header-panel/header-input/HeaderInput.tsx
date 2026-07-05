@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import styles from "./HeaderInput.module.scss";
-import Image from "next/image";
+
 
 interface HeaderInputProps {
   ref?: React.Ref<HTMLInputElement>;

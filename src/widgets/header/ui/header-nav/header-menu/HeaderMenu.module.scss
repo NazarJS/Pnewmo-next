@@ -1,27 +1,19 @@
-.header_nav_menu {
-  width: 100%;
-  max-width: 640px;
+.header_nav {
   display: flex;
   align-items: center;
-}
 
-.header_ul {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  padding: 0;
-  margin: 0;
-  list-style: none;
+  &_menu{
+    display: flex;
+    justify-content: space-between;
+    // font-size: clamp(12px, 1.1vw, 15px);
+    list-style: none;
+    // font-weight: 500;
+    gap: clamp(10px, 1.5vw, 20px);
+  }
 
-  font-family: sans-serif;
-  font-weight: 500;
-
-  font-size: clamp(12px, 1.1vw, 15px);
-
-  gap: clamp(10px, 1.5vw, 20px);
-
-  li {
+  &_item{
     white-space: nowrap;
+    font-size: clamp(.75rem, 1.1vw, .9375rem);
+    font-weight: 500;
   }
 }

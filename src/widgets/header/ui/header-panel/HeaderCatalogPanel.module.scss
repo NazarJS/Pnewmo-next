@@ -1,42 +1,62 @@
-.header_catalog_main {
-  display: flex;
-  width: 100%;
-  justify-content: center;
-  position: relative;
-  padding-inline: 90px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+@use "../../../../shared/styles/breakpoints" as *;
 
-  @media (max-width: 1024px) {
-    padding-right: 40px;
-  }
+.header_catalog_main {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-bottom: 1px solid rgb(0 0 0 / 5%);
+
+  // @media (width <= 1024px) {
+  //   padding-right: 40px;
+  // }
+
+  // @media (width >= 300px) {
+  //   padding-right: 40px;
+  // }
 }
 
 .header_catalog_block {
   display: flex;
-  align-items: center;
   justify-content: flex-start;
-  flex-wrap: wrap;
+  align-items: center;
   width: 100%;
   margin-inline: auto;
   padding-block: 16px;
   padding-left: 80px;
   padding-right: 60px;
   gap: 14px;
-  @media (min-width: 768px) {
-    padding-inline: 1px;
-  }
-  @media (min-width: 1024px) {
-    padding-inline: 0px;
+
+  @media (width >= 300px) {
+    display: flex;
+    justify-content: space-between;
+    padding: 16 0 16px; 
+    gap: 7px;
+       
   }
 
-  @media (min-width: 1400px) {
-    padding-inline: 80px;
+  @media (width >= 768px) {
+    justify-content: space-between;
+    padding-inline: 1px;
+  }
+
+  @media (width >= 1024px) {
+    padding-inline: 0;
+  }
+}
+
+
+
+@include xs {
+  .header_catalog_logo {
+    width: 150px;
   }
 }
 
 .desktop_catalog_button {
   display: none;
-  @media (min-width: 1025px) {
+
+  @media (width>=1025px) {
     display: block;
     width: 148px;
   }
@@ -44,7 +64,8 @@
 
 .desktop_input {
   display: none;
-  @media (min-width: 1024px) {
+
+  @media (width>=1024px) {
     display: block;
     flex-grow: 1;
   }
@@ -55,11 +76,46 @@
   flex-direction: column;
   align-items: center;
   margin-left: auto;
-  @media (min-width: 1025px) {
+
+  @media (width>= 1025px) {
     display: none;
     width: 100%;
     margin-left: 0;
   }
+}
+
+@include xs {
+  .span_input_search {
+    display: none;
+  }
+}
+
+.header_main_block {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  
+}
+
+@include xs {
+  .header_main_block {
+    gap: 8px;
+  }
+}
+
+
+@media (width <= 1024px) {
+  .desktop_input_search,
+  .header_main_menu,
+  .header_main_block > div {
+    display: contents;
+  }
+}
+
+.header_main_menu {
+  display: flex;
+  gap: 16px;
 }
 
 .desktop_catalog_dropdown {
@@ -67,10 +123,10 @@
 }
 
 .desktop_input_search button {
-  cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: center;
+  cursor: pointer;
 }
 
 .mobile_search_row {
@@ -78,7 +134,12 @@
   width: 100%;
   order: 120;
   padding-top: 12px;
+
+  @media (width >= 300px) {
+    padding: 0 0 15px;
+  }
 }
+
 
 .mobile_catalog {
   display: block;

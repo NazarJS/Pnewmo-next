@@ -1,15 +1,28 @@
+.header{
+  &_info{
+    display: flex;
+    column-gap: 12px;
 
+    &_icon{
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+    }
 
-.header_location {
-  display: flex;
-  align-items: center;
-  gap: 30px;
+    &_wrap{
+      position: relative;
+      display: flex;
+      align-items: center;
+      column-gap: 8px;
+    }
+
+    &_box{
+      font-size: clamp(.75rem, 1.1vw, .9375rem);
+      font-weight: 500;
+    }
+  }
 }
 
-.header_locBlocks {
-  display: flex;
-  gap: clamp(6px, 1.5vw, 10px);
-}
 
 .p {
   font-size: clamp(12px, 1.1vw, 15px);

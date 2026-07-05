@@ -1,77 +1,84 @@
 .search_form {
   display: flex;
   align-items: center;
-  border: 2px solid #708a99;
-  border-radius: 10px;
   width: 100%;
-  height: 56px;
-  background-color: #ffffff;
   height: 60px;
+  background-color: #fff;
   overflow: hidden;
   padding-left: 16px;
+  border: 2px solid #708a99;
+  border-radius: 10px;
   container-type: inline-size;
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease;
+
   &:focus-within {
-    border-color: #0054B0;
-    box-shadow: 0 0 0 3px rgba(112, 138, 153, 0.15);
+    border-color: #0054b0;
+    box-shadow: 0 0 0 3px #708a9926;
+  }
+
+  @media (width <= 375px) {
+    height: 44px;
   }
 }
 
 .search_input {
   flex: 1;
-  min-width: 0;
-  border: none;
-  outline: none;
   padding: 0;
   background-color: transparent;
-  font-size: 20px;
-  font-weight: 400;
   color: black;
   font-family:
     system-ui,
     -apple-system,
     sans-serif;
+  font-size: 20px;
+  font-weight: 400;
+  min-width: 0;
+  border: none;
+  outline: none;
+  
   &::placeholder {
-    color: rgba(102, 136, 153, 0.4);
+    color: #6896;
     font-weight: 400;
   }
 }
 
 .clear_button {
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
+  padding: 8px;
   color: #8fa4b0;
   cursor: pointer;
-  padding: 8px;
   margin-right: 1px;
   border-radius: 50%;
   transition:
     color 0.2s ease,
     background-color 0.2s ease;
+
   &:hover {
-    color: #333333;
+    color: #333;
   }
 }
 
-.button_cross{
- position: relative;
+.button_cross {
+  position: relative;
   width: 30px;
   height: 30px;
   cursor: pointer;
 }
 
-.button_cross::before, .button_cross::after {
-  content: '';
+.button_cross::before,
+.button_cross::after {
   position: absolute;
   top: 50%;
   left: 0;
   width: 80%;
-  height: 3px; 
-  background-color: #333; 
+  height: 3px;
+  background-color: #333;
   border-radius: 2px;
+  content: "";
 }
 
 .button_cross::before {
@@ -82,25 +89,26 @@
   transform: translateY(-50%) rotate(-45deg);
 }
 
-
 .search_button {
-  background-color: #628194;
-  color: #ffffff;
   height: 80%;
-  margin-right: 5px;
   padding: 0 10px;
-  font-size: 20px;
+  background-color: #628194;
+  color: #ffff;
   font-family:
     system-ui,
     -apple-system,
     sans-serif;
-  font-weight: 500;
+    font-size: 20px;
+    font-weight: 500;
+  margin-right: 5px;
   cursor: pointer;
   border-radius: 10px;
   transition: background-color 0.2s ease;
+
   &:hover {
     background-color: #4f6b7c;
   }
+
   &:active {
     background-color: #3e5564;
   }
