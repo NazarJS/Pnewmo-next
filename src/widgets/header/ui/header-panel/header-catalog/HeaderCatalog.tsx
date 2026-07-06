@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import HeaderInput from "../header-input/HeaderInput";
 import styles from "./HeaderCatalog.module.scss";
 
@@ -60,41 +60,76 @@ const HeaderCatalog = ({
     },
   ];
 
-  const [catalogActive, setCatalogActive] = useState<string >(data[0].id);
+  const [catalogActive, setCatalogActive] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (window.innerWidth > 768) {
+      setCatalogActive(data[0].id);
+    }
+  }, []);
+
+  const toggleCategory = (id: string) => {
+    if (window.innerWidth <= 768) {
+      setCatalogActive((prev) => (prev === id ? null : id));
+    }
+  };
 
   const activeCategoryData = data.find((cat) => cat.id === catalogActive);
 
   return (
-  
     <div className={styles.container}>
       {showSearch && (
         <div className={styles.search_wrapper}>
           <HeaderInput />
         </div>
       )}
-      <div
-        className={styles.catalog_container}
-        
-      >
+      <div className={styles.catalog_container}>
         <div className={styles.sidebar}>
           <ul className={styles.categories_list}>
-            {data.map((cat) => (
-              <li
-                key={cat.id}
-                className={`${styles.category_item} ${catalogActive === cat.id ? styles.active : ""}`}
-                onMouseEnter={() => setCatalogActive(cat.id)}
-              >
-                <span>{cat.name}</span>
-                {catalogActive === cat.id && (
-                  <div className={styles.active_arrow}></div>
-                )}
-              </li>
-            ))}
+            {data.map((cat) => {
+              const isActive = catalogActive === cat.id;
+              return (
+                <li
+                  key={cat.id}
+                  className={`${styles.category_item} ${catalogActive === cat.id ? styles.active : ""}`}
+                  onMouseEnter={() => {
+                    if (window.innerWidth > 768) setCatalogActive(cat.id);
+                  }}
+                  onClick={() => toggleCategory(cat.id)}
+                >
+                  <div className={styles.category_header}>
+                    <span>{cat.name}</span>
+                    <div
+                      className={` ${styles.active_arrow} ${isActive ? styles.active : ""} `}
+                    >
+                      <span></span>
+                    </div>
+                  </div>
+                  <div
+                    className={`${styles.mobile_accordion} ${isActive ? styles.accordion_open : ""}`}
+                  >
+                    <ul className={styles.mobile_subcategory_list}>
+                      {cat.subcategories.map((sub) => (
+                        <li
+                          key={sub}
+                          className={styles.mobile_subcategory_item}
+                        >
+                          {sub}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         </div>
         {activeCategoryData && (
           <nav className={styles.mega_menu}>
-            <h3 className={styles.categories}>{activeCategoryData.catalogies}</h3>
+            <div className={styles.mega_menu_content}>
+            <h3 className={styles.categories}>
+              {activeCategoryData.catalogies}
+            </h3>
             <ul className={styles.subcategory_grid}>
               {activeCategoryData.subcategories.map((sub) => (
                 <li key={sub} className={styles.subcategory_item}>
@@ -102,11 +137,11 @@ const HeaderCatalog = ({
                 </li>
               ))}
             </ul>
+            </div>
           </nav>
         )}
       </div>
     </div>
-
   );
 };
 
