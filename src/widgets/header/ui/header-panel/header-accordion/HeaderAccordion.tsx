@@ -37,15 +37,6 @@ const HeaderAccordion = () => {
             className={styles.phone_icon}
           />
           <span className={styles.phone_link}>+375 (232) 214-222</span>
-          {/* <Image
-            src="/header-icons/arrow.svg"
-            alt="стрелка"
-            width={20}
-            height={20}
-            style={{ width: "auto", height: "auto" }}
-            className={`${styles.arrow_icon} ${isOpen ? styles.arrow_rotated : ""}`}
-          /> */}
-
           <div className={`${styles.arrow} ${isOpen ? styles.active : ""}`}>
             <span></span>
           </div>
@@ -61,7 +52,7 @@ const HeaderAccordion = () => {
               &times;
             </button>
             <p className={styles.dropdown_header}>
-              <a  href=" tel:+375(232)21-42-22" className={styles.dropdown_phone}><bdi>+375 (232)214-222</bdi></a>
+              <a  href=" tel:+375(232)21-42-22" className={styles.dropdown_phone}>+375 (232)214-222</a>
               <small className={styles.dropdown_subtitle}>Пн - Пт: 9:00 - 18:00</small>
             </p>
             <button type="button" className={styles.callback_button}>
