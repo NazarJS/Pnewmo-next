@@ -24,4 +24,8 @@
 }
 
 
+.p {
+  font-size: clamp(12px, 1.1vw, 15px);
+  white-space: nowrap;
+}
 
