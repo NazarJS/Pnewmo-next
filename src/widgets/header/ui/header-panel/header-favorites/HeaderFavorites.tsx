@@ -16,7 +16,7 @@ const HeaderFavorites = ({ isMobileCatalogOpen, onCatalogClick}: onClickProps) =
           alt="Heart"
           width={28}
           height={28}
-          style={{ width: "28", height: "30" }}
+          style={{ width: "28px", height: "30px" }}
         />
         <span className={styles.span}>Избраное</span>
       </div>
@@ -26,7 +26,7 @@ const HeaderFavorites = ({ isMobileCatalogOpen, onCatalogClick}: onClickProps) =
           alt="Baskets"
           width={28}
           height={28}
-          style={{ width: "28", height: "30", stroke: "red" }}
+          style={{ width: "28px", height: "30px", stroke: "red" }}
         />
         <span className={styles.span}> Корзина</span>
       </div>
@@ -36,7 +36,7 @@ const HeaderFavorites = ({ isMobileCatalogOpen, onCatalogClick}: onClickProps) =
           alt="Entrance"
           width={28}
           height={28}
-          style={{ width: "28", height: "30" }}
+          style={{ width: "28px", height: "30px" }}
         />
         <span className={styles.span}>Вход</span>
       </div>

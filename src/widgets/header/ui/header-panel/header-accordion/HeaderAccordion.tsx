@@ -33,7 +33,7 @@ const HeaderAccordion = () => {
             alt="телефон"
             width={20}
             height={20}
-            style={{ width: "auto", height: "auto" }}
+            style={{ width: "20px", height: "20px" }}
             className={styles.phone_icon}
           />
           <span className={styles.phone_link}>+375 (232) 214-222</span>

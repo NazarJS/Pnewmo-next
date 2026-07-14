@@ -1,6 +1,6 @@
 import { SvgIconProps } from "@/shared/types/icon";
 
-const Email = ({ size = "15", ...props }: SvgIconProps) => {
+const Email = ({ size = "18", ...props }: SvgIconProps) => {
   return (
     <svg width={size} height={size} viewBox="0 0 15 12" fill="none" {...props}>
       <path

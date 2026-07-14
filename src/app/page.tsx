@@ -1,14 +1,14 @@
 
 import Header from "@/widgets/header/Header";
 import Footer from "@/widgets/footer/Footer"
-import styles from "@/app/page.module.scss"
+import "@/app/globals.scss"
 
 
 export default function MainPage() {
   return (
     <>
     <Header/>
-      <main>
+      <main className="main">
       
       </main>
     <Footer/>

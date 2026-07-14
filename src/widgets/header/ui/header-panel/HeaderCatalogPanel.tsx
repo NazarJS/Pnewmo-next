@@ -40,63 +40,63 @@ const HeaderCatalogPanel = () => {
   }, [isSearchOpen]);
 
   return (
-    <div className={` ${"container"} ${styles.header_catalog_main}`}>
-      <div
-        className={`${styles.header_catalog_block} ${isSearchOpen ? "" : ""}`}
-      >
-        <div className={styles.header_catalog_logo}>
-          <Image
-            src="/header-icons/Rectangle.svg"
-            alt="Лого"
-            width={200}
-            height={40}
-            style={{ width: "auto", height: "auto" }}
-            loading="eager"
-          />
-        </div>
-        <div className={styles.desktop_catalog_button}>
-          <CatalogButton
-            isOpen={isCatalogOpen}
-            onClick={() => togglePanel("catalog")}
-          />
-          {isCatalogOpen && (
-            <div className={styles.container}>
-              <HeaderCatalog isOpen={isCatalogOpen} showSearch={false} />
-            </div>
-          )}
-        </div>
-        <div className={styles.desktop_input}>
-          <HeaderInput ref={inputRef} />
-        </div>
-        <div className={styles.header_main_block}>
-          <div className={styles.desktop_input_search}>
-            <button onClick={() => togglePanel("search")}>
-              <Loupe />
-              <span className={styles.span_input_search}>Поиск</span>
-            </button>
-          </div>
-          <div>
-            <HeaderAccordion />
-          </div>
-          <div className={styles.header_main_menu}>
-            <HeaderFavorites
-              isMobileCatalogOpen={isMobileCatalogOpen}
-              onCatalogClick={() => togglePanel("mobileCatalog")}
+    <div className="container">
+      <div className={`${styles.header_catalog_main}`}>
+        <div className={`${styles.header_catalog_block}${isSearchOpen ? "" : ""}`}>
+          <div className={styles.header_catalog_logo}>
+            <Image
+              src="/header-icons/Rectangle.svg"
+              alt="Лого"
+              width={200}
+              height={40}
+              style={{ width: "auto", height: "auto" }}
+              loading="eager"
             />
           </div>
+          <div className={styles.desktop_catalog_button}>
+            <CatalogButton
+              isOpen={isCatalogOpen}
+              onClick={() => togglePanel("catalog")}
+            />
+            {isCatalogOpen && (
+              <div className={styles.container}>
+                <HeaderCatalog isOpen={isCatalogOpen} showSearch={false} />
+              </div>
+            )}
+          </div>
+          <div className={styles.desktop_input}>
+            <HeaderInput ref={inputRef} />
+          </div>
+          <div className={styles.header_main_block}>
+            <div className={styles.desktop_input_search}>
+              <button onClick={() => togglePanel("search")}>
+                <Loupe />
+                <span className={styles.span_input_search}>Поиск</span>
+              </button>
+            </div>
+           
+            <HeaderAccordion />
+            
+            <div className={styles.header_main_menu}>
+              <HeaderFavorites
+                isMobileCatalogOpen={isMobileCatalogOpen}
+                onCatalogClick={() => togglePanel("mobileCatalog")}
+              />
+            </div>
+          </div>
+          
         </div>
-        
-      </div>
-      {isMobileCatalogOpen && (
-          <div className={styles.mobile_catalog}>
-            <HeaderCatalog isOpen={isCatalogOpen} showSearch={true} />
+        {isMobileCatalogOpen && (
+            <div className={styles.mobile_catalog}>
+              <HeaderCatalog isOpen={isCatalogOpen} showSearch={true} />
+            </div>
+          )}
+        {isMobile && isSearchOpen && (
+          <div className={styles.mobile_search_row}>
+            <HeaderInput ref={inputRef} />
           </div>
         )}
-      {isMobile && isSearchOpen && (
-        <div className={styles.mobile_search_row}>
-          <HeaderInput ref={inputRef} />
-        </div>
-      )}
+      </div>
     </div>
   );
 };

@@ -2,119 +2,94 @@
 
 .catalog_button {
   display: flex;
-  flex-direction: row;
   align-items: center;
-  width: 148px;
-  height: 59px;
-  background-color: #0054b0;
-  color: #fff;
+  gap: 16px;
+  height: 52px;
+  padding: 0 16px;
+  font-size: 20px;
   font-family: sans-serif;
-  font-size: 25px;
-  overflow: hidden;
+  color: #fff;
+  background-color: #0054b0;
   border: none;
-  border-radius: 11px;
+  border-radius: 12px;
   outline: none;
   cursor: pointer;
-  gap: 5px;
+  overflow: hidden;
   transition:
     background-color 0.2s ease,
     transform 0.1s ease;
 
-  @media (width <= 1024px) {
-    width: 70px;
-    height: 59px;
+  &:active {
+    transform: scale(0.97);
   }
 
-  @include xs {
-    width: 48px;
-    height: 48px;
+  .span {
+    @media (width <= 1024px) {
+      display: none;
+    }
   }
-}
 
-.catalog_button:active {
-  transform: scale(0.97);
+  @media(max-width:1400px){
+    padding-right: 8px;
+    padding-left: 8px;
+    font-size: 18px;
+    gap: 12px;
+  }
+
+  @media(max-width:1024px){
+    padding-right: 16px;
+    padding-left: 16px;
+  }
 }
 
 .burger {
   position: relative;
-  display: flex;
-  justify-content: center;
-  width: 35px;
-  padding-left: 7px;
-  cursor: pointer;
-
-  @media (width <= 1024px) {
-    width: 50px;
-  }
-}
-
-.burger span {
-  position: absolute;
-  top: -2px;
-  display: block;
+  flex-shrink: 0;
   width: 20px;
-  height: 3px;
-  background: #fff;
-  transition: 0.3s;
+  height: 2px;
   border-radius: 5px;
+  background-color: #fff;
+  transition: background-color 0.2s ease;
+  user-select: none;
+  -webkit-user-select: none;
 
-  @media (width <= 1024px) {
-    left: 20px;
-    width: 25px;
-    height: 3px;
+  &::before,
+  &::after {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: #fff;
+    border-radius: 5px;
+    transition: transform 0.3s;
+    content: "";
   }
 
-  @include xs {
-    left: 12px;
-    width: 25px;
-    height: 3px;
+  &::before {
+    top: -8px;
   }
-}
 
-.burger span::before,
-.burger span::after {
-  position: absolute;
-  left: 0;
-  width: 100%;
-  height: 3px;
-  background: #fff;
-  transition: transform 0.3s;
-  border-radius: 5px;
-  content: "";
-}
+  &::after {
+    bottom: -8px;
+  }
 
-.burger span::before {
-  top: -8px;
-}
+  &.active {
+    background-color: transparent;
 
-.burger span::after {
-  bottom: -8px;
-}
+    &::before {
+      top: 0;
+      transform: rotate(45deg);
+      transition:
+        top 300ms,
+        transform 300ms cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
 
-.burger.active span {
-  background: #fff0;
-}
-
-.burger.active span::before {
-  top: 0;
-  transform: rotate(45deg);
-  transition:
-    top 300ms,
-    transform 300ms 300ms cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  content: "";
-}
-
-.burger.active span::after {
-  bottom: 0;
-  transform: rotate(-45deg);
-  transition:
-    bottom 300ms,
-    transform 300ms 300ms cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  content: "";
-}
-
-@media (width <= 1024px) {
-  .span {
-    display: none;
+    &::after {
+      bottom: 0;
+      transform: rotate(-45deg);
+      transition:
+        bottom 300ms,
+        transform 300ms cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
   }
 }
