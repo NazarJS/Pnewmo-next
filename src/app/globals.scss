@@ -11,7 +11,21 @@ body {
   padding: 0 40px;
   max-width: 1440px;
 
-  @media (width >= 300px) and (width <= 638px) {
-    padding: 0 10px;
+  @media(max-width:1024px){
+    padding-right: 24px;
+    padding-left: 24px;
   }
+
+  @media(max-width:1024px){
+    padding-right: 16px;
+    padding-left: 16px;
+  }
+
+  // @media (width >= 300px) and (width <= 638px) {
+  //   padding: 0 10px;
+  // }
+}
+
+.main{
+  height: 1500px;
 }

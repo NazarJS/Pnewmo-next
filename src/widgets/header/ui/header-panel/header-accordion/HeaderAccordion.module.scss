@@ -4,7 +4,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 10px;
   font-style: normal;
 
   @media (width <= 1024px) {
@@ -42,7 +42,7 @@
 
 .email_text {
   color: rgb(0 0 0 / 100%);
-  font-size: 14px;
+  // font-size: 14px;
   font-weight: 500;
   text-decoration: none;
 
@@ -66,7 +66,7 @@
 
 .phone_link {
   color: #39f;
-  font-size: 15px;
+  // font-size: 16px;
   font-weight: 600;
   letter-spacing: 0.3px;
 }
@@ -159,7 +159,7 @@
   padding: 4px;
   background: none;
   color: #a0a0a0;
-  font-size: 24px;
+  font-size: 32px;
   border: none;
   line-height: 1;
   cursor: pointer;
@@ -192,7 +192,7 @@
 .callback_button {
   width: 100%;
   padding: 12px 20px;
-  background-color: #2bb396;
+  background-color: #0054b0;
   color: #fff;
   font-size: 14px;
   border: none;

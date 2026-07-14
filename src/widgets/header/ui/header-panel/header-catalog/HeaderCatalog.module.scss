@@ -13,15 +13,17 @@ $megamenu-width: calc(#{$container-max-width} - #{$sidebar-width});
   z-index: 1;
   top: 100%;
   left: 0;
-  display: grid;
-  width: auto;
+  display: flex;
+  // display: grid;
+  width: 100%;
   transform: none;
-  min-height: 500px;
+  min-height: 100vh;
   box-shadow: 0 15px 30px rgb(0 0 0 / 0.08%);
   padding-inline: 0;
-  grid-template-columns:
-    $sidebar-width 1fr
-    [mega-menu] minmax(0, $megamenu-width);
+  padding-right: 40px;
+  // grid-template-columns:
+  //   $sidebar-width 1fr
+  //   [mega-menu] minmax(0, $megamenu-width);
 
   @include xs {
     left: 0;
@@ -59,7 +61,7 @@ $megamenu-width: calc(#{$container-max-width} - #{$sidebar-width});
   justify-content: flex-end;
   width: auto;
   background-color: #f4f4f4;
-  grid-column: 1;
+  // grid-column: 1;
 
   @include xs {
     width: 100%;
@@ -241,6 +243,7 @@ $megamenu-width: calc(#{$container-max-width} - #{$sidebar-width});
   padding: 16px 15px;
   background-color: #fff;
   grid-column: mega-menu;
+  width: 100%;
 
   .mega_menu_content {
     width: 100%;

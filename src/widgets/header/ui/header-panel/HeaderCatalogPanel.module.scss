@@ -22,27 +22,36 @@
   align-items: center;
   width: 100%;
   margin-inline: auto;
-  padding-block: 16px;
-  padding-left: 80px;
-  padding-right: 60px;
-  gap: 14px;
+  // padding-block: 16px;
+  // padding-left: 80px;
+  // padding-right: 60px;
+  padding: 16 0 16px; 
+  gap: 24px;
 
-  @media (width >= 300px) {
-    display: flex;
+  @media(max-width:1400px){
+    gap: 10px;
+  }
+
+  @media(max-width:1024px){
     justify-content: space-between;
-    padding: 16 0 16px; 
-    gap: 7px;
-       
   }
+  // gap: 14px;
 
-  @media (width >= 768px) {
-    justify-content: space-between;
-    padding-inline: 1px;
-  }
+  // @media (width >= 320px) {
+  //   display: flex;
+  //   justify-content: space-between;
+  //   padding: 16 0 16px; 
+  //   gap: 24px;   
+  // }
 
-  @media (width >= 1024px) {
-    padding-inline: 0;
-  }
+  // @media (width >= 768px) {
+  //   justify-content: space-between;
+  //   padding-inline: 1px;
+  // }
+
+  // @media (width >= 1024px) {
+  //   padding-inline: 0;
+  // }
 }
 
 
@@ -58,7 +67,7 @@
 
   @media (width>=1025px) {
     display: block;
-    width: 148px;
+    // width: 148px;
   }
 }
 

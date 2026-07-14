@@ -1,0 +1,164 @@
+{"products": {
+    "hydraulics": {
+      "HydraulicPumps": [
+        {
+          "id": 1,
+          "title": "Гидронасос Bosch Rexroth A10VSO",
+          "price": 1250,
+          "article": "HYD-BRX-001"
+        },
+        {
+          "id": 2,
+          "title": "Гидронасос Parker PVP",
+          "price": 980,
+          "article": "HYD-PRK-002"
+        },
+        {
+          "id": 3,
+          "title": "Гидронасос Eaton Vickers",
+          "price": 1100,
+          "article": "HYD-EAT-003"
+        },
+        {
+          "id": 4,
+          "title": "Шестерённый насос Danfoss",
+          "price": 720,
+          "article": "HYD-DAN-004"
+        }
+      ],
+      "Compressors": [
+        {
+          "id": 5,
+          "title": "Винтовой компрессор Atlas Copco GA 15",
+          "price": 4200,
+          "article": "HYD-ATC-005"
+        },
+        {
+          "id": 6,
+          "title": "Поршневой компрессор Remeza SB4/S-100",
+          "price": 1890,
+          "article": "HYD-REM-006"
+        },
+        {
+          "id": 7,
+          "title": "Компрессор Fiac AB 100",
+          "price": 1450,
+          "article": "HYD-FIA-007"
+        },
+        {
+          "id": 8,
+          "title": "Маслозаполненный компрессор Abac A29B",
+          "price": 2100,
+          "article": "HYD-ABA-008"
+        }
+      ],
+      "HydraulicCylinders": [
+        {
+          "id": 9,
+          "title": "Гидроцилиндр Parker HC2",
+          "price": 850,
+          "article": "HYD-PRK-009"
+        },
+        {
+          "id": 10,
+          "title": "Гидроцилиндр Bosch Rexroth CDM1",
+          "price": 920,
+          "article": "HYD-BRX-010"
+        },
+        {
+          "id": 11,
+          "title": "Телескопический гидроцилиндр Hyva",
+          "price": 1550,
+          "article": "HYD-HYV-011"
+        },
+        {
+          "id": 12,
+          "title": "Гидроцилиндр Yuken",
+          "price": 780,
+          "article": "HYD-YUK-012"
+        }
+      ]
+    },
+
+    "pneumatics": {
+      "PneumaticValves": [
+        {
+          "id": 1,
+          "title": "Пневмоклапан Festo VUVG",
+          "price": 300,
+          "article": "PNE-FES-001"
+        },
+        {
+          "id": 2,
+          "title": "Соленоидный клапан SMC SY3000",
+          "price": 275,
+          "article": "PNE-SMC-002"
+        },
+        {
+          "id": 3,
+          "title": "Пневмораспределитель Camozzi",
+          "price": 210,
+          "article": "PNE-CAM-003"
+        },
+        {
+          "id": 4,
+          "title": "Клапан управления Parker",
+          "price": 340,
+          "article": "PNE-PRK-004"
+        }
+      ],
+      "PneumaticCylinders": [
+        {
+          "id": 5,
+          "title": "Пневмоцилиндр SMC CG3",
+          "price": 450,
+          "article": "PNE-SMC-005"
+        },
+        {
+          "id": 6,
+          "title": "Пневмоцилиндр Festo DNC",
+          "price": 520,
+          "article": "PNE-FES-006"
+        },
+        {
+          "id": 7,
+          "title": "Компактный цилиндр Aignep",
+          "price": 310,
+          "article": "PNE-AIG-007"
+        },
+        {
+          "id": 8,
+          "title": "Пневмоцилиндр с направляющими Bosch Rexroth",
+          "price": 690,
+          "article": "PNE-BRX-008"
+        }
+      ],
+      "Compressors": [
+        {
+          "id": 9,
+          "title": "Компрессор Atlas Copco G7",
+          "price": 2200,
+          "article": "PNE-ATC-009"
+        },
+        {
+          "id": 10,
+          "title": "Винтовой компрессор Chicago Pneumatics",
+          "price": 3750,
+          "article": "PNE-CHP-010"
+        },
+        {
+          "id": 11,
+          "title": "Безмасляный компрессор Abac Genesis",
+          "price": 2900,
+          "article": "PNE-ABA-011"
+        },
+        {
+          "id": 12,
+          "title": "Передвижной компрессор Metabo",
+          "price": 1250,
+          "article": "PNE-MET-012"
+        }
+      ]
+    }
+  }
+}
