@@ -2,7 +2,8 @@ import { useState } from "react";
 import Image from "next/image";
 import styles from "./HeaderAccordion.module.scss";
 import Email from "@/shared/ui/icons/email/Email";
-import Phone from "@/shared/ui/icons/phone/Phone";
+import PhoneInMobile from "@/shared/ui/icons/phone/PhoneInMobile";
+import PhoneInDesktop from "@/shared/ui/icons/phone/PnoneInDesktop";
 
 const HeaderAccordion = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -14,7 +15,7 @@ const HeaderAccordion = () => {
   return (
     <address className={styles.contacts_address}>
       <div className={styles.bigPhone_block} onClick={toggleDropdown}>
-        <Phone />
+        <PhoneInMobile />
         <span className={styles.span}>Контакты</span>
       </div>
       <div className={styles.email_block}>
@@ -28,13 +29,7 @@ const HeaderAccordion = () => {
           className={`${styles.accordion_trigger} ${isOpen ? styles.active : ""}`}
           onClick={toggleDropdown}
         >
-          <Image
-            src="/header-icons/phone.svg"
-            alt="телефон"
-            width={20}
-            height={20}
-            style={{ width: "20px", height: "20px" }}
-            className={styles.phone_icon}
+          <PhoneInDesktop
           />
           <span className={styles.phone_link}>+375 (232) 214-222</span>
           <div className={`${styles.arrow} ${isOpen ? styles.active : ""}`}>
