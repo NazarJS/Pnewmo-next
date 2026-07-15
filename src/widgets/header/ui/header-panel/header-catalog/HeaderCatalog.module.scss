@@ -5,7 +5,7 @@ $sidebar-width: 340px;
 $megamenu-width: calc(#{$container-max-width} - #{$sidebar-width});
 
 .search_wrapper {
-  padding: 0 10px 10px;
+  padding: 0 0 16px;
 }
 
 .catalog_container {
@@ -14,13 +14,16 @@ $megamenu-width: calc(#{$container-max-width} - #{$sidebar-width});
   top: 100%;
   left: 0;
   display: flex;
-  // display: grid;
   width: 100%;
+  background-color: #f4f4f4;
   transform: none;
   min-height: 100vh;
   box-shadow: 0 15px 30px rgb(0 0 0 / 0.08%);
-  padding-inline: 0;
-  padding-right: 40px;
+  clip-path: inset(1px 0 0 0);
+  // padding-top: 30px;
+  // padding-inline: 0;
+  // padding-right: 40px;
+
   // grid-template-columns:
   //   $sidebar-width 1fr
   //   [mega-menu] minmax(0, $megamenu-width);
@@ -29,25 +32,32 @@ $megamenu-width: calc(#{$container-max-width} - #{$sidebar-width});
     left: 0;
     display: block;
     width: 100%;
+    overflow-y: auto;
+    height: calc(100vh - 50px);
     padding-inline: 0;
   }
 
-  &::after {
-    position: absolute;
-    top: 0;
-    right: 100%;
-    display: block;
-    width: 100%;
-    height: 100%;
-    background-color: #f4f4f4;
-    content: "";
-  }
+  // &::after {
+  //   position: absolute;
+  //   top: 0;
+  //   right: 100%;
+  //   display: block;
+  //   width: 100%;
+  //   height: 100%;
+  //   background-color: #f4f4f4;
+  //   content: "";
+
+  //   @include xs {
+  //     display: contents;
+  //   }
+  // }
 }
 
 .category_header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
 
   @include xs {
     padding: 16px 20px;
@@ -56,11 +66,12 @@ $megamenu-width: calc(#{$container-max-width} - #{$sidebar-width});
 
 .sidebar {
   position: relative;
-  z-index: 2;
+  z-index: 0;
   display: flex;
   justify-content: flex-end;
   width: auto;
   background-color: #f4f4f4;
+
   // grid-column: 1;
 
   @include xs {
@@ -77,6 +88,7 @@ $megamenu-width: calc(#{$container-max-width} - #{$sidebar-width});
   padding-left: 0;
 
   @include xs {
+    height: auto;
     flex: 1;
     margin-left: 0;
   }
@@ -116,12 +128,13 @@ $megamenu-width: calc(#{$container-max-width} - #{$sidebar-width});
 
 .active_arrow {
   position: absolute;
-  z-index: 3;
+  z-index: 10;
   top: 60%;
-  right: -215%;
+  right: -12%;
   display: none;
   width: 0;
   height: 0;
+  flex-shrink: 0;
   border-top: 12px solid transparent;
   border-bottom: 12px solid transparent;
   border-right: 12px solid #fff;
@@ -142,38 +155,24 @@ $megamenu-width: calc(#{$container-max-width} - #{$sidebar-width});
   }
 
   @include xs {
-    position: static;
-    display: block;
-    width: 25px;
-    height: auto;
-    padding-left: 7px;
-    border: none;
-    transform: translateY(-50%) scale(0.5);
-    transition: none;
-    cursor: pointer;
+    display: contents;
+  }
+}
 
-    span::before,
-    span::after {
-      position: absolute;
-      width: 25;
-      height: 4px;
-      background: black;
-      transition: none;
-      border-radius: 5px;
-      content: "";
-    }
 
-    span::before {
-      top: -2px;
-      left: -6px;
-      transform: rotate(-54deg);
-    }
+.arrow {
+  display: none;
 
-    span::after {
-      bottom: -2px;
-      left: 7px;
-      transform: rotate(235deg);
-    }
+  @include xs {
+    display: flex;
+    transform: translate(-50%, 10%) rotate(0deg);
+    transition: transform 0.2s ease;
+  }
+}
+
+.active_arrow.active .arrow {
+  @include xs {
+    transform: translate(-50%, 10%) rotateX(180deg);
   }
 }
 
@@ -181,23 +180,6 @@ $megamenu-width: calc(#{$container-max-width} - #{$sidebar-width});
   @media (width > 638px) {
     top: 30px;
     display: block;
-  }
-
-  @include xs {
-    span::before {
-      top: -0.8px;
-      transform: rotate(55deg);
-      transition: none;
-      content: "";
-    }
-
-    span::after {
-      bottom: -3px;
-      left: 7px;
-      transform: rotate(-54deg);
-      transition: none;
-      content: "";
-    }
   }
 }
 
@@ -208,13 +190,13 @@ $megamenu-width: calc(#{$container-max-width} - #{$sidebar-width});
     display: block;
     max-height: 0;
     overflow: hidden;
-    transition: max-height 0.3s ease-in-out;
+    transition: max-height 0.2s ease-in-out;
   }
 }
 
 .mobile_accordion.accordion_open {
   @media (width <= 638px) {
-    max-height: 1000px;
+    max-height: 400px;
   }
 }
 
@@ -237,13 +219,15 @@ $megamenu-width: calc(#{$container-max-width} - #{$sidebar-width});
 }
 
 .mega_menu {
+  // z-index: 0;
   position: relative;
   display: flex;
   justify-content: flex-start;
-  padding: 16px 15px;
+  width: 100%;
+  padding: 16px 16px 0;
   background-color: #fff;
   grid-column: mega-menu;
-  width: 100%;
+  box-shadow: 0 0 8px #0000001a;
 
   .mega_menu_content {
     width: 100%;

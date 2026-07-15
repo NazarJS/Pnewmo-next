@@ -35,13 +35,16 @@
   gap: 5px;
   white-space: nowrap;
 
+  &:hover {
+    color: #39f;
+  }
+
   @media (width <= 1024px) {
     display: none;
   }
 }
 
 .email_text {
-  color: rgb(0 0 0 / 100%);
   // font-size: 14px;
   font-weight: 500;
   text-decoration: none;
@@ -59,15 +62,20 @@
   user-select: none;
   white-space: nowrap;
 
+  &:hover {
+    color: #39f;
+  }
+
   @media (width <= 1024px) {
     display: none;
   }
+
 }
 
 .phone_link {
-  color: #39f;
   // font-size: 16px;
-  font-weight: 600;
+  
+  font-weight: 500;
   letter-spacing: 0.3px;
 }
 
@@ -76,9 +84,15 @@
   display: flex;
   justify-content: center;
   width: 15px;
+  color: inherit;
   padding-left: 7px;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
+  
+
+  &:hover {
+    color: #39f;
+  }
 
   @media (width <= 1024px) {
     width: 50px;
@@ -91,7 +105,7 @@
   left: 0;
   width: 11px;
   height: 1.5px;
-  background: #39f;
+  background: currentcolor;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: 5px;
   content: "";
@@ -105,18 +119,18 @@
 .arrow span::before {
   top: -1px;
   left: -4px;
-  transform: rotate(130deg);
+  transform: rotate(50deg);
 }
 
 .arrow span::after {
   bottom: -0.5px;
-  left: 2px;
-  transform: rotate(55deg);
+  left: 2.6px;
+  transform: rotate(130deg);
 }
 
 .arrow.active span::before {
   top: -0.5px;
-  transform: rotate(55deg);
+  transform: rotate(130deg);
   transition:
     top 250ms,
     transform 150ms 0ms cubic-bezier(0.68, -0.55, 0.265, 1.55);
@@ -126,7 +140,7 @@
 .arrow.active span::after {
   bottom: -1px;
   left: 2.4px;
-  transform: rotate(-50deg);
+  transform: rotate(-130deg);
   transition:
     bottom 250ms,
     transform 150ms 0ms cubic-bezier(0.68, -0.55, 0.265, 1.55);
@@ -181,6 +195,8 @@
   color: #1a1a1a;
   font-size: 20px;
   font-weight: 700;
+
+  
 }
 
 .dropdown_subtitle {
