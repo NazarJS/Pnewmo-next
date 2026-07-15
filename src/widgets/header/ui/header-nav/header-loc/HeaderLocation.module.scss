@@ -1,7 +1,10 @@
 .header{
+  flex-shrink: 0;
+  
   &_info{
     display: flex;
     column-gap: 12px;
+    
 
     &_icon{
       display: inline-block;
