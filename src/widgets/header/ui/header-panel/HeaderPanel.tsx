@@ -1,6 +1,6 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import styles from "./HeaderCatalogPanel.module.scss";
+import styles from "./HeaderPanel.module.scss";
 import Image from "next/image";
 import CatalogButton from "./header-catalog/ui/CatalogButton";
 import HeaderInput from "./header-input/HeaderInput";
@@ -41,9 +41,9 @@ const HeaderCatalogPanel = () => {
 
   return (
     <div className="container">
-      <div className={`${styles.header_catalog_main}`}>
-        <div className={`${styles.header_catalog_block}${isSearchOpen ? "" : ""}`}>
-          <div className={styles.header_catalog_logo}>
+      <div className={`${styles.header_panel_main}`}>
+        <div className={`${styles.header_panel_features}${isSearchOpen ? "" : ""}`}>
+          <div className={styles.header_panel_logo}>
             <Image
               src="/header-icons/Rectangle.svg"
               alt="Лого"
@@ -58,37 +58,36 @@ const HeaderCatalogPanel = () => {
               isOpen={isCatalogOpen}
               onClick={() => togglePanel("catalog")}
             />
-            {isCatalogOpen && (
-              <div className={styles.container}>
-                <HeaderCatalog isOpen={isCatalogOpen} showSearch={false} />
-              </div>
-            )}
           </div>
           <div className={styles.desktop_input}>
             <HeaderInput ref={inputRef} />
           </div>
-          <div className={styles.header_main_block}>
-            <div className={styles.desktop_input_search}>
+          <div className={styles.header_mobile_favorites_main}>
+            <div className={styles.mobile_input_search}>
               <button onClick={() => togglePanel("search")}>
-                <Loupe />
+                <Loupe className={styles.loupe}/>
                 <span className={styles.span_input_search}>Поиск</span>
               </button>
             </div>
            
             <HeaderAccordion />
             
-            <div className={styles.header_main_menu}>
+            <div className={styles.header_desktop_favorites_main}>
               <HeaderFavorites
                 isMobileCatalogOpen={isMobileCatalogOpen}
                 onCatalogClick={() => togglePanel("mobileCatalog")}
               />
             </div>
           </div>
-          
         </div>
+        {isCatalogOpen && (
+              <div className={styles.container_catalog}>
+                <HeaderCatalog isOpen={isCatalogOpen} showSearch={false} />
+              </div>
+            )}
         {isMobileCatalogOpen && (
             <div className={styles.mobile_catalog}>
-              <HeaderCatalog isOpen={isCatalogOpen} showSearch={true} />
+              <HeaderCatalog isOpen={isMobileCatalogOpen} showSearch={true} />
             </div>
           )}
         {isMobile && isSearchOpen && (

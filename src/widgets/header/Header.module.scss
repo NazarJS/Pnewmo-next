@@ -1,7 +1,9 @@
 .header_main {
+  position: relative;
+  z-index: 999;
   justify-content: center;
   align-items: center;
   width: 100%;
   background-color: #ffff;
-  box-shadow: 0 4px 6px -2px #0000001a;
+   box-shadow: 0 8px 6px -2px #0000001a;  
 }
