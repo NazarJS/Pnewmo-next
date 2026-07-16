@@ -1,6 +1,6 @@
 import { SvgIconProps } from "@/shared/types/icon";
 
-const Phone = ({ size = "27", ...props }: SvgIconProps) => {
+const PhoneInMobile = ({ size = "27", ...props }: SvgIconProps) => {
   return (
     <svg width={size} height={size} viewBox="0 0 27 27" {...props}>
       <path
@@ -16,4 +16,4 @@ const Phone = ({ size = "27", ...props }: SvgIconProps) => {
   );
 };
 
-export default Phone;
+export default PhoneInMobile;

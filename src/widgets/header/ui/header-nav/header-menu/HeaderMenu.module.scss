@@ -1,6 +1,7 @@
 .header_nav {
   display: flex;
   align-items: center;
+  flex-shrink: 0;
 
   &_menu{
     display: flex;
@@ -12,8 +13,8 @@
   }
 
   &_item{
-    white-space: nowrap;
     font-size: clamp(.75rem, 1.1vw, .9375rem);
+    white-space: nowrap;
     font-weight: 500;
   }
 }

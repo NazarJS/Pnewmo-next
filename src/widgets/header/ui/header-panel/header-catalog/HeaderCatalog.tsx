@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import HeaderInput from "../header-input/HeaderInput";
 import styles from "./HeaderCatalog.module.scss";
+import { Arrow } from "@/shared/ui/icons/arrow/Arrow";
 
 interface HeaderCatalogProps {
   showSearch?: boolean;
@@ -58,6 +59,14 @@ const HeaderCatalog = ({showSearch = true, isOpen, onClick,}: HeaderCatalogProps
 
   const [catalogActive, setCatalogActive] = useState<string | null>(null);
 
+
+  useEffect(()=>{
+    isOpen ? document.body.classList.add('no-scroll') : document.body.classList.remove('no-scroll');
+    return ()=> {
+      document.body.classList.remove('no-scroll');
+    }
+  }, [isOpen])
+
   useEffect(() => {
     if (window.innerWidth > 768) {
       setCatalogActive(data[0].id);
@@ -73,7 +82,7 @@ const HeaderCatalog = ({showSearch = true, isOpen, onClick,}: HeaderCatalogProps
   const activeCategoryData = data.find((cat) => cat.id === catalogActive);
 
   return (
-    <div className={styles.container}>
+    <>
       {showSearch && (
         <div className={styles.search_wrapper}>
           <HeaderInput />
@@ -98,7 +107,7 @@ const HeaderCatalog = ({showSearch = true, isOpen, onClick,}: HeaderCatalogProps
                     <div
                       className={` ${styles.active_arrow} ${isActive ? styles.active : ""} `}
                     >
-                      <span></span>
+                      <Arrow className={styles.arrow} />
                     </div>
                   </div>
                   <div
@@ -124,21 +133,21 @@ const HeaderCatalog = ({showSearch = true, isOpen, onClick,}: HeaderCatalogProps
         {activeCategoryData && (
           <nav className={styles.mega_menu}>
             <div className={styles.mega_menu_content}>
-            <h3 className={styles.categories}>
-              {activeCategoryData.catalogies}
-            </h3>
-            <ul className={styles.subcategory_grid}>
-              {activeCategoryData.subcategories.map((sub) => (
-                <li key={sub} className={styles.subcategory_item}>
-                  {sub}
-                </li>
-              ))}
-            </ul>
+              <h3 className={styles.categories}>
+                {activeCategoryData.catalogies}
+              </h3>
+              <ul className={styles.subcategory_grid}>
+                {activeCategoryData.subcategories.map((sub) => (
+                  <li key={sub} className={styles.subcategory_item}>
+                    {sub}
+                  </li>
+                ))}
+              </ul>
             </div>
           </nav>
         )}
       </div>
-    </div>
+    </>
   );
 };
 

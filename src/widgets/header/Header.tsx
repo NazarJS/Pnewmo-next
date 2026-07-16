@@ -1,4 +1,4 @@
-import HeaderCatalogPanel from "./ui/header-panel/HeaderCatalogPanel";
+import HeaderCatalogPanel from "./ui/header-panel/HeaderPanel";
 import HeaderNavLayout from "./ui/header-nav/HeaderNavLayout";
 
 import styles from "./Header.module.scss";
