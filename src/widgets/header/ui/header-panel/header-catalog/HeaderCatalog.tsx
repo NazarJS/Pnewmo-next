@@ -11,11 +11,7 @@ interface HeaderCatalogProps {
   onClick?: () => void;
 }
 
-const HeaderCatalog = ({
-  showSearch = true,
-  isOpen,
-  onClick,
-}: HeaderCatalogProps) => {
+const HeaderCatalog = ({showSearch = true, isOpen, onClick,}: HeaderCatalogProps) => {
   const data = [
     {
       id: "electronics",
@@ -133,6 +129,7 @@ const HeaderCatalog = ({
             })}
           </ul>
         </div>
+
         {activeCategoryData && (
           <nav className={styles.mega_menu}>
             <div className={styles.mega_menu_content}>
