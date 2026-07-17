@@ -1,164 +1,488 @@
-{"products": {
-    "hydraulics": {
-      "HydraulicPumps": [
-        {
-          "id": 1,
-          "title": "Гидронасос Bosch Rexroth A10VSO",
-          "price": 1250,
-          "article": "HYD-BRX-001"
-        },
-        {
-          "id": 2,
-          "title": "Гидронасос Parker PVP",
-          "price": 980,
-          "article": "HYD-PRK-002"
-        },
-        {
-          "id": 3,
-          "title": "Гидронасос Eaton Vickers",
-          "price": 1100,
-          "article": "HYD-EAT-003"
-        },
-        {
-          "id": 4,
-          "title": "Шестерённый насос Danfoss",
-          "price": 720,
-          "article": "HYD-DAN-004"
-        }
-      ],
-      "Compressors": [
-        {
-          "id": 5,
-          "title": "Винтовой компрессор Atlas Copco GA 15",
-          "price": 4200,
-          "article": "HYD-ATC-005"
-        },
-        {
-          "id": 6,
-          "title": "Поршневой компрессор Remeza SB4/S-100",
-          "price": 1890,
-          "article": "HYD-REM-006"
-        },
-        {
-          "id": 7,
-          "title": "Компрессор Fiac AB 100",
-          "price": 1450,
-          "article": "HYD-FIA-007"
-        },
-        {
-          "id": 8,
-          "title": "Маслозаполненный компрессор Abac A29B",
-          "price": 2100,
-          "article": "HYD-ABA-008"
-        }
-      ],
-      "HydraulicCylinders": [
-        {
-          "id": 9,
-          "title": "Гидроцилиндр Parker HC2",
-          "price": 850,
-          "article": "HYD-PRK-009"
-        },
-        {
-          "id": 10,
-          "title": "Гидроцилиндр Bosch Rexroth CDM1",
-          "price": 920,
-          "article": "HYD-BRX-010"
-        },
-        {
-          "id": 11,
-          "title": "Телескопический гидроцилиндр Hyva",
-          "price": 1550,
-          "article": "HYD-HYV-011"
-        },
-        {
-          "id": 12,
-          "title": "Гидроцилиндр Yuken",
-          "price": 780,
-          "article": "HYD-YUK-012"
-        }
-      ]
+{
+  "categories": [
+    {
+      "id": "gidravlika",
+      "parentId": null,
+      "name": "Гидравлика",
+      "url": "/catalog/gidravlika"
     },
-
-    "pneumatics": {
-      "PneumaticValves": [
-        {
-          "id": 1,
-          "title": "Пневмоклапан Festo VUVG",
-          "price": 300,
-          "article": "PNE-FES-001"
-        },
-        {
-          "id": 2,
-          "title": "Соленоидный клапан SMC SY3000",
-          "price": 275,
-          "article": "PNE-SMC-002"
-        },
-        {
-          "id": 3,
-          "title": "Пневмораспределитель Camozzi",
-          "price": 210,
-          "article": "PNE-CAM-003"
-        },
-        {
-          "id": 4,
-          "title": "Клапан управления Parker",
-          "price": 340,
-          "article": "PNE-PRK-004"
-        }
-      ],
-      "PneumaticCylinders": [
-        {
-          "id": 5,
-          "title": "Пневмоцилиндр SMC CG3",
-          "price": 450,
-          "article": "PNE-SMC-005"
-        },
-        {
-          "id": 6,
-          "title": "Пневмоцилиндр Festo DNC",
-          "price": 520,
-          "article": "PNE-FES-006"
-        },
-        {
-          "id": 7,
-          "title": "Компактный цилиндр Aignep",
-          "price": 310,
-          "article": "PNE-AIG-007"
-        },
-        {
-          "id": 8,
-          "title": "Пневмоцилиндр с направляющими Bosch Rexroth",
-          "price": 690,
-          "article": "PNE-BRX-008"
-        }
-      ],
-      "Compressors": [
-        {
-          "id": 9,
-          "title": "Компрессор Atlas Copco G7",
-          "price": 2200,
-          "article": "PNE-ATC-009"
-        },
-        {
-          "id": 10,
-          "title": "Винтовой компрессор Chicago Pneumatics",
-          "price": 3750,
-          "article": "PNE-CHP-010"
-        },
-        {
-          "id": 11,
-          "title": "Безмасляный компрессор Abac Genesis",
-          "price": 2900,
-          "article": "PNE-ABA-011"
-        },
-        {
-          "id": 12,
-          "title": "Передвижной компрессор Metabo",
-          "price": 1250,
-          "article": "PNE-MET-012"
-        }
-      ]
+    {
+      "id": "pnevmatika",
+      "parentId": null,
+      "name": "Пневматика",
+      "url": "/catalog/pnevmatika"
+    },
+    {
+      "id": "vakuumnaya_tekhnika",
+      "parentId": null,
+      "name": "Вакуумная техника",
+      "url": "/catalog/vakuumnaya_tekhnika"
+    },
+    {
+      "id": "smazochnaya_tekhnika",
+      "parentId": "gidravlika",
+      "name": "Смазочная техника",
+      "url": "/catalog/smazochnaya_tekhnika"
+    },
+    {
+      "id": "gidrotsilindry",
+      "parentId": "gidravlika",
+      "name": "Гидроцилиндры",
+      "url": "/catalog/gidrotsilindry"
+    },
+    {
+      "id": "sistemy_dvukhlineynogo_deystviya",
+      "parentId": "smazochnaya_tekhnika",
+      "name": "Системы двухлинейного действия",
+      "url": "/catalog/sistemy_dvukhlineynogo_deystviya"
+    },
+    {
+      "id": "sistemy_odnolineynogo_deystviya",
+      "parentId": "smazochnaya_tekhnika",
+      "name": "Системы однолинейного действия",
+      "url": "/catalog/sistemy_odnolineynogo_deystviya"
+    },
+    {
+      "id": "stantsii_nasosnye",
+      "parentId": "sistemy_dvukhlineynogo_deystviya",
+      "name": "Станции насосные",
+      "url": "/catalog/stantsii_nasosnye"
+    },
+    {
+      "id": "pitateli",
+      "parentId": "sistemy_dvukhlineynogo_deystviya",
+      "name": "Питатели",
+      "url": "/catalog/pitateli"
+    },
+    {
+      "id": "z2_stantsiya",
+      "parentId": "stantsii_nasosnye",
+      "name": "Z2 — Станция насосная",
+      "url": "/catalog/z2_stantsiya"
+    },
+    {
+      "id": "z3_stantsiya",
+      "parentId": "stantsii_nasosnye",
+      "name": "Z3 — Станция насосная",
+      "url": "/catalog/z3_stantsiya"
+    },
+    {
+      "id": "dlm_nasos",
+      "parentId": "stantsii_nasosnye",
+      "name": "DLM — Насос",
+      "url": "/catalog/dlm_nasos"
+    },
+    {
+      "id": "dldc_pitateli",
+      "parentId": "pitateli",
+      "name": "DLDC",
+      "url": "/catalog/dldc_pitateli"
+    },
+    {
+      "id": "dldf_pitateli",
+      "parentId": "pitateli",
+      "name": "DLDF",
+      "url": "/catalog/dldf_pitateli"
+    },
+    {
+      "id": "5n_pitateli",
+      "parentId": "pitateli",
+      "name": "5N",
+      "url": "/catalog/5n_pitateli"
+    },
+    {
+      "id": "pnevmaticheskie_klapany",
+      "parentId": "pnevmatika",
+      "name": "Пневматические клапаны",
+      "url": "/catalog/pnevmaticheskie_klapany"
+    },
+    {
+      "id": "pnevmaticheskie_tsilindry",
+      "parentId": "pnevmatika",
+      "name": "Пневматические цилиндры",
+      "url": "/catalog/pnevmaticheskie_tsilindry"
+    },
+    {
+      "id": "pnevmaticheskie_raspredeliteli",
+      "parentId": "pnevmatika",
+      "name": "Пневматические распределители",
+      "url": "/catalog/pnevmaticheskie_raspredeliteli"
+    },
+    {
+      "id": "elektropnevmaticheskie_klapany",
+      "parentId": "pnevmaticheskie_klapany",
+      "name": "Электропневматические клапаны",
+      "url": "/catalog/elektropnevmaticheskie_klapany"
+    },
+    {
+      "id": "pnevmaticheskie_klapany_davleniya",
+      "parentId": "pnevmaticheskie_klapany",
+      "name": "Клапаны давления",
+      "url": "/catalog/pnevmaticheskie_klapany_davleniya"
+    },
+    {
+      "id": "serii_v551",
+      "parentId": "elektropnevmaticheskie_klapany",
+      "name": "Серия V551",
+      "url": "/catalog/serii_v551"
+    },
+    {
+      "id": "serii_v531",
+      "parentId": "elektropnevmaticheskie_klapany",
+      "name": "Серия V531",
+      "url": "/catalog/serii_v531"
+    },
+    {
+      "id": "kompaknye_tsilindry",
+      "parentId": "pnevmaticheskie_tsilindry",
+      "name": "Компактные цилиндры",
+      "url": "/catalog/kompaknye_tsilindry"
+    },
+    {
+      "id": "tsilindry_s_shtokom",
+      "parentId": "pnevmaticheskie_tsilindry",
+      "name": "Цилиндры со штоком",
+      "url": "/catalog/tsilindry_s_shtokom"
+    },
+    {
+      "id": "serii_c85",
+      "parentId": "kompaknye_tsilindry",
+      "name": "Серия C85",
+      "url": "/catalog/serii_c85"
+    },
+    {
+      "id": "serii_c96",
+      "parentId": "kompaknye_tsilindry",
+      "name": "Серия C96",
+      "url": "/catalog/serii_c96"
+    },
+    {
+      "id": "vakuumnye_nasosy",
+      "parentId": "vakuumnaya_tekhnika",
+      "name": "Вакуумные насосы",
+      "url": "/catalog/vakuumnye_nasosy"
+    },
+    {
+      "id": "vakuumnye_komponenty",
+      "parentId": "vakuumnaya_tekhnika",
+      "name": "Вакуумные компоненты",
+      "url": "/catalog/vakuumnye_komponenty"
+    },
+    {
+      "id": "plastinchatye_nasosy",
+      "parentId": "vakuumnye_nasosy",
+      "name": "Пластинчатые насосы",
+      "url": "/catalog/plastinchatye_nasosy"
+    },
+    {
+      "id": "rotornye_nasosy",
+      "parentId": "vakuumnye_nasosy",
+      "name": "Роторные насосы",
+      "url": "/catalog/rotornye_nasosy"
+    },
+    {
+      "id": "serii_tr",
+      "parentId": "plastinchatye_nasosy",
+      "name": "Серия TR",
+      "url": "/catalog/serii_tr"
+    },
+    {
+      "id": "serii_ts",
+      "parentId": "plastinchatye_nasosy",
+      "name": "Серия TS",
+      "url": "/catalog/serii_ts"
+    },
+    {
+      "id": "vakuumnye_zahvaty",
+      "parentId": "vakuumnye_komponenty",
+      "name": "Вакуумные захваты",
+      "url": "/catalog/vakuumnye_zahvaty"
+    },
+    {
+      "id": "vakuumnye_prisoski",
+      "parentId": "vakuumnye_komponenty",
+      "name": "Вакуумные присоски",
+      "url": "/catalog/vakuumnye_prisoski"
+    },
+    {
+      "id": "serii_fm",
+      "parentId": "vakuumnye_zahvaty",
+      "name": "Серия FM",
+      "url": "/catalog/serii_fm"
+    },
+    {
+      "id": "serii_fx",
+      "parentId": "vakuumnye_zahvaty",
+      "name": "Серия FX",
+      "url": "/catalog/serii_fx"
     }
-  }
+  ],
+  "products": [
+    {
+      "id": "info_z2",
+      "categoryId": "z2_stantsiya",
+      "type": "category_info",
+      "title": "Z2 — Станция насосная",
+      "description": "Станция насосная Z2 для двухлинейных систем смазки",
+      "specifications": {
+        "pressure": "до 400 бар",
+        "flow": "до 2 л/мин",
+        "weight": "25 кг"
+      }
+    },
+    {
+      "id": "info_z3",
+      "categoryId": "z3_stantsiya",
+      "type": "category_info",
+      "title": "Z3 — Станция насосная",
+      "description": "Станция насосная Z3 для двухлинейных систем смазки",
+      "specifications": {
+        "pressure": "до 450 бар",
+        "flow": "до 3 л/мин",
+        "weight": "32 кг"
+      }
+    },
+    {
+      "id": "info_dlm",
+      "categoryId": "dlm_nasos",
+      "type": "category_info",
+      "title": "DLM — Насос",
+      "description": "Насос DLM для двухлинейных систем смазки",
+      "specifications": {
+        "pressure": "до 350 бар",
+        "flow": "до 1.5 л/мин",
+        "weight": "18 кг"
+      }
+    },
+    {
+      "id": "info_dldc",
+      "categoryId": "dldc_pitateli",
+      "type": "category_info",
+      "title": "DLDC",
+      "description": "Питатель DLDC для двухлинейных систем",
+      "specifications": {
+        "pressure": "до 350 бар",
+        "flow": "до 0.5 л/мин",
+        "weight": "2.5 кг"
+      }
+    },
+    {
+      "id": "info_dldf",
+      "categoryId": "dldf_pitateli",
+      "type": "category_info",
+      "title": "DLDF",
+      "description": "Питатель DLDF для двухлинейных систем",
+      "specifications": {
+        "pressure": "до 350 бар",
+        "flow": "до 0.3 л/мин",
+        "weight": "2.3 кг"
+      }
+    },
+    {
+      "id": "8965",
+      "categoryId": "5n_pitateli",
+      "type": "product",
+      "title": "5X.DF3.01.BSP",
+      "description": "Питатель 5X.DF3.01.BSP для двухлинейных систем",
+      "specifications": {
+        "pressure": "до 300 бар",
+        "flow": "до 0.2 л/мин",
+        "thread": "BSP 1/4",
+        "weight": "1.8 кг"
+      }
+    },
+    {
+      "id": "23416",
+      "categoryId": "5n_pitateli",
+      "type": "product",
+      "title": "5N.DR3.06.BSP",
+      "description": "Питатель 5N.DR3.06.BSP для двухлинейных систем",
+      "specifications": {
+        "pressure": "до 320 бар",
+        "flow": "до 0.4 л/мин",
+        "thread": "BSP 3/8",
+        "weight": "2.1 кг"
+      }
+    },
+    {
+      "id": "22495",
+      "categoryId": "5n_pitateli",
+      "type": "product",
+      "title": "5N.DR3.03.BSP.ICS",
+      "description": "Питатель 5N.DR3.03.BSP.ICS с интеллектуальной системой контроля",
+      "specifications": {
+        "pressure": "до 350 бар",
+        "flow": "до 0.3 л/мин",
+        "thread": "BSP 3/8",
+        "weight": "2.4 кг",
+        "control": "Интеллектуальная система контроля"
+      }
+    },
+    {
+      "id": "v551_01",
+      "categoryId": "serii_v551",
+      "type": "product",
+      "title": "V551-01-01",
+      "description": "Электропневматический клапан серии V551",
+      "specifications": {
+        "voltage": "24V DC",
+        "pressure": "2-8 бар",
+        "flow": "до 1200 л/мин",
+        "port": "G1/4",
+        "weight": "0.5 кг"
+      }
+    },
+    {
+      "id": "v551_02",
+      "categoryId": "serii_v551",
+      "type": "product",
+      "title": "V551-02-02",
+      "description": "Электропневматический клапан серии V551 с ручным дублером",
+      "specifications": {
+        "voltage": "24V DC",
+        "pressure": "2-8 бар",
+        "flow": "до 1200 л/мин",
+        "port": "G1/4",
+        "weight": "0.6 кг",
+        "manual": "Ручной дублер"
+      }
+    },
+    {
+      "id": "v531_01",
+      "categoryId": "serii_v531",
+      "type": "product",
+      "title": "V531-01-01",
+      "description": "Электропневматический клапан серии V531",
+      "specifications": {
+        "voltage": "24V DC",
+        "pressure": "2-10 бар",
+        "flow": "до 800 л/мин",
+        "port": "G1/8",
+        "weight": "0.3 кг"
+      }
+    },
+    {
+      "id": "c85_01",
+      "categoryId": "serii_c85",
+      "type": "product",
+      "title": "C85-10",
+      "description": "Компактный пневматический цилиндр серии C85",
+      "specifications": {
+        "bore": "10 мм",
+        "stroke": "20-200 мм",
+        "pressure": "до 10 бар",
+        "temperature": "-20°C до +80°C",
+        "weight": "0.15 кг"
+      }
+    },
+    {
+      "id": "c85_02",
+      "categoryId": "serii_c85",
+      "type": "product",
+      "title": "C85-25",
+      "description": "Компактный пневматический цилиндр серии C85",
+      "specifications": {
+        "bore": "25 мм",
+        "stroke": "20-200 мм",
+        "pressure": "до 10 бар",
+        "temperature": "-20°C до +80°C",
+        "weight": "0.4 кг"
+      }
+    },
+    {
+      "id": "c96_01",
+      "categoryId": "serii_c96",
+      "type": "product",
+      "title": "C96-32",
+      "description": "Компактный пневматический цилиндр серии C96",
+      "specifications": {
+        "bore": "32 мм",
+        "stroke": "20-300 мм",
+        "pressure": "до 12 бар",
+        "temperature": "-25°C до +85°C",
+        "weight": "0.8 кг"
+      }
+    },
+    {
+      "id": "tr_01",
+      "categoryId": "serii_tr",
+      "type": "product",
+      "title": "TR-20",
+      "description": "Пластинчатый вакуумный насос серии TR",
+      "specifications": {
+        "flow": "до 20 м³/ч",
+        "vacuum": "до 0.5 мбар",
+        "power": "0.75 кВт",
+        "weight": "12 кг",
+        "oil": "смазываемый"
+      }
+    },
+    {
+      "id": "tr_02",
+      "categoryId": "serii_tr",
+      "type": "product",
+      "title": "TR-40",
+      "description": "Пластинчатый вакуумный насос серии TR",
+      "specifications": {
+        "flow": "до 40 м³/ч",
+        "vacuum": "до 0.5 мбар",
+        "power": "1.1 кВт",
+        "weight": "18 кг",
+        "oil": "смазываемый"
+      }
+    },
+    {
+      "id": "ts_01",
+      "categoryId": "serii_ts",
+      "type": "product",
+      "title": "TS-25",
+      "description": "Пластинчатый вакуумный насос серии TS",
+      "specifications": {
+        "flow": "до 25 м³/ч",
+        "vacuum": "до 2 мбар",
+        "power": "0.55 кВт",
+        "weight": "15 кг",
+        "oil": "безмасляный"
+      }
+    },
+    {
+      "id": "fm_01",
+      "categoryId": "serii_fm",
+      "type": "product",
+      "title": "FM-20",
+      "description": "Вакуумный захват серии FM",
+      "specifications": {
+        "force": "до 200 Н",
+        "vacuum": "до -0.8 бар",
+        "weight": "0.7 кг",
+        "material": "алюминий"
+      }
+    },
+    {
+      "id": "fm_02",
+      "categoryId": "serii_fm",
+      "type": "product",
+      "title": "FM-50",
+      "description": "Вакуумный захват серии FM",
+      "specifications": {
+        "force": "до 500 Н",
+        "vacuum": "до -0.9 бар",
+        "weight": "1.5 кг",
+        "material": "алюминий"
+      }
+    },
+    {
+      "id": "fx_01",
+      "categoryId": "serii_fx",
+      "type": "product",
+      "title": "FX-30",
+      "description": "Вакуумный захват серии FX",
+      "specifications": {
+        "force": "до 300 Н",
+        "vacuum": "до -0.85 бар",
+        "weight": "1.2 кг",
+        "material": "нержавеющая сталь"
+      }
+    }
+  ]
 }
