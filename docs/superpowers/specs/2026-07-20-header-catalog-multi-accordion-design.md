@@ -1,35 +1,35 @@
-# HeaderCatalog: multi-expand mobile accordion + scroll containment
+# HeaderCatalog: мульти-открытие мобильного accordion + ограничение скролла
 
-## Context
+## Контекст
 
-`src/widgets/header/ui/header-panel/header-catalog/HeaderCatalog.tsx` renders the catalog dropdown for both the desktop button trigger (`.container_catalog` wrapper) and the mobile burger trigger (`.mobile_catalog` wrapper) via the same component, differentiated by CSS breakpoints (unified on `$breakpoint-md: 1024px` in `src/shared/styles/_breakpoints.scss`).
+`src/widgets/header/ui/header-panel/header-catalog/HeaderCatalog.tsx` рендерит выпадающий каталог как для десктопного триггера (обёртка `.container_catalog`), так и для мобильного триггера через бургер (обёртка `.mobile_catalog`) — один и тот же компонент, различие только через CSS-брейкпоинты (унифицированы на `$breakpoint-md: 1024px` в `src/shared/styles/_breakpoints.scss`).
 
-Two behaviors need to change:
+Нужно изменить два поведения:
 
-1. **Mobile accordion (`≤1024px`):** clicking a category currently closes whichever category was previously open (single-select), because open/closed state is tracked with one `catalogActive: string | null` value shared with the desktop mega-menu. Categories should be independently toggleable — opening one must not close another.
-2. **Scroll containment while the catalog is open:** the page must not scroll (already handled, see below), and the catalog panel itself must scroll vertically when its content is taller than the viewport.
+1. **Мобильный accordion (`≤1024px`):** сейчас клик по категории закрывает ранее открытую категорию, потому что состояние открытия хранится в одном значении `catalogActive: string | null`, общем с десктопным mega-menu. Категории должны переключаться независимо — открытие одной не должно закрывать другую.
+2. **Ограничение скролла при открытом каталоге:** страница не должна скроллиться (уже реализовано, см. ниже), а сама панель каталога должна скроллиться вертикально, если её контент выше viewport.
 
-## Current state (verified in code, not assumed)
+## Текущее состояние (проверено в коде, не предположения)
 
-- `catalogActive: string | null` is the only piece of open/expanded state. It drives three things at once: the desktop `mega_menu` content (`data.find(cat => cat.id === catalogActive)`), the blue "active" highlight on both desktop and mobile, and the mobile `.mobile_accordion` expand/collapse.
-- `toggleCategory(id)` (mobile click handler, gated `window.innerWidth <= 1024`) does `prev === id ? null : id` — a classic single-open accordion.
-- Desktop hover (`onMouseEnter`, gated `window.innerWidth > 1024`) also writes to `catalogActive` — this is intentionally single-select (a mega-menu panel can only show one category's content at a time) and is **out of scope** for this change (confirmed with user).
-- Page-scroll lock: a `useEffect` toggles a `no-scroll` class on `document.body` based on the `isOpen` prop, unconditional on viewport width. This already works correctly and is **not being touched**.
-- Catalog-panel internal scroll: `.catalog_container`'s `@include xs { height: calc(100vh - 50px); overflow-y: auto; ... }` in `HeaderCatalog.module.scss`. Since `@include xs` now resolves to `≤1024px` (global breakpoint bump the user already made), this already applies across the full mobile/tablet range where the accordion is used. **No CSS change is needed** — taller content from multiple simultaneously-open categories will scroll inside the existing container instead of overflowing the page.
-- The `768` → `1024` breakpoint unification in TSX (`toggleCategory` guard, the mount effect that pre-selects `data[0]` for desktop, and the `onMouseEnter` guard) has already been applied by the user. No further breakpoint work remains.
+- `catalogActive: string | null` — единственное состояние "открытости". Оно одновременно управляет тремя вещами: контентом десктопного `mega_menu` (`data.find(cat => cat.id === catalogActive)`), синей подсветкой "active" и на десктопе, и на мобильном, и раскрытием мобильного `.mobile_accordion`.
+- `toggleCategory(id)` (обработчик клика на мобильном, включается при `window.innerWidth <= 1024`) делает `prev === id ? null : id` — классический single-open accordion.
+- Десктопный hover (`onMouseEnter`, включается при `window.innerWidth > 1024`) тоже пишет в `catalogActive` — это намеренно single-select (mega-menu панель физически может показывать контент только одной категории за раз) и **не входит в объём** этой задачи (подтверждено с пользователем).
+- Блокировка скролла страницы: `useEffect` переключает класс `no-scroll` на `document.body` в зависимости от пропа `isOpen`, без привязки к ширине экрана. Уже работает корректно, **не трогаем**.
+- Внутренний скролл панели каталога: `.catalog_container`'s `@include xs { height: calc(100vh - 50px); overflow-y: auto; ... }` в `HeaderCatalog.module.scss`. Поскольку `@include xs` теперь резолвится в `≤1024px` (пользователь уже поднял глобальный брейкпоинт), это уже покрывает весь диапазон, где используется accordion. **Правка CSS не требуется** — более высокий контент из-за одновременно открытых категорий будет скроллиться внутри существующего контейнера, а не выталкивать страницу.
+- Унификация брейкпоинта `768` → `1024` в TSX (guard в `toggleCategory`, mount-эффект, который по умолчанию выбирает `data[0]` для десктопа, и guard в `onMouseEnter`) — уже сделана пользователем. Дальнейшая работа с брейкпоинтами не требуется.
 
-## Design
+## Дизайн
 
-### State
+### Состояние
 
-Split the single `catalogActive` into two independent pieces of state:
+Разделяю единый `catalogActive` на два независимых куска состояния:
 
-- `catalogActive: string | null` — **unchanged**, still desktop-only (hover-driven), still drives `mega_menu`.
-- `openCategories: Set<string>` — **new**, mobile-only, tracks which categories are expanded in the accordion. Starts empty (`new Set()`), matching today's "nothing expanded by default" behavior.
+- `catalogActive: string | null` — **без изменений**, по-прежнему только для десктопа (управляется hover'ом), по-прежнему управляет `mega_menu`.
+- `openCategories: Set<string>` — **новое**, только для мобильного, отслеживает какие категории раскрыты в accordion. Стартует пустым (`new Set()`), что соответствует текущему поведению "по умолчанию ничего не раскрыто".
 
-### Behavior changes
+### Изменения поведения
 
-- `toggleCategory(id)` mutates `openCategories` (add if absent, remove if present) instead of replacing `catalogActive`:
+- `toggleCategory(id)` теперь мутирует `openCategories` (добавляет, если отсутствует, убирает, если есть) вместо замены `catalogActive`:
   ```ts
   const toggleCategory = (id: string) => {
     if (window.innerWidth <= 1024) {
@@ -41,36 +41,36 @@ Split the single `catalogActive` into two independent pieces of state:
     }
   };
   ```
-- The per-item `isActive` flag becomes the union of both states:
+- Флаг `isActive` для каждого пункта становится объединением обоих состояний:
   ```ts
   const isActive = catalogActive === cat.id || openCategories.has(cat.id);
   ```
-  This is safe to reuse as a single flag for both the `li` className and `.mobile_accordion`'s `accordion_open` class, because the CSS that reads it is already breakpoint-disjoint: the desktop blue-highlight rule is gated `@media (width >= 1025px)` and the mobile accordion/expand rules are gated `@include xs` (`≤1024px`). At any given viewport width, only one half of `isActive`'s two sources can realistically be true, so no JSX/CSS restructuring is required beyond the state split itself.
-- No change to `onMouseEnter`, the mount effect, the page-scroll-lock effect, or any CSS.
+  Этот единый флаг безопасно использовать и для `li`-классов, и для класса `accordion_open` у `.mobile_accordion`, потому что CSS, который его читает, уже разведён по непересекающимся брейкпоинтам: десктопная синяя подсветка включается на `@media (width >= 1025px)`, а мобильные правила accordion/раскрытия — на `@include xs` (`≤1024px`). При любой конкретной ширине экрана реально может быть истинным только один из двух источников `isActive`, поэтому кроме самого разделения состояния никакой доп. перестройки JSX/CSS не требуется.
+- `onMouseEnter`, mount-эффект, эффект блокировки скролла страницы и CSS — без изменений.
 
-### Data flow
+### Поток данных
 
 ```
-click on category (≤1024px)
+клик по категории (≤1024px)
   → toggleCategory(id)
-  → openCategories: Set<string> (add/remove id)
+  → openCategories: Set<string> (добавление/удаление id)
   → isActive = catalogActive === id || openCategories.has(id)
-  → li className + .mobile_accordion className re-evaluated
-  → CSS (@include xs, unaffected by this change) handles expand animation + panel-level scroll
+  → className у li и у .mobile_accordion пересчитываются
+  → CSS (@include xs, этой правкой не затрагивается) обрабатывает анимацию раскрытия + скролл на уровне панели
 ```
 
-Desktop hover path is unchanged: `onMouseEnter → setCatalogActive(id) → activeCategoryData → mega_menu`.
+Десктопный hover-путь не меняется: `onMouseEnter → setCatalogActive(id) → activeCategoryData → mega_menu`.
 
-### Testing / verification
+### Тестирование / проверка
 
-No test framework is configured in this project (no test runner in `package.json`). Verification will be manual, in-browser, per the project's `run`/`verify` conventions:
+В проекте не настроен тест-раннер (в `package.json` его нет). Проверка будет ручной, в браузере, по принятым в проекте конвенциям (`run`/`verify`):
 
-1. Mobile/tablet width (≤1024px): open catalog, expand category A, expand category B without A collapsing, collapse A independently — confirms multi-expand.
-2. Expand enough categories simultaneously that total content exceeds viewport height — confirm the catalog panel scrolls internally and the page behind it does not scroll (body `no-scroll` class present in devtools while open).
-3. Desktop width (≥1025px): confirm hover behavior on `mega_menu` is unchanged (single active category, switching on hover).
-4. Resize across the 1024px boundary while catalog is open — no crash, no stuck state (not a new requirement, just a regression check since the breakpoint logic is touched by proximity).
+1. Мобильная/планшетная ширина (≤1024px): открыть каталог, раскрыть категорию A, раскрыть категорию B без схлопывания A, схлопнуть A независимо — подтверждает мульти-открытие.
+2. Раскрыть достаточно категорий одновременно, чтобы суммарный контент превысил высоту viewport — убедиться, что панель каталога скроллится внутри себя, а страница за ней не скроллится (класс `no-scroll` у body присутствует в devtools, пока каталог открыт).
+3. Десктопная ширина (≥1025px): убедиться, что поведение hover на `mega_menu` не изменилось (одна активная категория, переключение по наведению).
+4. Ресайз через границу 1024px при открытом каталоге — без падений, без "залипшего" состояния (это не новое требование, а регрессионная проверка, поскольку логика брейкпоинтов затрагивается по касательной).
 
-### Out of scope (explicitly confirmed with user)
+### Вне объёма задачи (явно подтверждено с пользователем)
 
-- Desktop `mega_menu` remains single-select/hover-driven.
-- No further breakpoint unification beyond what's already done (639–1024px tablet-range visual layout of `.sidebar`/`mega_menu` is a pre-existing concern, not addressed here).
+- Десктопный `mega_menu` остаётся single-select/hover-driven.
+- Дальнейшая унификация брейкпоинтов не требуется (визуальная раскладка `.sidebar`/`mega_menu` в диапазоне 639–1024px — существующая проблема, здесь не решается).
