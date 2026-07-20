@@ -3,6 +3,7 @@
 $container-max-width: 1440px;
 $sidebar-width: 340px;
 $megamenu-width: calc(#{$container-max-width} - #{$sidebar-width});
+$catalog-left-shift: calc((100vw - min(100vw, #{$container-max-width})) / 2 + 40px);
 
 .search_wrapper {
   padding: 0 0 16px;
@@ -19,38 +20,16 @@ $megamenu-width: calc(#{$container-max-width} - #{$sidebar-width});
   transform: none;
   min-height: 100vh;
   box-shadow: 0 15px 30px rgb(0 0 0 / 0.08%);
-  clip-path: inset(1px 0 0 0);
-  // padding-top: 30px;
-  // padding-inline: 0;
-  // padding-right: 40px;
-
-  // grid-template-columns:
-  //   $sidebar-width 1fr
-  //   [mega-menu] minmax(0, $megamenu-width);
-
+ 
   @include xs {
-    left: 0;
+    left: -26px;
     display: block;
-    width: 100%;
-    overflow-y: auto;
-    height: calc(100vh - 50px);
+    width:calc( 100% + 46px );
+    height: calc(95vh - 90px);
+    min-height: 0;
     padding-inline: 0;
+    overflow-y: auto;
   }
-
-  // &::after {
-  //   position: absolute;
-  //   top: 0;
-  //   right: 100%;
-  //   display: block;
-  //   width: 100%;
-  //   height: 100%;
-  //   background-color: #f4f4f4;
-  //   content: "";
-
-  //   @include xs {
-  //     display: contents;
-  //   }
-  // }
 }
 
 .category_header {
@@ -72,10 +51,16 @@ $megamenu-width: calc(#{$container-max-width} - #{$sidebar-width});
   width: auto;
   background-color: #f4f4f4;
 
-  // grid-column: 1;
-
-  @include xs {
-    width: 100%;
+  @media (width >= 1024px) {
+    &::after {
+      position: absolute;
+      top: 0;
+      right: 100%;
+      bottom: 0;
+      width: $catalog-left-shift;
+      background-color: inherit;
+      content: "";
+    }
   }
 }
 
@@ -88,8 +73,8 @@ $megamenu-width: calc(#{$container-max-width} - #{$sidebar-width});
   padding-left: 0;
 
   @include xs {
-    height: auto;
     flex: 1;
+    height: auto;
     margin-left: 0;
   }
 }
@@ -104,7 +89,7 @@ $megamenu-width: calc(#{$container-max-width} - #{$sidebar-width});
     color 0.2s,
     background-color 0.2s;
 
-  @media (width >= 639px) {
+  @media (width >= 1025px) {
     padding: 16px 52px;
 
     &.active {
@@ -113,7 +98,12 @@ $megamenu-width: calc(#{$container-max-width} - #{$sidebar-width});
     }
   }
 
+
   @include xs {
+    &:nth-child(n+2) {
+      border-top: 0.5px solid #b8b799;
+    }
+
     &.active {
       background-color: transparent;
 
@@ -127,7 +117,7 @@ $megamenu-width: calc(#{$container-max-width} - #{$sidebar-width});
 }
 
 .active_arrow {
-  position: absolute;
+  position: relative;
   z-index: 10;
   top: 60%;
   right: -12%;
@@ -140,7 +130,7 @@ $megamenu-width: calc(#{$container-max-width} - #{$sidebar-width});
   border-right: 12px solid #fff;
   transform: translateY(-50%);
 
-  @media (width >= 638px) {
+  @media (width >= 1024px) {
     top: 60%;
     right: 0%;
   }
@@ -159,7 +149,6 @@ $megamenu-width: calc(#{$container-max-width} - #{$sidebar-width});
   }
 }
 
-
 .arrow {
   display: none;
 
@@ -177,8 +166,9 @@ $megamenu-width: calc(#{$container-max-width} - #{$sidebar-width});
 }
 
 .category_item.active .active_arrow {
-  @media (width > 638px) {
-    top: 30px;
+  @media (width > 1024px) {
+    position: absolute;
+    top: 28px;
     display: block;
   }
 }
@@ -186,7 +176,7 @@ $megamenu-width: calc(#{$container-max-width} - #{$sidebar-width});
 .mobile_accordion {
   display: none;
 
-  @media (width <= 638px) {
+  @media (width <= 1024px) {
     display: block;
     max-height: 0;
     overflow: hidden;
@@ -195,7 +185,7 @@ $megamenu-width: calc(#{$container-max-width} - #{$sidebar-width});
 }
 
 .mobile_accordion.accordion_open {
-  @media (width <= 638px) {
+  @media (width <= 1024px) {
     max-height: 400px;
   }
 }
@@ -219,7 +209,6 @@ $megamenu-width: calc(#{$container-max-width} - #{$sidebar-width});
 }
 
 .mega_menu {
-  // z-index: 0;
   position: relative;
   display: flex;
   justify-content: flex-start;
@@ -238,7 +227,7 @@ $megamenu-width: calc(#{$container-max-width} - #{$sidebar-width});
     font-weight: 700;
   }
 
-  @media (width <= 638px) {
+  @media (width <= 1024px) {
     display: none;
   }
 }
@@ -251,7 +240,7 @@ $megamenu-width: calc(#{$container-max-width} - #{$sidebar-width});
   gap: 20px 40px;
   list-style: none;
 
-  @media (width >= 639px) and (width <= 700px) {
+  @media (width >= 1025px) and (width <= 700px) {
     grid-template-columns: repeat(2, 1fr);
   }
 }

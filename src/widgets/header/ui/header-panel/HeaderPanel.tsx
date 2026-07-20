@@ -11,13 +11,8 @@ import { useOpenInput } from "./hooks/useOpenInput";
 import Loupe from "@/shared/ui/icons/loupe/Loupe";
 
 const HeaderCatalogPanel = () => {
-  const {
-    isSearchOpen,
-    isCatalogOpen,
-    isMobileCatalogOpen,
-    closeAll,
-    togglePanel,
-  } = useOpenInput();
+  
+  const {isSearchOpen, isCatalogOpen, isMobileCatalogOpen, closeAll, togglePanel} = useOpenInput();
   const [isMobile, setIsMobile] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 

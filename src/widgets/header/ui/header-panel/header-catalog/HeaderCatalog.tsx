@@ -59,10 +59,11 @@ const HeaderCatalog = ({
       catalogies: "Все для Сисечки",
       subcategories: ["Мебель", "Свет", "Декор"],
     },
+    
   ];
 
   const [catalogActive, setCatalogActive] = useState<string | null>(null);
-
+  const [openMobileCategories, setMobileCategories] = useState<Set<string>>(new Set(''))
 
   useEffect(()=>{
     isOpen ? document.body.classList.add('no-scroll') : document.body.classList.remove('no-scroll');
@@ -72,14 +73,18 @@ const HeaderCatalog = ({
   }, [isOpen])
 
   useEffect(() => {
-    if (window.innerWidth > 768) {
+    if (window.innerWidth > 1024) {
       setCatalogActive(data[0].id);
     }
   }, []);
 
   const toggleCategory = (id: string) => {
-    if (window.innerWidth <= 768) {
-      setCatalogActive((prev) => (prev === id ? null : id));
+    if (window.innerWidth <= 1024) {
+      setMobileCategories((prev) => {
+        const nextCat = new Set(prev);
+        nextCat.has(id) ? nextCat.delete(id) : nextCat.add(id);
+        return nextCat;
+      });
     }
   };
 
@@ -96,13 +101,13 @@ const HeaderCatalog = ({
         <div className={styles.sidebar}>
           <ul className={styles.categories_list}>
             {data.map((cat) => {
-              const isActive = catalogActive === cat.id;
+              const isActive = catalogActive === cat.id || openMobileCategories.has(cat.id);
               return (
                 <li
                   key={cat.id}
-                  className={`${styles.category_item} ${catalogActive === cat.id ? styles.active : ""}`}
+                  className={`${styles.category_item} ${catalogActive === cat.id  ? styles.active : ""}`}
                   onMouseEnter={() => {
-                    if (window.innerWidth > 768) setCatalogActive(cat.id);
+                    if (window.innerWidth > 1024) setCatalogActive(cat.id);
                   }}
                   onClick={() => toggleCategory(cat.id)}
                 >

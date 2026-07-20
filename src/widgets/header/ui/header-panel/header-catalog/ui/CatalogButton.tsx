@@ -14,7 +14,6 @@ const CatalogButton = ({ isOpen, onClick }: onClickProps) => {
     <>
       <button onClick={onClick} className={styles.catalog_button} type="button">
         <div className={`${styles.burger} ${isOpen ? styles.active : ""}`}>
-          {/* <span></span> */}
         </div>
         
         <span className={styles.span}>Каталог</span>

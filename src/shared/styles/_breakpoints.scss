@@ -2,7 +2,7 @@
 
 
 
-$breakpoint-md: 638px; 
+$breakpoint-md: 1024px; 
 
 @mixin xs {
   @media (width <= $breakpoint-md) {
