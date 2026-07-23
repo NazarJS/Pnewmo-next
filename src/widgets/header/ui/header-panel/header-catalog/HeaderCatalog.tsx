@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useState, useEffect, useMemo } from "react";
 import HeaderInput from "../header-input/HeaderInput";
 import styles from "./HeaderCatalog.module.scss";
 import { Arrow } from "@/shared/ui/icons/arrow/Arrow";
@@ -11,75 +12,218 @@ interface HeaderCatalogProps {
   onClick?: () => void;
 }
 
-const HeaderCatalog = ({showSearch = true, isOpen, onClick,}: HeaderCatalogProps) => {
-  const data = [
-    {
-      id: "electronics",
-      name: "Электроника",
-      catalogies: "Все для Электроники",
-      subcategories: ["Смартфоны", "Ноутбуки", "Наушники"],
-    },
-    {
-      id: "home",
-      name: "Для дома",
-      catalogies: "Все для Дома",
-      subcategories: ["Мебель", "Свет", "Декор"],
-    },
-    {
-      id: "piski",
-      name: "Письки",
-      catalogies: "Все для Письки",
-      subcategories: ["Смартфоны", "Ноутбуки", "Наушники"],
-    },
-    {
-      id: "popki",
-      name: "Попки",
-      catalogies: "Все для Попки",
-      subcategories: ["Мебель", "Свет", "Декор"],
-    },
-    {
-      id: "kaki",
-      name: "Какашечки",
-      catalogies: "Все для ",
-      subcategories: ["Смартфоны", "Ноутбуки", "Наушники"],
-    },
-    {
-      id: "pisia",
-      name: "Писечки",
-      catalogies: "Все для Писечки",
-      subcategories: ["Мебель", "Свет", "Декор"],
-    },
-    {
-      id: "siski",
-      name: "Сисечки",
-      catalogies: "Все для Сисечки",
-      subcategories: ["Мебель", "Свет", "Декор"],
-    },
-  ];
+interface Category {
+  id: number;
+  parent_id: number | null;
+  path: string;
+  slug: string;
+  name: string;
+  url: string;
+}
 
-  const [catalogActive, setCatalogActive] = useState<string | null>(null);
+interface CategoryWithChildren extends Category {
+  children: CategoryWithChildren[];
+}
 
+const HeaderCatalog = ({ showSearch = true, isOpen }: HeaderCatalogProps) => {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [catalogActive, setCatalogActive] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isDesktop, setIsDesktop] = useState(false);
 
-  useEffect(()=>{
-    isOpen ? document.body.classList.add('no-scroll') : document.body.classList.remove('no-scroll');
-    return ()=> {
-      document.body.classList.remove('no-scroll');
-    }
-  }, [isOpen])
-
+  // desktop / mobile
   useEffect(() => {
-    if (window.innerWidth > 768) {
-      setCatalogActive(data[0].id);
-    }
+    const resize = () => {
+      setIsDesktop(window.innerWidth > 768);
+    };
+
+    resize();
+    window.addEventListener("resize", resize);
+
+    return () => {
+      window.removeEventListener("resize", resize);
+    };
   }, []);
 
-  const toggleCategory = (id: string) => {
-    if (window.innerWidth <= 768) {
-      setCatalogActive((prev) => (prev === id ? null : id));
+  // Получение категорий
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setLoading(true);
+
+        const response = await fetch("http://localhost:3001/categories");
+
+        if (!response.ok) {
+          throw new Error("Ошибка загрузки категорий");
+        }
+
+        const data = await response.json();
+
+        const categoriesWithUrl: Category[] = data.map((category: any) => ({
+          id: Number(category.id),
+          parent_id: category.parent_id === null ? null : Number(category.parent_id),
+          path: category.path,
+          slug: category.slug,
+          name: category.name,
+          url: `/catalog/${category.slug}`,
+        }));
+
+        setCategories(categoriesWithUrl);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Ошибка загрузки");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  // первая категория для desktop
+  useEffect(() => {
+    if (!isDesktop || categories.length === 0) {
+      return;
     }
+
+    const root = categories.find((category) => category.parent_id === null);
+
+    if (root) {
+      setCatalogActive(root.id);
+    }
+  }, [categories, isDesktop]);
+
+  // блокировка скролла
+  useEffect(() => {
+    if (isOpen) {
+      document.body.classList.add("no-scroll");
+    } else {
+      document.body.classList.remove("no-scroll");
+    }
+
+    return () => {
+      document.body.classList.remove("no-scroll");
+    };
+  }, [isOpen]);
+
+  // построение дерева
+  const buildCategoryTree = (categories: Category[]): CategoryWithChildren[] => {
+    const map = new Map<number, CategoryWithChildren>();
+
+    categories.forEach((category) => {
+      map.set(category.id, {
+        ...category,
+        children: [],
+      });
+    });
+
+    const roots: CategoryWithChildren[] = [];
+
+    categories.forEach((category) => {
+      const node = map.get(category.id)!;
+
+      if (category.parent_id === null) {
+        roots.push(node);
+        return;
+      }
+
+      const parent = map.get(category.parent_id);
+
+      if (parent) {
+        parent.children.push(node);
+      }
+    });
+
+    return roots;
   };
 
-  const activeCategoryData = data.find((cat) => cat.id === catalogActive);
+  const categoryTree = useMemo(() => {
+    return buildCategoryTree(categories);
+  }, [categories]);
+
+  // поиск категории
+  const findCategoryById = (tree: CategoryWithChildren[], id: number): CategoryWithChildren | null => {
+    for (const category of tree) {
+      if (category.id === id) {
+        return category;
+      }
+
+      const child = findCategoryById(category.children, id);
+
+      if (child) {
+        return child;
+      }
+    }
+
+    return null;
+  };
+
+  const activeCategory = useMemo(() => {
+    if (catalogActive === null) {
+      return null;
+    }
+
+    return findCategoryById(categoryTree, catalogActive);
+  }, [catalogActive, categoryTree]);
+
+  const toggleCategory = (id: number) => {
+    if (isDesktop) {
+      return;
+    }
+
+    setCatalogActive((prev) => (prev === id ? null : id));
+  };
+
+  // mobile дерево
+  const renderSubcategories = (category: CategoryWithChildren) => {
+    if (category.children.length === 0) {
+      return null;
+    }
+
+    return (
+      <ul className={styles.mobile_subcategory_list}>
+        {category.children.map((child) => (
+          <li key={child.id} className={styles.mobile_subcategory_item}>
+            <Link href={child.url}>{child.name}</Link>
+            {renderSubcategories(child)}
+          </li>
+        ))}
+      </ul>
+    );
+  };
+
+  // mega menu
+  const renderMegaMenu = (category: CategoryWithChildren) => {
+    return (
+      <div className={styles.subcategories_wrapper}>
+        {category.children.map((subcategory) => (
+          <div key={subcategory.id} className={styles.subcategory_group}>
+            <h4 className={styles.subcategory_title}>
+              <Link href={subcategory.url}>{subcategory.name}</Link>
+            </h4>
+
+            {subcategory.children.length > 0 && (
+              <ul className={styles.subcategory_grid}>
+                {subcategory.children.map((child) => (
+                  <li key={child.id} className={styles.subcategory_item}>
+                    <Link href={child.url}>{child.name}</Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  if (loading) {
+    return <div className={styles.loading}>Загрузка...</div>;
+  }
+
+  if (error) {
+    return <div className={styles.error}>{error}</div>;
+  }
 
   return (
     <>
@@ -88,41 +232,38 @@ const HeaderCatalog = ({showSearch = true, isOpen, onClick,}: HeaderCatalogProps
           <HeaderInput />
         </div>
       )}
+
       <div className={styles.catalog_container}>
         <div className={styles.sidebar}>
           <ul className={styles.categories_list}>
-            {data.map((cat) => {
-              const isActive = catalogActive === cat.id;
+            {categoryTree.map((category) => {
+              const isActive = catalogActive === category.id;
+
               return (
                 <li
-                  key={cat.id}
-                  className={`${styles.category_item} ${catalogActive === cat.id ? styles.active : ""}`}
+                  key={category.id}
+                  className={`${styles.category_item} ${isActive ? styles.active : ""}`}
                   onMouseEnter={() => {
-                    if (window.innerWidth > 768) setCatalogActive(cat.id);
+                    if (isDesktop) {
+                      setCatalogActive(category.id);
+                    }
                   }}
-                  onClick={() => toggleCategory(cat.id)}
+                  onClick={() => toggleCategory(category.id)}
                 >
                   <div className={styles.category_header}>
-                    <span>{cat.name}</span>
-                    <div
-                      className={` ${styles.active_arrow} ${isActive ? styles.active : ""} `}
-                    >
-                      <Arrow className={styles.arrow} />
-                    </div>
+                    <Link href={category.url}>
+                      <span>{category.name}</span>
+                    </Link>
+
+                    {category.children.length > 0 && (
+                      <div className={`${styles.active_arrow} ${isActive ? styles.active : ""}`}>
+                        <Arrow className={styles.arrow} />
+                      </div>
+                    )}
                   </div>
-                  <div
-                    className={`${styles.mobile_accordion} ${isActive ? styles.accordion_open : ""}`}
-                  >
-                    <ul className={styles.mobile_subcategory_list}>
-                      {cat.subcategories.map((sub) => (
-                        <li
-                          key={sub}
-                          className={styles.mobile_subcategory_item}
-                        >
-                          {sub}
-                        </li>
-                      ))}
-                    </ul>
+
+                  <div className={`${styles.mobile_accordion} ${isActive ? styles.accordion_open : ""}`}>
+                    {renderSubcategories(category)}
                   </div>
                 </li>
               );
@@ -130,19 +271,14 @@ const HeaderCatalog = ({showSearch = true, isOpen, onClick,}: HeaderCatalogProps
           </ul>
         </div>
 
-        {activeCategoryData && (
+        {activeCategory && isDesktop && (
           <nav className={styles.mega_menu}>
             <div className={styles.mega_menu_content}>
-              <h3 className={styles.categories}>
-                {activeCategoryData.catalogies}
+              <h3 className={styles.categories_title}>
+                <Link href={activeCategory.url}>{activeCategory.name}</Link>
               </h3>
-              <ul className={styles.subcategory_grid}>
-                {activeCategoryData.subcategories.map((sub) => (
-                  <li key={sub} className={styles.subcategory_item}>
-                    {sub}
-                  </li>
-                ))}
-              </ul>
+
+              {renderMegaMenu(activeCategory)}
             </div>
           </nav>
         )}
