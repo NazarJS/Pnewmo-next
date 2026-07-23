@@ -10,6 +10,7 @@ interface HeaderCatalogProps {
   showSearch?: boolean;
   isOpen: boolean;
   onClick?: () => void;
+  onClose?: () => void;
 }
 
 interface Category {
@@ -25,7 +26,7 @@ interface CategoryWithChildren extends Category {
   children: CategoryWithChildren[];
 }
 
-const HeaderCatalog = ({ showSearch = true, isOpen }: HeaderCatalogProps) => {
+const HeaderCatalog = ({ showSearch = true, isOpen, onClose }: HeaderCatalogProps) => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [catalogActive, setCatalogActive] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
@@ -184,7 +185,7 @@ const HeaderCatalog = ({ showSearch = true, isOpen }: HeaderCatalogProps) => {
       <ul className={styles.mobile_subcategory_list}>
         {category.children.map((child) => (
           <li key={child.id} className={styles.mobile_subcategory_item}>
-            <Link href={child.url}>{child.name}</Link>
+            <Link href={child.url} onClick={onClose}>{child.name}</Link>
             {renderSubcategories(child)}
           </li>
         ))}
@@ -199,14 +200,14 @@ const HeaderCatalog = ({ showSearch = true, isOpen }: HeaderCatalogProps) => {
         {category.children.map((subcategory) => (
           <div key={subcategory.id} className={styles.subcategory_group}>
             <h4 className={styles.subcategory_title}>
-              <Link href={subcategory.url}>{subcategory.name}</Link>
+              <Link href={subcategory.url} onClick={onClose}>{subcategory.name}</Link>
             </h4>
 
             {subcategory.children.length > 0 && (
               <ul className={styles.subcategory_grid}>
                 {subcategory.children.map((child) => (
                   <li key={child.id} className={styles.subcategory_item}>
-                    <Link href={child.url}>{child.name}</Link>
+                    <Link href={child.url} onClick={onClose}>{child.name}</Link>
                   </li>
                 ))}
               </ul>
@@ -251,7 +252,7 @@ const HeaderCatalog = ({ showSearch = true, isOpen }: HeaderCatalogProps) => {
                   onClick={() => toggleCategory(category.id)}
                 >
                   <div className={styles.category_header}>
-                    <Link href={category.url}>
+                    <Link href={category.url} onClick={onClose}>
                       <span>{category.name}</span>
                     </Link>
 

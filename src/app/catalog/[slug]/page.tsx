@@ -16,7 +16,6 @@ interface Product {
   category_id: number;
 }
 
-
 async function getCategories() {
   const response = await fetch(
     "http://localhost:3001/categories",
@@ -27,7 +26,6 @@ async function getCategories() {
 
   return response.json();
 }
-
 
 async function getProducts() {
   const response = await fetch(
@@ -40,37 +38,26 @@ async function getProducts() {
   return response.json();
 }
 
-
-// получаем все вложенные категории
+// Получаем id всех вложенных категорий
 function getChildCategoryIds(
   categories: Category[],
   parentId: string
 ): string[] {
-
   const ids = [parentId];
 
-
   categories.forEach((category) => {
-
-    if (
-      String(category.parent_id) === parentId
-    ) {
-
+    if (String(category.parent_id) === parentId) {
       ids.push(
         ...getChildCategoryIds(
           categories,
           category.id
         )
       );
-
     }
-
   });
-
 
   return ids;
 }
-
 
 export default async function CatalogPage({
   params,
@@ -79,102 +66,54 @@ export default async function CatalogPage({
     slug: string;
   }>;
 }) {
-
-
   const { slug } = await params;
 
+  const [categories, allProducts] = await Promise.all([
+    getCategories(),
+    getProducts(),
+  ]);
 
-  const categories =
-    await getCategories();
-
-
-  const category =
-    categories.find(
-      (item: Category) =>
-        item.slug === slug
-    );
-
-
-  if (!category) {
-    return (
-      <h1>
-        Категория не найдена
-      </h1>
-    );
-  }
-
-
-  const categoryIds =
-    getChildCategoryIds(
-      categories,
-      category.id
-    );
-
-
-  console.log(
-    "CATEGORY IDS:",
-    categoryIds
+  const category = categories.find(
+    (item: Category) => item.slug === slug
   );
 
+  if (!category) {
+    return <h1>Категория не найдена</h1>;
+  }
 
-  const allProducts =
-    await getProducts();
+  const categoryIds = getChildCategoryIds(
+    categories,
+    category.id
+  );
 
-
- const products =
-  allProducts.filter(
+  const products = allProducts.filter(
     (product: Product) =>
       categoryIds.includes(
         String(product.category_id)
       )
   );
 
-
-  console.log(
-    "PRODUCTS:",
-    products
-  );
-
-
   return (
-    <main>
-
-      <h1>
-        {category.name}
-      </h1>
-
+    <>
+      <h1>{category.name}</h1>
 
       {products.length === 0 && (
-        <p>
-          Товаров нет
-        </p>
+        <p>Товаров нет</p>
       )}
 
-
       <div className={styles.wrap}>
+        {products.map((product: Product) => (
+          <Link
+            key={product.id}
+            href={`/product/${product.id}`}
+            className={styles.item}
+          >
+            <h2>{product.title}</h2>
 
-        {products.map(
-          (product: Product) => (
-
-            <Link
-                key={product.id}
-                href={`/product/${product.id}`}
-                className={styles.item}
-                >
-                <h2>
-                    {product.title}
-                </h2>
-
-                <p>
-                    {product.description}
-                </p>
-            </Link>
-
-          )
-        )}
-
+            <p>{product.description}</p>
+          </Link>
+        ))}
       </div>
-
-    </main>
+    </>
   );
 }

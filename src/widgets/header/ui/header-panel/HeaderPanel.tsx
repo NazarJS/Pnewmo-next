@@ -82,12 +82,12 @@ const HeaderCatalogPanel = () => {
         </div>
         {isCatalogOpen && (
               <div className={styles.container_catalog}>
-                <HeaderCatalog isOpen={isCatalogOpen} showSearch={false} />
+                <HeaderCatalog isOpen={isCatalogOpen} showSearch={false} onClose={closeAll}/>
               </div>
             )}
         {isMobileCatalogOpen && (
             <div className={styles.mobile_catalog}>
-              <HeaderCatalog isOpen={isMobileCatalogOpen} showSearch={true} />
+              <HeaderCatalog isOpen={isMobileCatalogOpen} showSearch={true} onClose={closeAll} />
             </div>
           )}
         {isMobile && isSearchOpen && (
