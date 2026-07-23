@@ -1,228 +1,3 @@
-// "use client";
-
-// import { useState, useEffect } from "react";
-// import HeaderInput from "../header-input/HeaderInput";
-// import styles from "./HeaderCatalog.module.scss";
-// import { Arrow } from "@/shared/ui/icons/arrow/Arrow";
-
-// interface HeaderCatalogProps {
-//   showSearch?: boolean;
-//   isOpen: boolean;
-//   onClick?: () => void;
-// }
-
-// interface Category {
-//   id: string;
-//   parentId: string | null;
-//   name: string;
-//   url: string;
-// }
-
-// interface CategoryWithChildren extends Category {
-//   children: CategoryWithChildren[];
-// }
-
-// const HeaderCatalog = ({ showSearch = true, isOpen, onClick }: HeaderCatalogProps) => {
-//   const [categories, setCategories] = useState<Category[]>([]);
-//   const [catalogActive, setCatalogActive] = useState<string | null>(null);
-//   const [loading, setLoading] = useState(true);
-//   const [error, setError] = useState<string | null>(null);
-
-//   useEffect(() => {
-//     const fetchCategories = async () => {
-//       try {
-//         setLoading(true);
-//         setError(null);
-        
-//         const response = await fetch("http://localhost:3001/categories");
-        
-//         if (!response.ok) {
-//           throw new Error(`HTTP error! status: ${response.status}`);
-//         }
-        
-//         const data = await response.json();
-//         // console.log("Fetched categories:", data);
-//         setCategories(data);
-        
-//         if (data.length > 0 && window.innerWidth > 768) {
-//           const rootCategory = data.find((cat: Category) => cat.parentId === null);
-//           if (rootCategory) {
-//             setCatalogActive(rootCategory.id);
-//           }
-//         }
-//       } catch (error) {
-//         // console.error("Error fetching categories:", error);
-//         setError(error instanceof Error ? error.message : "Failed to load categories");
-//         setCategories([]);
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-
-//     fetchCategories();
-//   }, []);
-
-//   useEffect(() => {
-//     isOpen ? document.body.classList.add('no-scroll') : document.body.classList.remove('no-scroll');
-//     return () => {
-//       document.body.classList.remove('no-scroll');
-//     };
-//   }, [isOpen]);
-
-//   // Функция для построения дерева категорий
-//   const buildCategoryTree = (categories: Category[]): CategoryWithChildren[] => {
-//     const categoryMap = new Map<string, CategoryWithChildren>();
-//     const roots: CategoryWithChildren[] = [];
-
-//     categories.forEach(cat => {
-//       categoryMap.set(cat.id, { ...cat, children: [] });
-//     });
-
-//     categories.forEach(cat => {
-//       const node = categoryMap.get(cat.id);
-//       if (node) {
-//         if (cat.parentId === null) {
-//           roots.push(node);
-//         } else {
-//           const parent = categoryMap.get(cat.parentId);
-//           if (parent) {
-//             parent.children.push(node);
-//           }
-//         }
-//       }
-//     });
-
-//     return roots;
-//   };
-
-//   const categoryTree = buildCategoryTree(categories);
-
-//   const findCategoryById = (tree: CategoryWithChildren[], id: string): CategoryWithChildren | null => {
-//     for (const cat of tree) {
-//       if (cat.id === id) return cat;
-//       const found = findCategoryById(cat.children, id);
-//       if (found) return found;
-//     }
-//     return null;
-//   };
-
-//   const activeCategory = catalogActive ? findCategoryById(categoryTree, catalogActive) : null;
-
-//   const toggleCategory = (id: string) => {
-//     if (window.innerWidth <= 768) {
-//       setCatalogActive((prev) => (prev === id ? null : id));
-//     }
-//   };
-
-//   const renderSubcategories = (category: CategoryWithChildren, level: number = 0) => {
-//     if (category.children.length === 0) return null;
-    
-//     return (
-//       <ul className={styles.mobile_subcategory_list} style={{ paddingLeft: `${level * 10}px` }}>
-//         {category.children.map((child) => (
-//           <li key={child.id} className={styles.mobile_subcategory_item}>
-//             <a href={child.url}>{child.name}</a>
-//             {renderSubcategories(child, level + 1)}
-//           </li>
-//         ))}
-//       </ul>
-//     );
-//   };
-
-//   if (loading) {
-//     return <div className={styles.loading}>Загрузка категорий...</div>;
-//   }
-
-//   if (error) {
-//     return <div className={styles.error}>Ошибка: {error}</div>;
-//   }
-
-//   return (
-//     <>
-//       {showSearch && (
-//         <div className={styles.search_wrapper}>
-//           <HeaderInput />
-//         </div>
-//       )}
-//       <div className={styles.catalog_container}>
-//         <div className={styles.sidebar}>
-//           <ul className={styles.categories_list}>
-//             {categoryTree.map((cat) => {
-//               const isActive = catalogActive === cat.id;
-//               return (
-//                 <li
-//                   key={cat.id}
-//                   className={`${styles.category_item} ${isActive ? styles.active : ""}`}
-//                   onMouseEnter={() => {
-//                     if (window.innerWidth > 768) setCatalogActive(cat.id);
-//                   }}
-//                   onClick={() => toggleCategory(cat.id)}
-//                 >
-//                   <div className={styles.category_header}>
-//                     <a href={cat.url}>
-//                       <span>{cat.name}</span>
-//                     </a>
-//                     {cat.children.length > 0 && (
-//                       <div className={`${styles.active_arrow} ${isActive ? styles.active : ""}`}>
-//                         <Arrow className={styles.arrow} />
-//                       </div>
-//                     )}
-//                   </div>
-//                   <div
-//                     className={`${styles.mobile_accordion} ${isActive ? styles.accordion_open : ""}`}
-//                   >
-//                     {renderSubcategories(cat)}
-//                   </div>
-//                 </li>
-//               );
-//             })}
-//           </ul>
-//         </div>
-
-//         {activeCategory && window.innerWidth > 768 && (
-//           <nav className={styles.mega_menu}>
-//             <div className={styles.mega_menu_content}>
-//               <h3 className={styles.categories_title}>
-//                 <a href={activeCategory.url}>{activeCategory.name}</a>
-//               </h3>
-              
-//               {/* Отображаем подкатегории как заголовки с их вложенными подкатегориями */}
-//               {activeCategory.children.length > 0 && (
-//                 <div className={styles.subcategories_wrapper}>
-//                   {activeCategory.children.map((childCategory) => (
-//                     <div key={childCategory.id} className={styles.subcategory_group}>
-//                       {/* Заголовок подкатегории */}
-//                       <h4 className={styles.subcategory_title}>
-//                         <a href={childCategory.url}>{childCategory.name}</a>
-//                       </h4>
-                      
-//                       {/* Вложенные подкатегории */}
-//                       {childCategory.children.length > 0 && (
-//                         <ul className={styles.subcategory_grid}>
-//                           {childCategory.children.map((subChild) => (
-//                             <li key={subChild.id} className={styles.subcategory_item}>
-//                               <a href={subChild.url}>{subChild.name}</a>
-//                             </li>
-//                           ))}
-//                         </ul>
-//                       )}
-//                     </div>
-//                   ))}
-//                 </div>
-//               )}
-//             </div>
-//           </nav>
-//         )}
-//       </div>
-//     </>
-//   );
-// };
-
-// export default HeaderCatalog;
-
-
-
-
 "use client";
 
 import Link from "next/link";
@@ -238,8 +13,10 @@ interface HeaderCatalogProps {
 }
 
 interface Category {
-  id: string;
-  parentId: string | null;
+  id: number;
+  parent_id: number | null;
+  path: string;
+  slug: string;
   name: string;
   url: string;
 }
@@ -248,54 +25,53 @@ interface CategoryWithChildren extends Category {
   children: CategoryWithChildren[];
 }
 
-const HeaderCatalog = ({
-  showSearch = true,
-  isOpen,
-}: HeaderCatalogProps) => {
+const HeaderCatalog = ({ showSearch = true, isOpen }: HeaderCatalogProps) => {
   const [categories, setCategories] = useState<Category[]>([]);
-  const [catalogActive, setCatalogActive] = useState<string | null>(null);
-
+  const [catalogActive, setCatalogActive] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
   const [isDesktop, setIsDesktop] = useState(false);
 
-  // определяем тип устройства
+  // desktop / mobile
   useEffect(() => {
     const resize = () => {
       setIsDesktop(window.innerWidth > 768);
     };
 
     resize();
-
     window.addEventListener("resize", resize);
 
-    return () => window.removeEventListener("resize", resize);
+    return () => {
+      window.removeEventListener("resize", resize);
+    };
   }, []);
 
-  // загрузка категорий
+  // Получение категорий
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         setLoading(true);
 
-        const response = await fetch(
-          "http://localhost:3001/categories"
-        );
+        const response = await fetch("http://localhost:3001/categories");
 
         if (!response.ok) {
           throw new Error("Ошибка загрузки категорий");
         }
 
-        const data: Category[] = await response.json();
+        const data = await response.json();
 
-        setCategories(data);
-      } catch (e) {
-        setError(
-          e instanceof Error
-            ? e.message
-            : "Ошибка загрузки"
-        );
+        const categoriesWithUrl: Category[] = data.map((category: any) => ({
+          id: Number(category.id),
+          parent_id: category.parent_id === null ? null : Number(category.parent_id),
+          path: category.path,
+          slug: category.slug,
+          name: category.name,
+          url: `/catalog/${category.slug}`,
+        }));
+
+        setCategories(categoriesWithUrl);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Ошибка загрузки");
       } finally {
         setLoading(false);
       }
@@ -304,18 +80,20 @@ const HeaderCatalog = ({
     fetchCategories();
   }, []);
 
-  // первая активная категория
+  // первая категория для desktop
   useEffect(() => {
-    if (!isDesktop || categories.length === 0) return;
+    if (!isDesktop || categories.length === 0) {
+      return;
+    }
 
-    const root = categories.find((cat) => cat.parentId === null);
+    const root = categories.find((category) => category.parent_id === null);
 
     if (root) {
       setCatalogActive(root.id);
     }
   }, [categories, isDesktop]);
 
-  // запрет скролла
+  // блокировка скролла
   useEffect(() => {
     if (isOpen) {
       document.body.classList.add("no-scroll");
@@ -328,11 +106,9 @@ const HeaderCatalog = ({
     };
   }, [isOpen]);
 
-  // строим дерево
-  const buildCategoryTree = (
-    categories: Category[]
-  ): CategoryWithChildren[] => {
-    const map = new Map<string, CategoryWithChildren>();
+  // построение дерева
+  const buildCategoryTree = (categories: Category[]): CategoryWithChildren[] => {
+    const map = new Map<number, CategoryWithChildren>();
 
     categories.forEach((category) => {
       map.set(category.id, {
@@ -346,12 +122,12 @@ const HeaderCatalog = ({
     categories.forEach((category) => {
       const node = map.get(category.id)!;
 
-      if (category.parentId === null) {
+      if (category.parent_id === null) {
         roots.push(node);
         return;
       }
 
-      const parent = map.get(category.parentId);
+      const parent = map.get(category.parent_id);
 
       if (parent) {
         parent.children.push(node);
@@ -365,85 +141,91 @@ const HeaderCatalog = ({
     return buildCategoryTree(categories);
   }, [categories]);
 
-  const findCategoryById = (
-    tree: CategoryWithChildren[],
-    id: string
-  ): CategoryWithChildren | null => {
+  // поиск категории
+  const findCategoryById = (tree: CategoryWithChildren[], id: number): CategoryWithChildren | null => {
     for (const category of tree) {
-      if (category.id === id) return category;
+      if (category.id === id) {
+        return category;
+      }
 
-      const child = findCategoryById(
-        category.children,
-        id
-      );
+      const child = findCategoryById(category.children, id);
 
-      if (child) return child;
+      if (child) {
+        return child;
+      }
     }
 
     return null;
   };
 
   const activeCategory = useMemo(() => {
-    if (!catalogActive) return null;
+    if (catalogActive === null) {
+      return null;
+    }
 
-    return findCategoryById(
-      categoryTree,
-      catalogActive
-    );
+    return findCategoryById(categoryTree, catalogActive);
   }, [catalogActive, categoryTree]);
 
-  const toggleCategory = (id: string) => {
-    if (isDesktop) return;
+  const toggleCategory = (id: number) => {
+    if (isDesktop) {
+      return;
+    }
 
-    setCatalogActive((prev) =>
-      prev === id ? null : id
-    );
+    setCatalogActive((prev) => (prev === id ? null : id));
   };
 
-  const renderSubcategories = (
-    category: CategoryWithChildren,
-    level = 1
-  ) => {
-    if (category.children.length === 0) return null;
+  // mobile дерево
+  const renderSubcategories = (category: CategoryWithChildren) => {
+    if (category.children.length === 0) {
+      return null;
+    }
 
     return (
-      <ul
-        className={styles.mobile_subcategory_list}
-        // style={{
-        //   paddingLeft: `${level * 16}px`,
-        // }}
-      >
+      <ul className={styles.mobile_subcategory_list}>
         {category.children.map((child) => (
-          <li
-            key={child.id}
-            className={styles.mobile_subcategory_item}
-          >
+          <li key={child.id} className={styles.mobile_subcategory_item}>
             <Link href={child.url}>{child.name}</Link>
-
-            {renderSubcategories(child, level + 1)}
+            {renderSubcategories(child)}
           </li>
         ))}
       </ul>
     );
   };
 
-  if (loading) {
+  // mega menu
+  const renderMegaMenu = (category: CategoryWithChildren) => {
     return (
-      <div className={styles.loading}>
-        Загрузка...
+      <div className={styles.subcategories_wrapper}>
+        {category.children.map((subcategory) => (
+          <div key={subcategory.id} className={styles.subcategory_group}>
+            <h4 className={styles.subcategory_title}>
+              <Link href={subcategory.url}>{subcategory.name}</Link>
+            </h4>
+
+            {subcategory.children.length > 0 && (
+              <ul className={styles.subcategory_grid}>
+                {subcategory.children.map((child) => (
+                  <li key={child.id} className={styles.subcategory_item}>
+                    <Link href={child.url}>{child.name}</Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        ))}
       </div>
     );
+  };
+
+  if (loading) {
+    return <div className={styles.loading}>Загрузка...</div>;
   }
 
   if (error) {
-    return (
-      <div className={styles.error}>
-        {error}
-      </div>
-    );
+    return <div className={styles.error}>{error}</div>;
   }
 
-    return (
+  return (
     <>
       {showSearch && (
         <div className={styles.search_wrapper}>
@@ -460,9 +242,7 @@ const HeaderCatalog = ({
               return (
                 <li
                   key={category.id}
-                  className={`${styles.category_item} ${
-                    isActive ? styles.active : ""
-                  }`}
+                  className={`${styles.category_item} ${isActive ? styles.active : ""}`}
                   onMouseEnter={() => {
                     if (isDesktop) {
                       setCatalogActive(category.id);
@@ -476,21 +256,13 @@ const HeaderCatalog = ({
                     </Link>
 
                     {category.children.length > 0 && (
-                      <div
-                        className={`${styles.active_arrow} ${
-                          isActive ? styles.active : ""
-                        }`}
-                      >
+                      <div className={`${styles.active_arrow} ${isActive ? styles.active : ""}`}>
                         <Arrow className={styles.arrow} />
                       </div>
                     )}
                   </div>
 
-                  <div
-                    className={`${styles.mobile_accordion} ${
-                      isActive ? styles.accordion_open : ""
-                    }`}
-                  >
+                  <div className={`${styles.mobile_accordion} ${isActive ? styles.accordion_open : ""}`}>
                     {renderSubcategories(category)}
                   </div>
                 </li>
@@ -503,42 +275,10 @@ const HeaderCatalog = ({
           <nav className={styles.mega_menu}>
             <div className={styles.mega_menu_content}>
               <h3 className={styles.categories_title}>
-                <Link href={activeCategory.url}>
-                  {activeCategory.name}
-                </Link>
+                <Link href={activeCategory.url}>{activeCategory.name}</Link>
               </h3>
 
-              {activeCategory.children.length > 0 && (
-                <div className={styles.subcategories_wrapper}>
-                  {activeCategory.children.map((childCategory) => (
-                    <div
-                      key={childCategory.id}
-                      className={styles.subcategory_group}
-                    >
-                      <h4 className={styles.subcategory_title}>
-                        <Link href={childCategory.url}>
-                          {childCategory.name}
-                        </Link>
-                      </h4>
-
-                      {childCategory.children.length > 0 && (
-                        <ul className={styles.subcategory_grid}>
-                          {childCategory.children.map((subChild) => (
-                            <li
-                              key={subChild.id}
-                              className={styles.subcategory_item}
-                            >
-                              <Link href={subChild.url}>
-                                {subChild.name}
-                              </Link>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
+              {renderMegaMenu(activeCategory)}
             </div>
           </nav>
         )}

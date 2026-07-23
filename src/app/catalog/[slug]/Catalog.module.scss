@@ -1,0 +1,10 @@
+.wrap{
+    display: flex;
+}
+
+.item{
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid black;
+    flex: 1;
+}

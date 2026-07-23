@@ -236,13 +236,25 @@ $megamenu-width: calc(#{$container-max-width} - #{$sidebar-width});
   }
 }
 
+.subcategory_group{
+  gap: 5px;
+}
+
+
+.subcategories_wrapper{
+  display: flex;
+  column-gap: 20px;
+}
+
 .subcategory_grid {
-  display: grid;
-  margin: 0;
-  padding: 20px 10px;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px 40px;
-  list-style: none;
+  display: flex;
+  flex-direction: column;
+  // display: grid;
+  // margin: 0;
+  // padding: 20px 10px;
+  // grid-template-columns: repeat(3, 1fr);
+  // gap: 20px 40px;
+  // list-style: none;
 
   @media (width >= 639px) and (width <= 700px) {
     grid-template-columns: repeat(2, 1fr);
