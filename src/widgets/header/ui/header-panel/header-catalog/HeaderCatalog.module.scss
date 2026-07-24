@@ -20,7 +20,7 @@ $catalog-left-shift: calc((100vw - min(100vw, #{$container-max-width})) / 2 + 40
   transform: none;
   min-height: 100vh;
   box-shadow: 0 15px 30px rgb(0 0 0 / 0.08%);
- 
+
   @include xs {
     left: -26px;
     display: block;
@@ -30,6 +30,7 @@ $catalog-left-shift: calc((100vw - min(100vw, #{$container-max-width})) / 2 + 40
     padding-inline: 0;
     overflow-y: auto;
   }
+
 }
 
 .category_header {
@@ -50,7 +51,7 @@ $catalog-left-shift: calc((100vw - min(100vw, #{$container-max-width})) / 2 + 40
   justify-content: flex-end;
   width: auto;
   background-color: #f4f4f4;
-
+  
   @media (width >= 1024px) {
     &::after {
       position: absolute;
@@ -73,6 +74,7 @@ $catalog-left-shift: calc((100vw - min(100vw, #{$container-max-width})) / 2 + 40
   padding-left: 0;
 
   @include xs {
+    height: auto;
     flex: 1;
     height: auto;
     margin-left: 0;
@@ -117,7 +119,7 @@ $catalog-left-shift: calc((100vw - min(100vw, #{$container-max-width})) / 2 + 40
 }
 
 .active_arrow {
-  position: relative;
+  position: absolute;
   z-index: 10;
   top: 60%;
   right: -12%;
@@ -185,7 +187,7 @@ $catalog-left-shift: calc((100vw - min(100vw, #{$container-max-width})) / 2 + 40
 }
 
 .mobile_accordion.accordion_open {
-  @media (width <= 1024px) {
+  @include xs {
     max-height: 400px;
   }
 }
@@ -209,6 +211,7 @@ $catalog-left-shift: calc((100vw - min(100vw, #{$container-max-width})) / 2 + 40
 }
 
 .mega_menu {
+  // z-index: 0;
   position: relative;
   display: flex;
   justify-content: flex-start;
@@ -232,13 +235,25 @@ $catalog-left-shift: calc((100vw - min(100vw, #{$container-max-width})) / 2 + 40
   }
 }
 
+.subcategory_group{
+  gap: 5px;
+}
+
+
+.subcategories_wrapper{
+  display: flex;
+  column-gap: 20px;
+}
+
 .subcategory_grid {
-  display: grid;
-  margin: 0;
-  padding: 20px 10px;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px 40px;
-  list-style: none;
+  display: flex;
+  flex-direction: column;
+  // display: grid;
+  // margin: 0;
+  // padding: 20px 10px;
+  // grid-template-columns: repeat(3, 1fr);
+  // gap: 20px 40px;
+  // list-style: none;
 
   @media (width >= 1025px) and (width <= 700px) {
     grid-template-columns: repeat(2, 1fr);

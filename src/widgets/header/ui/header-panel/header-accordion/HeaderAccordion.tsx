@@ -4,7 +4,9 @@ import styles from "./HeaderAccordion.module.scss";
 import Email from "@/shared/ui/icons/email/Email";
 import PhoneInMobile from "@/shared/ui/icons/phone/PhoneInMobile";
 import PhoneInDesktop from "@/shared/ui/icons/phone/PnoneInDesktop";
+
 import { Arrow } from "@/shared/ui/icons/arrow/Arrow";
+
 
 const HeaderAccordion = () => {
   const [isOpen, setIsOpen] = useState(false);

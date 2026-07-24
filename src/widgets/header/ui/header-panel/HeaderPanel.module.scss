@@ -6,6 +6,16 @@
   flex-direction: column;
   justify-content: center;
   border-bottom: 1px solid rgb(0 0 0 / 5%);
+
+
+  // @media (width <= 1024px) {
+  //   padding-right: 40px;
+  // }
+
+  // @media (width >= 300px) {
+  //   padding-right: 40px;
+  // }
+
 }
 
 .header_panel_features {
@@ -24,6 +34,7 @@
   @media (width <= 1024px) {
     justify-content: space-between;
   }
+
 }
 
 @include xs {
@@ -31,6 +42,14 @@
     width: 150px;
   }
 }
+
+
+@include xs {
+  .header_panel_logo {
+    width: 150px;
+  }
+}
+
 
 .desktop_catalog_button {
   display: none;
@@ -42,7 +61,7 @@
 
 .desktop_input {
   display: none;
-
+  
   @media (width >= 1025px) {
     display: block;
     flex-grow: 1;
@@ -68,7 +87,7 @@
 }
 
 @include xs {
-  .loupe {
+  .loupe{
     transform: translate(10%, 7%);
   }
 }

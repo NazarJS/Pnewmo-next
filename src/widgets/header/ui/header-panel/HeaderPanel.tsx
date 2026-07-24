@@ -11,8 +11,13 @@ import { useOpenInput } from "./hooks/useOpenInput";
 import Loupe from "@/shared/ui/icons/loupe/Loupe";
 
 const HeaderCatalogPanel = () => {
-  
-  const {isSearchOpen, isCatalogOpen, isMobileCatalogOpen, closeAll, togglePanel} = useOpenInput();
+  const {
+    isSearchOpen,
+    isCatalogOpen,
+    isMobileCatalogOpen,
+    closeAll,
+    togglePanel,
+  } = useOpenInput();
   const [isMobile, setIsMobile] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -37,7 +42,9 @@ const HeaderCatalogPanel = () => {
   return (
     <div className="container">
       <div className={`${styles.header_panel_main}`}>
-        <div className={`${styles.header_panel_features}${isSearchOpen ? "" : ""}`}>
+        <div
+          className={`${styles.header_panel_features}${isSearchOpen ? "" : ""}`}
+        >
           <div className={styles.header_panel_logo}>
             <Image
               src="/header-icons/Rectangle.svg"
@@ -60,13 +67,13 @@ const HeaderCatalogPanel = () => {
           <div className={styles.header_mobile_favorites_main}>
             <div className={styles.mobile_input_search}>
               <button onClick={() => togglePanel("search")}>
-                <Loupe className={styles.loupe}/>
+                <Loupe className={styles.loupe} />
                 <span className={styles.span_input_search}>Поиск</span>
               </button>
             </div>
-           
+
             <HeaderAccordion />
-            
+
             <div className={styles.header_desktop_favorites_main}>
               <HeaderFavorites
                 isMobileCatalogOpen={isMobileCatalogOpen}
@@ -76,15 +83,23 @@ const HeaderCatalogPanel = () => {
           </div>
         </div>
         {isCatalogOpen && (
-              <div className={styles.container_catalog}>
-                <HeaderCatalog isOpen={isCatalogOpen} showSearch={false} />
-              </div>
-            )}
+          <div className={styles.container_catalog}>
+            <HeaderCatalog
+              isOpen={isCatalogOpen}
+              showSearch={false}
+              onClose={closeAll}
+            />
+          </div>
+        )}
         {isMobileCatalogOpen && (
-            <div className={styles.mobile_catalog}>
-              <HeaderCatalog isOpen={isMobileCatalogOpen} showSearch={true} />
-            </div>
-          )}
+          <div className={styles.mobile_catalog}>
+            <HeaderCatalog
+              isOpen={isMobileCatalogOpen}
+              showSearch={true}
+              onClose={closeAll}
+            />
+          </div>
+        )}
         {isMobile && isSearchOpen && (
           <div className={styles.mobile_search_row}>
             <HeaderInput ref={inputRef} />

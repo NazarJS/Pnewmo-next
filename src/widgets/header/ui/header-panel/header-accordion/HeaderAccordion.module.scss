@@ -68,6 +68,7 @@
   @include xs {
     display: none;
   }
+
 }
 
 .phone_link {
@@ -79,10 +80,16 @@
   position: relative;
   display: flex;
   justify-content: center;
+  width: 15px;
   color: inherit;
   padding-left: 7px;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
+  
+
+  &:hover {
+    color: #39f;
+  }
 
   &:hover {
     color: #39f;
@@ -99,6 +106,7 @@
 .active_arrow.active .arrow {
   transform: translate(0%, -60%) rotateX(180deg);
 }
+
 
 .contacts_dropdown {
   position: absolute;
@@ -148,6 +156,8 @@
   color: #1a1a1a;
   font-size: 20px;
   font-weight: 700;
+
+  
 }
 
 .dropdown_subtitle {
