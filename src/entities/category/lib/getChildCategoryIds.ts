@@ -1,13 +1,13 @@
+import { Category } from "@/entities/category/model/types";
 
-import {Category} from "@/entities/category/model/types"
-
-// Получаем id всех вложенных категорий
-export default function getChildCategoryIds(categories: Category[], parentId: string): string[] {
+export default function getChildCategoryIds(categories: Category[], parentId: number): number[] {
   const ids = [parentId];
 
   categories.forEach((category) => {
-    if (String(category.parent_id) === parentId) {
-      ids.push(...getChildCategoryIds(categories, category.id));
+    if (category.parent_id === parentId) {
+      ids.push(
+        ...getChildCategoryIds(categories, category.id)
+      );
     }
   });
 
