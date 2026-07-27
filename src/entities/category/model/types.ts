@@ -7,7 +7,7 @@ export  interface Category {
   path: string;
   slug: string;
   name: string;
-  url?: string
+  url: string
 }
 
 export interface CategoryWithChildren extends Category {

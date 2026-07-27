@@ -11,7 +11,7 @@ import { fetchCategories } from "@/entities/category/api/category.api";
 interface HeaderCatalogProps {
   showSearch?: boolean;
   isOpen: boolean;
-  onClose: () => void;
+  onClose?: () => void;
 }
 
 const HeaderCatalog = ({ showSearch = true, isOpen, onClose }: HeaderCatalogProps) => {
@@ -43,26 +43,19 @@ const HeaderCatalog = ({ showSearch = true, isOpen, onClose }: HeaderCatalogProp
     loadCategories();
   }, []);
 
-  const toggleMobileCategory = (id: number) => {
-    if (window.innerWidth <= 1024) {
-      setMobileCategories((prev) => {
-        const nextCat = new Set(prev);
-        nextCat.has(id) ? nextCat.delete(id) : nextCat.add(id);
-        return nextCat;
-      });
+  // mobile/desktop
+  useEffect(() => {
+    const resize = () => {
+      setIsDesktop(window.innerWidth > 768);
+    };
 
-      const resize = () => {
-        setIsDesktop(window.innerWidth > 768);
-      };
+    resize();
+    window.addEventListener("resize", resize);
 
-      resize();
-      window.addEventListener("resize", resize);
-
-      return () => {
-        window.removeEventListener("resize", resize);
-      };
-    }
-  };
+    return () => {
+      window.removeEventListener("resize", resize);
+    };
+  }, []);
 
   // первая категория для desktop
   useEffect(() => {
@@ -161,6 +154,17 @@ const HeaderCatalog = ({ showSearch = true, isOpen, onClose }: HeaderCatalogProp
     setCatalogActive((prev) => (prev === id ? null : id));
   };
 
+  // на мобилке когда ты открываешь один каталог и если ты решишь открыть другой то  у тебя не закрывается предыдущий
+  const toggleMobileCategory = (id: number) => {
+    if (window.innerWidth <= 1024) {
+      setMobileCategories((prev) => {
+        const nextCat = new Set(prev);
+        nextCat.has(id) ? nextCat.delete(id) : nextCat.add(id);
+        return nextCat;
+      });
+    }
+  };
+
   // mobile дерево
   const renderSubcategories = (category: CategoryWithChildren) => {
     if (category.children.length === 0) {
@@ -232,23 +236,19 @@ const HeaderCatalog = ({ showSearch = true, isOpen, onClose }: HeaderCatalogProp
             {categoryTree.map((category) => {
               const isActive =
                 catalogActive === category.id || openMobileCategories.has(category.id);
+
               return (
                 <li
                   key={category.id}
                   className={`${styles.category_item} ${isActive ? styles.active : ""}`}
                   onMouseEnter={() => {
-                    if (isDesktop) {
+                    if (window.innerWidth > 1024) {
                       setCatalogActive(category.id);
                     }
                   }}
-                  onClick={() => toggleCategory(category.id)}
+                  onClick={() => toggleMobileCategory(category.id)}
                 >
                   <div className={styles.category_header}>
-                    <span>{category.name}</span>
-                    <div className={` ${styles.active_arrow} ${isActive ? styles.active : ""} `}>
-                      <Arrow className={styles.arrow} />
-                    </div>
-
                     <Link href={category.url} onClick={onClose}>
                       <span>{category.name}</span>
                     </Link>
@@ -270,12 +270,14 @@ const HeaderCatalog = ({ showSearch = true, isOpen, onClose }: HeaderCatalogProp
             })}
           </ul>
         </div>
+
         {activeCategory && isDesktop && (
           <nav className={styles.mega_menu}>
             <div className={styles.mega_menu_content}>
               <h3 className={styles.categories_title}>
                 <Link href={activeCategory.url}>{activeCategory.name}</Link>
               </h3>
+
               {renderMegaMenu(activeCategory)}
             </div>
           </nav>
