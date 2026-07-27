@@ -5,9 +5,6 @@ import Email from "@/shared/ui/icons/email/Email";
 import PhoneInMobile from "@/shared/ui/icons/phone/PhoneInMobile";
 import PhoneInDesktop from "@/shared/ui/icons/phone/PnoneInDesktop";
 
-import { Arrow } from "@/shared/ui/icons/arrow/Arrow";
-
-
 const HeaderAccordion = () => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -35,8 +32,8 @@ const HeaderAccordion = () => {
           <PhoneInDesktop
           />
           <span className={styles.phone_link}>+375 (232) 214-222</span>
-          <div className={`${styles.active_arrow} ${isOpen ? styles.active : ""}`}>
-           <Arrow className={styles.arrow} />
+          <div className={`${styles.arrow} ${isOpen ? styles.active : ""}`}>
+            <span></span>
           </div>
         </div>
         {isOpen && (
