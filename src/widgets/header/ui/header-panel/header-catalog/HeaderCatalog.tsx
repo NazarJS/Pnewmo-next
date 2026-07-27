@@ -11,7 +11,7 @@ import { fetchCategories } from "@/entities/category/api/category.api";
 interface HeaderCatalogProps {
   showSearch?: boolean;
   isOpen: boolean;
-  onClose?: () => void;
+  onClose: () => void;
 }
 
 const HeaderCatalog = ({ showSearch = true, isOpen, onClose }: HeaderCatalogProps) => {
@@ -43,19 +43,26 @@ const HeaderCatalog = ({ showSearch = true, isOpen, onClose }: HeaderCatalogProp
     loadCategories();
   }, []);
 
-  // mobile/desktop
-  useEffect(() => {
-    const resize = () => {
-      setIsDesktop(window.innerWidth > 768);
-    };
+  const toggleMobileCategory = (id: number) => {
+    if (window.innerWidth <= 1024) {
+      setMobileCategories((prev) => {
+        const nextCat = new Set(prev);
+        nextCat.has(id) ? nextCat.delete(id) : nextCat.add(id);
+        return nextCat;
+      });
 
-    resize();
-    window.addEventListener("resize", resize);
+      const resize = () => {
+        setIsDesktop(window.innerWidth > 768);
+      };
 
-    return () => {
-      window.removeEventListener("resize", resize);
-    };
-  }, []);
+      resize();
+      window.addEventListener("resize", resize);
+
+      return () => {
+        window.removeEventListener("resize", resize);
+      };
+    }
+  };
 
   // первая категория для desktop
   useEffect(() => {
@@ -236,7 +243,6 @@ const HeaderCatalog = ({ showSearch = true, isOpen, onClose }: HeaderCatalogProp
             {categoryTree.map((category) => {
               const isActive =
                 catalogActive === category.id || openMobileCategories.has(category.id);
-
               return (
                 <li
                   key={category.id}
@@ -249,6 +255,11 @@ const HeaderCatalog = ({ showSearch = true, isOpen, onClose }: HeaderCatalogProp
                   onClick={() => toggleMobileCategory(category.id)}
                 >
                   <div className={styles.category_header}>
+                    <span>{category.name}</span>
+                    <div className={` ${styles.active_arrow} ${isActive ? styles.active : ""} `}>
+                      <Arrow className={styles.arrow} />
+                    </div>
+
                     <Link href={category.url} onClick={onClose}>
                       <span>{category.name}</span>
                     </Link>
@@ -270,14 +281,12 @@ const HeaderCatalog = ({ showSearch = true, isOpen, onClose }: HeaderCatalogProp
             })}
           </ul>
         </div>
-
         {activeCategory && isDesktop && (
           <nav className={styles.mega_menu}>
             <div className={styles.mega_menu_content}>
               <h3 className={styles.categories_title}>
                 <Link href={activeCategory.url}>{activeCategory.name}</Link>
               </h3>
-
               {renderMegaMenu(activeCategory)}
             </div>
           </nav>

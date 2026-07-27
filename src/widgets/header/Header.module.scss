@@ -1,3 +1,6 @@
+
+@use "../../shared/styles/breakpoints" as *;
+
 .header_main {
   position: relative;
   z-index: 999;
@@ -5,5 +8,18 @@
   align-items: center;
   width: 100%;
   background-color: #ffff;
-   box-shadow: 0 8px 6px -2px #0000001a;  
+  box-shadow: 0 8px 6px -2px #0000001a;
+  
+  &::after {
+    position: absolute;
+    z-index: 1;
+    top: 93%;
+    left: 0;
+    width: 100%;
+    height: 6px;
+    box-shadow: 0 8px 6px -2px #0000001a;
+    pointer-events: none;
+    content: "";
+  }
 }
+

@@ -25,7 +25,7 @@ export default async function CatalogPage({ params }: { params: Promise<{ slug: 
   const productsList = allProducts ?? [];
 
   const products = productsList.filter((product: Product) =>
-    categoryIds.includes(product.category_id)
+    categoryIds.includes(product.category_id),
   );
 
   return (
