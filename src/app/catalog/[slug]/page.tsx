@@ -1,42 +1,113 @@
 import Link from "next/link";
 import styles from "./Catalog.module.scss";
-import {getCategories} from "@/entities/category/api/category.api";
-import { getProducts } from "@/entities/product/api/products.api";
-import getChildCategoryIds from "@/entities/category/lib/getChildCategoryIds";
-import { Product } from "@/entities/product/model/types";
-import {Category} from "@/entities/category/model/types";
 
-export default async function CatalogPage({ params }: { params: Promise<{ slug: string }> }) {
+interface Category {
+  id: string;
+  parent_id: string | null;
+  path: string;
+  slug: string;
+  name: string;
+}
+
+interface Product {
+  id: string;
+  title: string;
+  description: string;
+  category_id: number;
+}
+
+async function getCategories() {
+  const response = await fetch(
+    "http://localhost:3001/categories",
+    {
+      cache: "no-store",
+    }
+  );
+
+  return response.json();
+}
+
+async function getProducts() {
+  const response = await fetch(
+    "http://localhost:3001/products",
+    {
+      cache: "no-store",
+    }
+  );
+
+  return response.json();
+}
+
+// Получаем id всех вложенных категорий
+function getChildCategoryIds(
+  categories: Category[],
+  parentId: string
+): string[] {
+  const ids = [parentId];
+
+  categories.forEach((category) => {
+    if (String(category.parent_id) === parentId) {
+      ids.push(
+        ...getChildCategoryIds(
+          categories,
+          category.id
+        )
+      );
+    }
+  });
+
+  return ids;
+}
+
+export default async function CatalogPage({
+  params,
+}: {
+  params: Promise<{
+    slug: string;
+  }>;
+}) {
   const { slug } = await params;
 
-  const [rawCategories, rawProducts] = await Promise.all([getCategories(), getProducts()]);
+  const [categories, allProducts] = await Promise.all([
+    getCategories(),
+    getProducts(),
+  ]);
 
-  const categories = rawCategories ?? [];
-
-  const category = categories.find((item: Category) => item.slug === slug);
+  const category = categories.find(
+    (item: Category) => item.slug === slug
+  );
 
   if (!category) {
     return <h1>Категория не найдена</h1>;
   }
 
-  const categoryIds = getChildCategoryIds(categories, category.id);
+  const categoryIds = getChildCategoryIds(
+    categories,
+    category.id
+  );
 
-  const allProducts = rawProducts ?? [];
-  const productsList = allProducts ?? [];
-
-  const products = productsList.filter((product: Product) =>
-    categoryIds.includes(String(product.category_id)),
+  const products = allProducts.filter(
+    (product: Product) =>
+      categoryIds.includes(
+        String(product.category_id)
+      )
   );
 
   return (
     <>
       <h1>{category.name}</h1>
 
-      {products.length === 0 && <p>Товаров нет</p>}
+      {products.length === 0 && (
+        <p>Товаров нет</p>
+      )}
 
       <div className={styles.wrap}>
         {products.map((product: Product) => (
-          <Link key={product.id} href={`/product/${product.id}`} className={styles.item}>
+          <Link
+            key={product.id}
+            href={`/product/${product.id}`}
+            className={styles.item}
+          >
             <h2>{product.title}</h2>
 
             <p>{product.description}</p>

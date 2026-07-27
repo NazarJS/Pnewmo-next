@@ -3,7 +3,6 @@
 $container-max-width: 1440px;
 $sidebar-width: 340px;
 $megamenu-width: calc(#{$container-max-width} - #{$sidebar-width});
-$catalog-left-shift: calc((100vw - min(100vw, #{$container-max-width})) / 2 + 40px);
 
 .search_wrapper {
   padding: 0 0 16px;
@@ -20,17 +19,31 @@ $catalog-left-shift: calc((100vw - min(100vw, #{$container-max-width})) / 2 + 40
   transform: none;
   min-height: 100vh;
   box-shadow: 0 15px 30px rgb(0 0 0 / 0.08%);
+  clip-path: inset(1px 0 0 0);
 
   @include xs {
-    left: -26px;
+    left: 0;
     display: block;
-    width:calc( 100% + 46px );
-    height: calc(95vh - 90px);
-    min-height: 0;
-    padding-inline: 0;
+    width: 100%;
     overflow-y: auto;
+    height: calc(100vh - 50px);
+    padding-inline: 0;
   }
 
+  // &::after {
+  //   position: absolute;
+  //   top: 0;
+  //   right: 100%;
+  //   display: block;
+  //   width: 100%;
+  //   height: 100%;
+  //   background-color: #f4f4f4;
+  //   content: "";
+
+  //   @include xs {
+  //     display: contents;
+  //   }
+  // }
 }
 
 .category_header {
@@ -51,17 +64,11 @@ $catalog-left-shift: calc((100vw - min(100vw, #{$container-max-width})) / 2 + 40
   justify-content: flex-end;
   width: auto;
   background-color: #f4f4f4;
-  
-  @media (width >= 1024px) {
-    &::after {
-      position: absolute;
-      top: 0;
-      right: 100%;
-      bottom: 0;
-      width: $catalog-left-shift;
-      background-color: inherit;
-      content: "";
-    }
+
+  // grid-column: 1;
+
+  @include xs {
+    width: 100%;
   }
 }
 
@@ -76,7 +83,6 @@ $catalog-left-shift: calc((100vw - min(100vw, #{$container-max-width})) / 2 + 40
   @include xs {
     height: auto;
     flex: 1;
-    height: auto;
     margin-left: 0;
   }
 }
@@ -91,7 +97,7 @@ $catalog-left-shift: calc((100vw - min(100vw, #{$container-max-width})) / 2 + 40
     color 0.2s,
     background-color 0.2s;
 
-  @media (width >= 1025px) {
+  @media (width >= 639px) {
     padding: 16px 52px;
 
     &.active {
@@ -100,12 +106,7 @@ $catalog-left-shift: calc((100vw - min(100vw, #{$container-max-width})) / 2 + 40
     }
   }
 
-
   @include xs {
-    &:nth-child(n+2) {
-      border-top: 0.5px solid #b8b799;
-    }
-
     &.active {
       background-color: transparent;
 
@@ -132,7 +133,7 @@ $catalog-left-shift: calc((100vw - min(100vw, #{$container-max-width})) / 2 + 40
   border-right: 12px solid #fff;
   transform: translateY(-50%);
 
-  @media (width >= 1024px) {
+  @media (width >= 638px) {
     top: 60%;
     right: 0%;
   }
@@ -151,6 +152,7 @@ $catalog-left-shift: calc((100vw - min(100vw, #{$container-max-width})) / 2 + 40
   }
 }
 
+
 .arrow {
   display: none;
 
@@ -168,9 +170,8 @@ $catalog-left-shift: calc((100vw - min(100vw, #{$container-max-width})) / 2 + 40
 }
 
 .category_item.active .active_arrow {
-  @media (width > 1024px) {
-    position: absolute;
-    top: 28px;
+  @media (width > 638px) {
+    top: 30px;
     display: block;
   }
 }
@@ -178,7 +179,7 @@ $catalog-left-shift: calc((100vw - min(100vw, #{$container-max-width})) / 2 + 40
 .mobile_accordion {
   display: none;
 
-  @media (width <= 1024px) {
+  @media (width <= 638px) {
     display: block;
     max-height: 0;
     overflow: hidden;
@@ -187,7 +188,7 @@ $catalog-left-shift: calc((100vw - min(100vw, #{$container-max-width})) / 2 + 40
 }
 
 .mobile_accordion.accordion_open {
-  @include xs {
+  @media (width <= 638px) {
     max-height: 400px;
   }
 }
@@ -230,7 +231,7 @@ $catalog-left-shift: calc((100vw - min(100vw, #{$container-max-width})) / 2 + 40
     font-weight: 700;
   }
 
-  @media (width <= 1024px) {
+  @media (width <= 638px) {
     display: none;
   }
 }
@@ -255,7 +256,7 @@ $catalog-left-shift: calc((100vw - min(100vw, #{$container-max-width})) / 2 + 40
   // gap: 20px 40px;
   // list-style: none;
 
-  @media (width >= 1025px) and (width <= 700px) {
+  @media (width >= 639px) and (width <= 700px) {
     grid-template-columns: repeat(2, 1fr);
   }
 }
