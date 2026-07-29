@@ -1,87 +1,35 @@
+import { getProductId } from "@/entities/product/api/products.api";
+
 interface ProductPageProps {
   params: Promise<{
     id: string;
   }>;
 }
 
-
-interface Product {
-  id: string;
-  title: string;
-  description: string;
-  category_id: number;
-  specifications: Record<string,string>;
-}
-
-
-
-export default async function ProductPage({
-  params,
-}: ProductPageProps) {
-
-
+export default async function ProductPage({ params }: ProductPageProps) {
   const { id } = await params;
 
-
-  const response = await fetch(
-    `http://localhost:3001/products?id=${id}`
-  );
-
-
-  const data: Product[] = await response.json();
-
-
-  const product = data[0];
-
+  const product = await getProductId(id);
 
   if (!product) {
-    return (
-      <div>
-        Товар не найден
-      </div>
-    );
+    return <div>Товар не найден</div>;
   }
 
-
-
   return (
+    <>
+      <h1>{product.title}</h1>
 
-    <main>
+      <p>{product.description}</p>
 
-      <h1>
-        {product.title}
-      </h1>
-
-
-      <p>
-        {product.description}
-      </p>
-
-
-
-      <h3>
-        Характеристики
-      </h3>
-
+      <h3>Характеристики</h3>
 
       <ul>
-
-        {Object.entries(
-          product.specifications
-        ).map(([key,value]) => (
-
+        {Object.entries(product.specifications).map(([key, value]) => (
           <li key={key}>
-
             {key}: {value}
-
           </li>
-
         ))}
-
       </ul>
-
-
-    </main>
-
+    </>
   );
 }
