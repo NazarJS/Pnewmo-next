@@ -1,6 +1,6 @@
 import Link from "next/link";
 import styles from "./Catalog.module.scss";
-import {getCategories} from "@/entities/category/api/category.api";
+import {fetchCategories} from "@/entities/category/api/category.api";
 import { getProducts } from "@/entities/product/api/products.api";
 import getChildCategoryIds from "@/entities/category/lib/getChildCategoryIds";
 import { Product } from "@/entities/product/model/types";
@@ -9,7 +9,7 @@ import {Category} from "@/entities/category/model/types";
 export default async function CatalogPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
 
-  const [rawCategories, rawProducts] = await Promise.all([getCategories(), getProducts()]);
+  const [rawCategories, rawProducts] = await Promise.all([fetchCategories(), getProducts()]);
 
   const categories = rawCategories ?? [];
 
@@ -24,8 +24,9 @@ export default async function CatalogPage({ params }: { params: Promise<{ slug: 
   const allProducts = rawProducts ?? [];
   const productsList = allProducts ?? [];
 
+
   const products = productsList.filter((product: Product) =>
-    categoryIds.includes(product.category_id),
+    categoryIds.includes(product.category_id)
   );
 
   return (

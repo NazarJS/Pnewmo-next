@@ -16,7 +16,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
   }
 
   return (
-    <main>
+    <>
       <h1>{product.title}</h1>
 
       <p>{product.description}</p>
@@ -30,6 +30,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
           </li>
         ))}
       </ul>
-    </main>
+    </>
   );
 }
