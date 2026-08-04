@@ -11,24 +11,26 @@
 Три функции в `entities/product/api/products.api.ts`, которые ходят в json-server
 и делают всю фильтрацию **на сервере** (не забирают весь каталог в память):
 
-1. `getCategoryFilterSchema(categoryPath)` — какие фильтры вообще показать для категории
+1. `getCategoryFilterSchema(categoryPath)` — какие фильтры вообще показать для категории — **готово**
 2. `getFilteredProducts(categoryPath, filters)` — отфильтрованный список товаров
 3. `getFilterFieldCounts(categoryPath, activeFilters, field)` — счётчики рядом с чекбоксами
 
-Плюс два небольших чистых модуля-помощника и файл с типами.
+Плюс внутренний (неэкспортируемый) помощник `fetchProductsInCategoryScope` — общая
+для всех трёх точка, которая реально ходит в json-server и понимает, что такое
+«товары категории». Все три публичные функции построены поверх него.
 
 **Важно:** в этом пункте НЕ трогаем `app/catalog/[slug]/page.tsx` и не пишем UI.
 Это только API-слой. Проверять его будем через прямые вызовы функций/curl, не через
 браузер.
 
-## Поправка к основной спеке (важно прочитать перед стартом)
+## Поправка к основной спеке (FSD-слои)
 
 В основной спеке `buildFilterQueryParams` был указан в `features/product-filter/lib/`,
 но использует его `entities/product/api/products.api.ts`. Это нарушает правило
 Feature-Sliced Design: слой `entities` не должен зависеть от слоя `features` (`features`
 стоит выше и сам зависит от `entities`, а не наоборот).
 
-**Исправление:** всё, что нужно самому API-слою, переезжает в `entities/product`:
+**Исправление:** всё, что нужно самому API-слою, живёт в `entities/product`:
 
 | Было (в основной спеке) | Стало |
 |---|---|
@@ -36,62 +38,94 @@ Feature-Sliced Design: слой `entities` не должен зависеть о
 | `features/product-filter/lib/buildFilterQueryParams.ts` | `entities/product/lib/buildFilterQueryParams.ts` |
 | `features/product-filter/model/parseFiltersFromSearchParams.ts` | остаётся в `features/product-filter` — это перевод URL → домен, дело конкретного UI, а не сущности товара |
 
-Логика: `entities/product` описывает *что такое товар и как его фильтровать* —
-это домен. `features/product-filter` в пункте 3 будет использовать эти типы и
-функции, плюс добавит свою — как именно фильтры представлены в URL этой конкретной
-страницы. Раздел 3 основной спеки будет поправлен отдельно, когда дойдём до фичи.
+## ⚠️ Поправка №2 — реальный API json-server отличается от того, что предполагала спека
+
+Изначальный вариант этой спеки был написан по памяти о «классическом» json-server
+(0.x): `_like` как regex-фильтр, повтор одного и того же query-параметра как OR.
+Установленный в проекте `json-server@1.0.0-beta.15` — это полностью переписанная
+v1-версия с другим движком (проверено по исходникам пакета,
+`node_modules/json-server/lib/{where-operators,parse-where,matches-where}.js`,
+и живыми запросами к серверу):
+
+- **Никакого `_like`/regex нет.** Поддерживаемые операторы — только
+  `lt, lte, gt, gte, eq, ne, in, contains, startsWith, endsWith`.
+- **`startsWith`/`endsWith` — camelCase**, и через классический `key_op=value`
+  синтаксис (`category_path_startsWith=...`) они не распознаются: разбор ключа
+  `parse-where.js` матчит суффикс оператора регуляркой `[a-z]+` (только строчные
+  буквы), а `startsWith` содержит `W`. Нужен **colon-синтаксис**:
+  `category_path:startsWith=1.4.6.8.`. Для `gte/lte/gt/lt/eq/ne/in/contains`
+  (все буквы строчные) классический `_`-синтаксис работает нормально.
+- **Повтор параметра не даёт OR.** `category_id=10&category_id=11` в этой версии
+  просто перезапишет значение — выживет последнее. OR внутри одного поля даёт
+  только оператор `in` со значениями через запятую: `category_id_in=10,11`.
+- **OR между разными полями в одном запросе вообще не выразить** через плоскую
+  query-строку этой версии (сервер умеет `where.or`, но собрать такую структуру
+  из `key=value` пар клиент не может — `parse-where.js` не даёт для этого
+  синтаксиса). Из-за этого «товар категории = сам узел ИЛИ его потомок» пришлось
+  решать двумя раздельными запросами с merge на клиенте (см. `fetchProductsInCategoryScope`
+  ниже) — раньше это должен был закрывать один regex-паттерн с якорем.
+
+Старый `buildCategoryPathPattern.ts` (одна regex-строка) удалён. Вместо него —
+`entities/product/lib/buildCategoryPath.ts` с двумя маленькими функциями и
+общий приватный helper `fetchProductsInCategoryScope` в `products.api.ts`.
+
+**Практический вывод:** когда пишете новый query-параметр для json-server —
+сначала проверьте его curl'ом на реальном сервере, не полагаясь на память о
+том, «как обычно работает json-server». Именно так была найдена эта проблема:
+`category_path_like` не падал с ошибкой, а молча возвращал `200 OK` с пустым
+массивом — типичный тихий баг, который тесты «запускается без ошибок» не ловят.
 
 ## Файлы, которые нужно создать/изменить
 
 ```
 src/entities/product/
 ├── model/
-│   └── types.ts                    (дополнить: FilterField, ProductFilters)
+│   └── types.ts                (дополнить: FilterFiled, ProductFilters)      — готово
 ├── lib/
-│   ├── buildCategoryPathPattern.ts  (новый)
-│   ├── buildFilterQueryParams.ts    (новый)
-│   └── specLabels.ts                (новый — словарь подписей)
+│   ├── buildCategoryPath.ts    (categoryDescendantsParam, categorySelfParam) — готово
+│   ├── buildFilterQueryParams.ts  (новый)
+│   └── labels.ts                (словарь подписей LABELS)                    — готово
 └── api/
-    └── products.api.ts              (дополнить тремя функциями)
+    └── products.api.ts          (fetchProductsInCategoryScope — готово;
+                                   getCategoryFilterSchema — готово;
+                                   getFilteredProducts, getFilterFieldCounts — предстоит)
 ```
+
+> Примечание: в спеке изначально фигурировали имена `FilterField`/`specLabels.ts`/
+> `SPEC_LABELS` — в реальном коде прижились `FilterFiled` (опечатка, оставлена как
+> есть, т.к. уже используется в нескольких местах) и `labels.ts`/`LABELS`. Ниже
+> везде — актуальные имена из кода, не из черновика.
 
 ---
 
-## Шаг 1. Типы
+## Шаг 1. Типы — готово
 
-В `entities/product/model/types.ts` добавить:
+`entities/product/model/types.ts`:
 
 ```ts
-export type FilterField =
+export type FilterFiled =
   | { type: "range"; key: string; label: string; unit?: string; min: number; max: number }
   | { type: "enum"; key: string; label: string; values: string[] };
 
-export type ProductFilters = Record<
-  string,
-  { min: number; max: number } | string[]
->;
+export type ProductFilters = Record<string, { min: number; max: number } | string[]>;
 ```
 
-`ProductFilters` — это словарь `ключ характеристики → значение фильтра`. Значение
-либо диапазон (`{min, max}` для `type: "range"` полей), либо список выбранных строк
-(`string[]` для `type: "enum"` полей). При работе с этим типом почти везде понадобится
-`Array.isArray(value)`, чтобы понять, с каким из двух вариантов вы имеете дело —
-TypeScript сам сузит тип после такой проверки.
+`ProductFilters` — словарь `ключ характеристики → значение фильтра`: диапазон
+(`{min, max}`) для `range`-полей, список выбранных строк (`string[]`) для
+`enum`-полей. Почти везде на этом типе понадобится `Array.isArray(value)`,
+чтобы TypeScript сузил union до нужной ветки.
 
-**На что обратить внимание:** не пытайтесь сделать `ProductFilters` строго типизированным
-по конкретным ключам (`{ pressure?: ...; weight?: ... }`) — набор характеристик разный
-для каждой категории, а какая именно категория открыта, вы не знаете на этапе компиляции.
-Обычный `Record<string, ...>` здесь осознанный выбор, не недосмотр.
+`Product` также дополнен полем `specifications: Record<string, string>` —
+оно реально приходит в ответе `/products`, но раньше не было объявлено в типе.
 
 ---
 
-## Шаг 2. Словарь подписей — `entities/product/lib/specLabels.ts`
+## Шаг 2. Словарь подписей — готово
 
-Человекочитаемые названия и единицы измерения для каждого технического ключа.
-Это статические данные, не бизнес-логика — можно взять целиком:
+`entities/product/lib/labels.ts`, статические данные, без бизнес-логики:
 
 ```ts
-export const SPEC_LABELS: Record<string, { label: string; unit?: string }> = {
+export const LABELS: Record<string, { label: string; unit?: string }> = {
   bore: { label: "Диаметр поршня", unit: "мм" },
   diameter: { label: "Диаметр", unit: "мм" },
   flow: { label: "Расход", unit: "л/мин" },
@@ -114,118 +148,203 @@ export const SPEC_LABELS: Record<string, { label: string; unit?: string }> = {
 ```
 
 Ключи без `unit` — категориальные (`enum`), с `unit` — диапазонные (`range`). Но
-**не полагайтесь на этот словарь при определении типа поля** в `getCategoryFilterSchema`
-(шаг 4) — определяйте `range`/`enum` по факту наличия `spec_<key>_value` у товаров,
-а словарь используйте только для подписи. Если в словаре забудете ключ — работоспособность
-фильтра не должна от этого зависеть, страдает только подпись (см. раздел «На что
-обратить внимание»).
+тип поля в `getCategoryFilterSchema` определяется **не по этому словарю**, а по
+факту наличия `spec_<key>_value` у товаров — словарь используется только для
+подписи/юнита, и его неполнота не должна ломать сам фильтр.
 
 ---
 
-## Шаг 3. `buildCategoryPathPattern` — `entities/product/lib/buildCategoryPathPattern.ts`
+## Шаг 3. Выборка товаров категории — готово
+
+### `entities/product/lib/buildCategoryPath.ts`
 
 ```ts
-export function buildCategoryPathPattern(categoryPath: string): string {
-  const escaped = categoryPath.replace(/\./g, "\\.");
-  return `^${escaped}(\\.|$)`;
+export function categoryDescendantsParam(categoryPath: string): [string, string] {
+  return ["category_path:startsWith", `${categoryPath}.`];
+}
+
+export function categorySelfParam(categoryPath: string): [string, string] {
+  return ["category_path", categoryPath];
 }
 ```
 
-**На что обратить внимание — это самая частая ошибка в этом пункте:**
+Никакого regex и экранирования точек больше не нужно — `startsWith` в реальном
+API сравнивает строку буквально, не как паттерн. Триггер прежней ошибки (что
+`^1.4` совпал бы с `1.40` без якоря) заменился на нужду в **двух раздельных
+условиях** — см. ниже, почему одной строки недостаточно.
 
-- Без экранирования точки (`.` — спецсимвол regex, означает «любой символ») паттерн
-  `^1.4` формально совпадёт и с `1x4`, хоть в реальных путях такого не будет — экранируйте
-  всё равно, это дешёво и правильно.
-- Без якоря `(\.|$)` в конце паттерн `^1.4` совпадёт с `1.40`, `1.45`, `1.4567` —
-  то есть с совершенно другими ветками дерева, у которых просто путь начинается с тех
-  же цифр. Проверьте на реальных данных: в категориях `1.4` и `1.40` (если такая
-  появится) наличие якоря — единственное, что их разделяет.
-- Проверяйте на входных данных из `db.json`: `path` категории всегда просто `id`-шки
-  через точку (`"1.4.6.8.10"`), без пробелов и прочих спецсимволов — экранировать
-  кроме точки больше нечего.
-
-Быстрый ручной тест (можно прямо в `node`):
-
-```js
-const re = /^1\.4(\.|$)/;
-re.test("1.4")       // true — сама категория
-re.test("1.4.6")     // true — потомок
-re.test("1.40")      // false — не потомок, просто похожий id
-re.test("1.14")      // false — другая ветка
-```
-
----
-
-## Шаг 4. `getCategoryFilterSchema` — в `products.api.ts`
+### `fetchProductsInCategoryScope` — в `products.api.ts` (не экспортируется)
 
 ```ts
-export async function getCategoryFilterSchema(
-  categoryPath: string
-): Promise<FilterField[] | null> {
-  const pattern = buildCategoryPathPattern(categoryPath);
-  const response = await fetch(
-    `${BASE_URL}/products?category_path_like=${encodeURIComponent(pattern)}`
-  );
+async function fetchProductsInCategoryScope(
+  categoryPath: string,
+  extraParams: URLSearchParams = new URLSearchParams(),
+): Promise<Product[] | null> {
+  const buildUrl = ([key, value]: [string, string]) => {
+    const params = new URLSearchParams(extraParams);
+    params.set(key, value);
+    return `${BASE_URL}/products?${params.toString()}`;
+  };
 
-  if (!response.ok) {
+  const [descendantsRes, selfRes] = await Promise.all([
+    fetch(buildUrl(categoryDescendantsParam(categoryPath))),
+    fetch(buildUrl(categorySelfParam(categoryPath))),
+  ]);
+
+  if (!descendantsRes.ok || !selfRes.ok) {
     return null;
   }
 
-  const products: Product[] = await response.json();
-  // дальше — сканирование products и построение FilterField[]
+  const [descendants, self]: [Product[], Product[]] = await Promise.all([
+    descendantsRes.json(),
+    selfRes.json(),
+  ]);
+
+  const merged = new Map<string, Product>();
+  for (const product of [...descendants, ...self]) {
+    merged.set(product.id, product);
+  }
+  return [...merged.values()];
 }
 ```
 
-**Алгоритм сканирования** (заполните сами, это ядро пункта):
+**На что обратить внимание — это самая частая ловушка в этом пункте:**
 
-1. Пройтись по всем товарам, собрать множество ключей вида `spec_<key>_value`,
-   которые реально встречаются хотя бы у одного товара — это ваши `range`-поля.
-   Извлекайте `<key>` регуляркой вроде `/^spec_(.+)_value$/`, не перечисляйте ключи
-   руками — иначе схема разъедется с данными при следующем добавлении характеристики
-   в `db.json`.
-2. Для каждого такого `<key>` пройтись по товарам ещё раз (или за один проход,
-   аккумулируя) и найти `min`/`max` среди значений `spec_<key>_value` — **пропускайте
-   товары, где поля нет** (`undefined`), не считайте это как `0`.
-3. Пройтись по `specifications` каждого товара, собрать ключи, у которых **нет**
-   соответствующего `spec_<key>_value` ни у одного товара категории — это `enum`-поля.
-   Для каждого — собрать `Set` уникальных строковых значений `specifications[key]`.
-4. Для подписи и юнита — `SPEC_LABELS[key]`. Если ключа в словаре нет — не роняйте
-   функцию, подставьте сам технический ключ как label (`SPEC_LABELS[key]?.label ?? key`).
+- «Товары категории» — это **не только** потомки узла, но и товары, подвешенные
+  **прямо на сам узел**, если у него есть дети. Проверено на реальных данных:
+  `hyd_cyl_01` (category_id=37) висит прямо на категории `1.5.37`, у которой при
+  этом есть дочерние категории `1.5.37.39`/`1.5.37.40` с собственными товарами.
+  Если сделать только `startsWith` — `hyd_cyl_01` молча пропадёт из выдачи
+  категории 37, никакой ошибки не будет.
+- `extraParams` (пока пустой `URLSearchParams()`, начиная с шага 5 — фильтры)
+  применяется **к обоим** запросам одинаково — иначе после наложения фильтров
+  из одной из двух веток (self/descendants) выборка перестанет быть согласованной
+  с другой.
+- `params.set(key, value)`, а не `append` — категорийный параметр (`category_path`
+  либо `category_path:startsWith`) должен быть ровно один на запрос; если
+  `extraParams` уже содержит такой ключ — переопределяем, а не дублируем.
+- Дедупликация по `id` через `Map` технически избыточна (товар не может совпасть
+  сразу и по `eq`, и по `startsWith`), но это самый дешёвый и надёжный способ
+  слить два массива в один, ошибиться в нём сложно.
 
-**На что обратить внимание:**
+**Как проверить руками:**
 
-- Если у товара характеристика вообще отсутствует (нет ни в `specifications`, ни
-  в `spec_*_value`) — это нормально, просто пропускаете её для этого товара. Не
-  все товары категории обязаны иметь одинаковый набор характеристик (сверьтесь
-  с `db.json` — у насосов есть `thread` не у всех, например).
-- Пустая категория (0 товаров) → верните `[]`, а не `null` и не бросайте исключение.
-  `null` в этом файле зарезервирован именно под сетевую ошибку/`!response.ok`,
-  различие важно для того, кто вызывает функцию дальше.
-- Возвращаемый порядок полей в массиве — на ваше усмотрение, но имеет смысл
-  зафиксировать какой-то (например, по порядку первого появления ключа в товарах)
-  — иначе панель фильтров будет визуально «прыгать» между перерендерами.
+```
+curl "http://localhost:3001/products?category_path:startsWith=1.5.37."
+curl "http://localhost:3001/products?category_path=1.5.37"
+```
+
+Первый должен вернуть 4 товара (`hc_std_01/02`, `hd_hd_01/02`), второй — один
+(`hyd_cyl_01`). Оба вместе — это и есть корректная выборка категории 37.
 
 ---
 
-## Шаг 5. `buildFilterQueryParams` — `entities/product/lib/buildFilterQueryParams.ts`
-
-Чистая функция, без похода в сеть — только сборка `URLSearchParams`:
+## Шаг 4. `getCategoryFilterSchema` — готово
 
 ```ts
-export function buildFilterQueryParams(
-  categoryPath: string,
-  filters: ProductFilters
-): URLSearchParams {
+export async function getCategoryFilterSchema(categoryPath: string): Promise<FilterFiled[] | null> {
+  const products = await fetchProductsInCategoryScope(categoryPath);
+
+  if (products === null) {
+    return null;
+  }
+
+  const ranges = new Map<string, { min: number; max: number }>();
+  const enums = new Map<string, Set<string>>();
+  const order: string[] = [];
+
+  const rememberOrder = (key: string) => {
+    if (!order.includes(key)) {
+      order.push(key);
+    }
+  };
+
+  // проход 1: диапазонные ключи — по факту наличия spec_<key>_value
+  for (const product of products) {
+    for (const [propName, propValue] of Object.entries(product)) {
+      const match = propName.match(SPEC_VALUE_KEY_RE);
+      if (!match || typeof propValue !== "number") {
+        continue;
+      }
+
+      const key = match[1];
+      rememberOrder(key);
+
+      const current = ranges.get(key);
+      if (!current) {
+        ranges.set(key, { min: propValue, max: propValue });
+      } else {
+        current.min = Math.min(current.min, propValue);
+        current.max = Math.max(current.max, propValue);
+      }
+    }
+  }
+
+  // проход 2: категориальные ключи — то, что есть в specifications,
+  // но ни у одного товара нет соответствующего spec_<key>_value.
+  // Отдельный проход после того, как ranges уже полностью собран —
+  // иначе результат зависел бы от порядка товаров в ответе.
+  for (const product of products) {
+    for (const [key, value] of Object.entries(product.specifications ?? {})) {
+      if (ranges.has(key)) {
+        continue;
+      }
+      rememberOrder(key);
+      const values = enums.get(key) ?? new Set<string>();
+      values.add(value);
+      enums.set(key, values);
+    }
+  }
+
+  return order.map((key): FilterFiled => {
+    const meta = LABELS[key];
+    const label = meta?.label ?? key;
+
+    const range = ranges.get(key);
+    if (range) {
+      return { type: "range", key, label, unit: meta?.unit, min: range.min, max: range.max };
+    }
+
+    const values = enums.get(key) ?? new Set<string>();
+    return { type: "enum", key, label, values: [...values] };
+  });
+}
+```
+
+(`SPEC_VALUE_KEY_RE = /^spec_(.+)_value$/` объявлена рядом, в начале файла.)
+
+**Проверено на реальном сервере:**
+
+- категория с товарами (`"2"` — Пневматика) → смешанная схема из `range` и
+  `enum` полей;
+- несуществующая/пустая категория (`"1.14.87"`) → `[]`, без исключения;
+- категория 37 (self + потомки) → границы диапазонов действительно учитывают
+  все 5 товаров, включая `hyd_cyl_01`.
+
+---
+
+## Шаг 5. `buildFilterQueryParams` — предстоит
+
+`entities/product/lib/buildFilterQueryParams.ts`. Чистая функция, без похода в
+сеть — собирает **только** условия по характеристикам, категория сюда не
+входит (её накладывает `fetchProductsInCategoryScope`):
+
+```ts
+export function buildFilterQueryParams(filters: ProductFilters): URLSearchParams {
   const params = new URLSearchParams();
-  params.append("category_path_like", buildCategoryPathPattern(categoryPath));
 
   for (const [key, value] of Object.entries(filters)) {
     if (Array.isArray(value)) {
-      // enum: OR внутри группы — повтор одного и того же ключа
-      value.forEach((v) => params.append(`specifications.${key}`, v));
+      if (value.length === 0) {
+        continue;
+      }
+      // OR внутри группы — оператор `in`, значения через запятую.
+      // НЕ через повтор параметра (append) — в этой версии json-server
+      // повтор ключа не даёт OR, выживает последнее значение.
+      params.set(`specifications.${key}_in`, value.join(","));
     } else {
-      params.append(`spec_${key}_value_gte`, String(value.min));
-      params.append(`spec_${key}_value_lte`, String(value.max));
+      params.set(`spec_${key}_value_gte`, String(value.min));
+      params.set(`spec_${key}_value_lte`, String(value.max));
     }
   }
 
@@ -235,52 +354,57 @@ export function buildFilterQueryParams(
 
 **На что обратить внимание:**
 
-- `URLSearchParams.append` (не `set`!) — принципиально для OR-семантики enum-фильтра:
-  несколько значений одного ключа (`specifications.material=сталь&specifications.material=алюминий`)
-  должны попасть в query как повторяющийся параметр, а не перезаписать друг друга.
-- Это ровно та же логика повтора параметра, что уже используется в проекте для
-  `category_id=X&category_id=Y` — но теперь на dot-notation ключе. **Обязательно
-  проверьте вручную через curl**, что json-server действительно трактует повтор
-  `specifications.material=...` как OR (а не игнорирует все вхождения кроме
-  последнего) — это комбинация (dot-notation + repeat), которую в проекте раньше
-  не использовали, полагаться на аналогию с `category_id` недостаточно.
-- Пустой `filters` (`{}`) должен дать `URLSearchParams`, где есть только
-  `category_path_like` — то есть эквивалентно «без фильтров вообще». Проверьте это
-  отдельным тестовым вызовом.
+- Значения в `value.join(",")` не должны сами содержать запятую — характеристики
+  здесь технические строки из `db.json` (`"сталь"`, `"G1/2"` и т.п.), запятых в
+  них не бывает, но если появится значение с запятой — `in`-разбор на сервере
+  (`value.split(',')` в `parse-where.js`) его сломает. Для нынешних данных это
+  не проблема, просто держите в уме источник ограничения.
+- Пустой `filters` (`{}`) должен дать пустой `URLSearchParams` — то есть
+  `fetchProductsInCategoryScope` с таким результатом эквивалентен «без фильтров
+  вообще». Проверьте отдельным вызовом.
+- Пустой массив `string[]` для `enum`-поля (все чекбоксы сняты) — это не то же
+  самое, что «фильтр не задан»: технически такое поле нужно пропустить (см.
+  `if (value.length === 0) continue`), а не отправлять `..._in=` с пустой строкой
+  справа — иначе `value.split(',')` даст `[""]`, и сервер будет искать буквально
+  пустую строку как значение характеристики.
+
+**Проверка через curl** (после того как функция готова — руками, минуя код):
+
+```
+curl "http://localhost:3001/products?category_path:startsWith=1.4.&specifications.material_in=сталь,алюминий"
+```
+
+Должны вернуться товары из ветки `1.4.*` с `material` равным **либо** «сталь»,
+**либо** «алюминий» — то есть OR действительно работает через `_in`, а не
+через повтор ключа.
 
 ---
 
-## Шаг 6. `getFilteredProducts` — в `products.api.ts`
+## Шаг 6. `getFilteredProducts` — предстоит
 
 ```ts
 export async function getFilteredProducts(
   categoryPath: string,
-  filters: ProductFilters
+  filters: ProductFilters,
 ): Promise<Product[] | null> {
-  const params = buildFilterQueryParams(categoryPath, filters);
-  const response = await fetch(`${BASE_URL}/products?${params.toString()}`);
-
-  if (!response.ok) {
-    return null;
-  }
-
-  return response.json();
+  const params = buildFilterQueryParams(filters);
+  return fetchProductsInCategoryScope(categoryPath, params);
 }
 ```
 
-Здесь логики почти нет — вся сложность уже в `buildFilterQueryParams`. Главное —
-не забыть `${params.toString()}`, а не подставлять объект `URLSearchParams` в
-строку напрямую (он сам по себе не строка).
+Вся сложность уже разложена по `buildFilterQueryParams` (что фильтровать) и
+`fetchProductsInCategoryScope` (как выбрать категорию) — сама функция здесь
+почти не содержит логики, это осознанно.
 
 ---
 
-## Шаг 7. `getFilterFieldCounts` — в `products.api.ts`
+## Шаг 7. `getFilterFieldCounts` — предстоит
 
 ```ts
 export async function getFilterFieldCounts(
   categoryPath: string,
   activeFilters: ProductFilters,
-  field: FilterField
+  field: FilterFiled,
 ): Promise<Record<string, number> | null> {
   if (field.type !== "enum") {
     return null; // счётчики нужны только чекбоксам
@@ -310,54 +434,43 @@ export async function getFilterFieldCounts(
 **На что обратить внимание — это концептуально самая тонкая часть пункта:**
 
 - Ключевая строка — `const { [field.key]: _own, ...filtersWithoutOwnGroup } = activeFilters`.
-  Здесь мы убираем фильтр **именно по полю, для которого считаем счётчики**, но
-  оставляем все остальные активные фильтры. Если этого не сделать (использовать
-  весь `activeFilters` как есть), то после выбора значения `"сталь"` в фильтре
-  `material` все остальные значения (`"алюминий"`, `"силикон"`) начнут показывать
-  `(0)`, потому что выборка уже отфильтрована по `material=сталь` — чекбоксы станут
-  «мёртвыми». Именно это правило описано в §2c основной спеки.
-- Обратите внимание, что здесь используется `product.specifications`, а не
-  `spec_<key>_value` — счётчики считаются только для `enum`-полей, у них исходное
-  значение всегда живёт в `specifications`, числового дубля нет (см. пункт 1: мы
-  сознательно не создавали `spec_<key>_value` для категориальных ключей).
-- Эта функция делает **отдельный сетевой запрос** внутри себя (через
-  `getFilteredProducts`). Это осознанное решение из основной спеки: по одному
-  запросу на каждое `enum`-поле схемы (обычно 2–4 на категорию), не один
-  супер-запрос на всё сразу — json-server не умеет `GROUP BY`, агрегировать
-  можно только тем, что есть.
-- `product.specifications?.[field.key]` — опциональная цепочка на случай, если у
-  конкретного товара характеристики вообще нет (не факт, что все товары в
-  подвыборке её имеют).
+  Убираем фильтр **именно по полю, для которого считаем счётчики**, оставляя все
+  остальные активные фильтры. Без этого после выбора `"сталь"` в `material` все
+  остальные значения (`"алюминий"`, `"силикон"`) покажут `(0)` — чекбоксы станут
+  «мёртвыми». Это правило описано в §2c основной спеки.
+- `product.specifications?.[field.key]`, а не `spec_<key>_value` — счётчики
+  считаются только для `enum`-полей, у которых числового дубля нет (см. пункт 1).
+- Функция делает **отдельный сетевой запрос** внутри себя (через
+  `getFilteredProducts`, а значит — через `fetchProductsInCategoryScope`, то
+  есть фактически 2 запроса per вызов: self + descendants). По одному вызову
+  на каждое `enum`-поле схемы (обычно 2–4 на категорию) — json-server не умеет
+  `GROUP BY`, агрегировать можно только тем, что реально есть.
 
 ---
 
 ## Как проверить, что всё работает (без UI, без страницы каталога)
 
-Поднимите json-server (`npx json-server db.json`, порт по умолчанию из
-`BASE_URL` — `3001`) и проверяйте функции точечно.
+Поднимите json-server (`npx json-server db.json`, порт из `BASE_URL` — `3001`,
+либо временно смените `BASE_URL` на другой порт, если основной сервер уже занят
+дев-сессией) и проверяйте функции точечно.
 
-1. **Паттерн пути** — curl напрямую:
+1. **Категория (self + potомки)** — см. curl-примеры в шаге 3.
+2. **Диапазон** — `&spec_pressure_value_gte=300&spec_pressure_value_lte=400`,
+   сверьте вручную по `db.json`.
+3. **OR по enum через `_in`** — curl-пример в шаге 5. Не проверяйте это по
+   аналогии с чем-то виденным раньше в проекте — именно эта комбинация
+   (dot-notation + `_in`) нигде больше не использовалась, и то, как она разбирается
+   (`parse-where.js` → `setProperty` из `dot-prop`), стоит увидеть вживую хотя
+   бы один раз.
+4. **Функции целиком** — postоянных тестов в проекте нет (`package.json`
+   подтверждает: ни одного test-раннера). Быстрый способ прогнать реальную
+   функцию без запуска Next.js — временный `.mts`-файл с относительным (не
+   `@/`) импортом и `npx tsx`:
+   ```ts
+   import { getFilteredProducts } from "./src/entities/product/api/products.api.ts";
+   console.log(await getFilteredProducts("1.4.6.8", { pressure: { min: 300, max: 400 } }));
    ```
-   curl "http://localhost:3001/products?category_path_like=%5E1%5C.4%28%5C.%7C%24%29"
-   ```
-   (это urlencoded `^1\.4(\.|$)`) — должны вернуться все товары ветки «Гидравлика →
-   Смазочная техника», и ничего лишнего.
-
-2. **Диапазон** — добавьте `&spec_pressure_value_gte=300&spec_pressure_value_lte=400`
-   к любому рабочему запросу категории, сверьте вручную по `db.json`, что вернулись
-   именно те товары, у которых `spec_pressure_value` в этих границах.
-
-3. **OR по enum** — `&specifications.material=сталь&specifications.material=алюминий`,
-   проверьте, что вернулись товары с обоими значениями, а не только с одним
-   (это тот самый пункт, который нельзя просто предположить по аналогии).
-
-4. **Функции целиком** — временно вызовите их из любого серверного скрипта
-   (например, добавьте `console.log` вызов в `page.tsx` под `if (process.env.NODE_ENV
-   === "development")` и уберите после проверки, либо напишите одноразовый
-   `scripts/check-filters.ts` и прогоните через `npx tsx`) — постоянных тестов
-   в проекте нет (`package.json` подтверждает: ни одного test-раннера), так что
-   ручная проверка через реальный fetch — единственный способ убедиться, что
-   всё работает.
+   Удалите файл после проверки — это одноразовый скрипт, не часть пункта.
 
 ---
 
