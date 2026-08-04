@@ -49,11 +49,23 @@ interface Product {
 
 ## 2. API-слой (`entities/product/api/products.api.ts`)
 
-Два независимых запроса к json-server, каждый ограничен `category_id` (не всем каталогом целиком):
+### Выборка по категории — через `category_path`, а не обход `parent_id`
 
-### a) Схема фильтров — `getCategoryFilterSchema(categoryIds: number[])`
+У категорий и товаров в `db.json` уже есть поле `path`/`category_path` (`"1.4.6.8.10"`) — ровно то, что нужно для выборки поддерева одним предикатом, без рекурсивного обхода `parent_id` в JS (как сейчас делает `getChildCategoryIds`). Все функции ниже принимают `categoryPath: string` (значение `category.path` найденной по `slug` категории), а не список `categoryIds`.
 
-Запрашивает товары категории **без фильтров** (`GET /products?category_id=10&category_id=11...`), сканирует их и строит схему:
+json-server поддерживает `_like` как проверку по регулярному выражению, поэтому поддерево выбирается одним параметром:
+
+```
+category_path_like=^1\.4(\.|$)
+```
+
+Якорь `(\.|$)` обязателен — без него `^1\.4` совпадёт и с `1.40`, `1.45` и т.п. (совпадение по префиксу строки, а не по узлу дерева).
+
+Три независимых запроса к json-server, каждый ограничен этим предикатом (не всем каталогом целиком):
+
+### a) Схема фильтров — `getCategoryFilterSchema(categoryPath: string)`
+
+Запрашивает товары категории **без фильтров** (`GET /products?category_path_like=^1.4(\.|$)`), сканирует их и строит схему:
 
 ```ts
 type FilterField =
@@ -67,15 +79,23 @@ type FilterField =
 
 Схема считается от **полного набора товаров категории**, а не от уже отфильтрованного списка — иначе границы слайдера «плавали» бы при каждом изменении фильтра. Это отдельный, самостоятельный запрос.
 
-### b) Отфильтрованный список — `getFilteredProducts(categoryIds: number[], filters: ProductFilters)`
+### b) Отфильтрованный список — `getFilteredProducts(categoryPath: string, filters: ProductFilters)`
 
 Строит `URLSearchParams` и уходит в json-server:
 
-- категории (OR): `category_id=10&category_id=11`
+- категория: `category_path_like=^1.4(\.|$)`
 - диапазон: `spec_pressure_value_gte=100&spec_pressure_value_lte=400`
 - категориальное точное совпадение: `specifications.material=сталь` (json-server поддерживает dot-notation для точного совпадения по вложенному полю)
 
-Оба запроса решают проблему масштабирования: сервер получает только товары нужной категории и сразу агрегированные/отфильтрованные — полный каталог нигде не выгружается целиком.
+### c) Счётчики для чекбоксов — `getFilterFieldCounts(categoryPath, activeFilters, field)`
+
+Для каждого `enum`-поля схемы счётчик рядом с каждым его значением считается по выборке, к которой применены **все активные фильтры, кроме фильтра по этому же полю** — иначе после выбора одного значения все остальные чекбоксы в той же группе показали бы `(0)` и стали бы недоступны для выбора.
+
+Реализуется как ещё один запрос к `getFilteredProducts(categoryPath, filtersWithoutThisField)` (по одному на каждое `enum`-поле схемы — их немного, 2–4 на категорию) с подсчётом вхождений каждого значения по возвращённым товарам. Все эти запросы по-прежнему ограничены категорией, а не всем каталогом.
+
+Значения с нулевым счётчиком в `ProductFilterPanel` **дизейблятся, а не скрываются** — пропадающие опции ломают ориентацию пользователя в панели.
+
+Все три запроса решают проблему масштабирования: сервер получает только товары нужной категории и сразу агрегированные/отфильтрованные — полный каталог нигде не выгружается целиком.
 
 ## 3. Фича `product-filter` + интеграция со страницей каталога
 
@@ -88,7 +108,7 @@ type FilterField =
 - `lib/buildFilterQueryParams.ts` — чистая функция `ProductFilters → URLSearchParams`, используется в `products.api.ts` при построении запроса к json-server
 - `ui/ProductFilterPanel.tsx` (+ `ProductFilterPanel.module.scss`) — клиентский компонент (`"use client"`), рендерит по каждому полю схемы:
   - `type: "range"` → слайдер/два числовых инпута с границами `min`/`max` из схемы
-  - `type: "enum"` → список чекбоксов по `values` из схемы
+  - `type: "enum"` → список чекбоксов по `values` из схемы, рядом с каждым — счётчик из `getFilterFieldCounts`; значения с `count === 0` рендерятся задизейбленными (не скрываются)
 
 ### Состояние — единственный источник истины: URL
 
@@ -103,21 +123,24 @@ type FilterField =
 Остаётся серверным (async) компонентом, дополнительно принимает `searchParams`:
 
 ```
-1. найти категорию по slug (как сейчас)
-2. categoryIds = getChildCategoryIds(...)
-3. filters = parseFiltersFromSearchParams(searchParams)
-4. Promise.all([
-     getCategoryFilterSchema(categoryIds),
-     getFilteredProducts(categoryIds, filters),
+1. найти категорию по slug (как сейчас) → берём её category.path
+2. filters = parseFiltersFromSearchParams(searchParams)
+3. Promise.all([
+     getCategoryFilterSchema(category.path),
+     getFilteredProducts(category.path, filters),
+     ...enumFields.map(field => getFilterFieldCounts(category.path, filters, field)),
    ])
-5. рендер: <ProductFilterPanel schema={schema} activeFilters={filters} />
+4. рендер: <ProductFilterPanel schema={schema} counts={counts} activeFilters={filters} />
    рядом с сеткой товаров
 ```
+
+Шаг с `getChildCategoryIds` больше не нужен для этой фичи — `category_path_like` заменяет рекурсивный обход `parent_id` одним предикатом на сервере.
 
 ## 4. Обработка ошибок и краевые случаи
 
 - **Нет товаров в категории** — `getCategoryFilterSchema` возвращает пустой массив полей → `ProductFilterPanel` не рендерится вовсе.
 - **Сбой запроса к json-server** — `getFilteredProducts`/`getCategoryFilterSchema` возвращают `null`, страница фолбэчит на `?? []`, тем же паттерном, что уже используется в `getProducts`/`getProductId`.
+- **Сбой одного из запросов `getFilterFieldCounts`** — счётчик у этого поля просто не показывается (чекбоксы остаются кликабельными без числа рядом), не блокирует рендер остальной панели и списка товаров.
 - **Битые/произвольные query-параметры в URL** (пользователь вручную подправил ссылку) — `parseFiltersFromSearchParams` молча игнорирует нераспознанные ключи и нечисловые значения диапазонов, не бросает исключение.
 - **Пустые фильтры** (первый заход на страницу категории, ни один фильтр не тронут) — поведение идентично сегодняшнему списку без фильтров, регрессии нет.
 - **Переход в другую категорию** — фильтры сами не переносятся, так как это новый `slug`-роут с чистыми `searchParams`; специальный код сброса не нужен.
