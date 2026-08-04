@@ -1,10 +1,9 @@
 import { Product, ProductId, FilterFiled } from "@/entities/product/model/types";
 import { categoryDescendantsParam, categorySelfParam } from "@/entities/product/lib/buildCategoryPath";
 import { LABELS } from "@/entities/product/lib/labels";
+import {API_BASE_URL } from "@/shared/api/config"
 
 const SPEC_VALUE_KEY_RE = /^spec_(.+)_value$/;
-
-const BASE_URL = "http://localhost:3001";
 
 // Товары категории = сам узел (eq) ИЛИ его потомки (startsWith) — два раздельных
 // запроса, т.к. этот json-server не умеет OR между разными полями в одном запросе.
@@ -17,7 +16,7 @@ async function fetchProductsInCategoryScope(
   const buildUrl = ([key, value]: [string, string]) => {
     const params = new URLSearchParams(extraParams);
     params.set(key, value);
-    return `${BASE_URL}/products?${params.toString()}`;
+    return `${API_BASE_URL}/products?${params.toString()}`;
   };
 
   const [descendantsRes, selfRes] = await Promise.all([
@@ -44,7 +43,7 @@ async function fetchProductsInCategoryScope(
 }
 
 export async function getProducts(): Promise<Product[] | null> {
-  const response = await fetch(`${BASE_URL}/products`);
+  const response = await fetch(`${API_BASE_URL}/products`);
 
   if (!response.ok) {
     return null;
@@ -53,7 +52,7 @@ export async function getProducts(): Promise<Product[] | null> {
 }
 
 export async function getProductId(id: string): Promise<ProductId | null> {
-  const response = await fetch(`${BASE_URL}/products?id=${id}`);
+  const response = await fetch(`${API_BASE_URL}/products?id=${id}`);
 
   if (!response.ok) {
     return null;

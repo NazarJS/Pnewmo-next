@@ -1,10 +1,10 @@
 import { Category, CategoryDTO } from "@/entities/category/model/types";
+import {API_BASE_URL } from "@/shared/api/config"
 
-const BASE_URL = "http://localhost:3001";
 
 export async function fetchCategories(): Promise<Category[]> {
   const response = await fetch(
-    `${BASE_URL}/categories`,
+    `${API_BASE_URL}/categories`,
     {
       cache: "no-store",
     }
