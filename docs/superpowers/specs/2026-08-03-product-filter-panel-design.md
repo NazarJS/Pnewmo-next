@@ -101,11 +101,14 @@ type FilterField =
 
 Новый слой `src/features/` (первый в проекте) — по конвенции Feature-Sliced Design фильтрация товаров является бизнес-действием пользователя (фичей), а не просто секцией страницы, поэтому не подходит под `widgets`.
 
+**Поправка (см. `filtres/2026-08-04-product-filter-api-layer.md`):** типы `FilterField`/`ProductFilters`
+и `buildFilterQueryParams` переехали в `entities/product` (`model/types.ts` и `lib/`) — их использует
+`entities/product/api/products.api.ts`, а `entities` не должен зависеть от `features` по правилам FSD.
+В `features/product-filter` остаётся только то, что специфично для этой конкретной UI-страницы.
+
 ### `src/features/product-filter/`
 
-- `model/types.ts` — `FilterField` (из схемы) и `ProductFilters` (текущее состояние: `{ [key]: { min: number; max: number } | string[] }`)
-- `model/parseFiltersFromSearchParams.ts` — чистая функция `URLSearchParams → ProductFilters`
-- `lib/buildFilterQueryParams.ts` — чистая функция `ProductFilters → URLSearchParams`, используется в `products.api.ts` при построении запроса к json-server
+- `model/parseFiltersFromSearchParams.ts` — чистая функция `URLSearchParams → ProductFilters` (тип `ProductFilters` импортируется из `entities/product`)
 - `ui/ProductFilterPanel.tsx` (+ `ProductFilterPanel.module.scss`) — клиентский компонент (`"use client"`), рендерит по каждому полю схемы:
   - `type: "range"` → слайдер/два числовых инпута с границами `min`/`max` из схемы
   - `type: "enum"` → список чекбоксов по `values` из схемы, рядом с каждым — счётчик из `getFilterFieldCounts`; значения с `count === 0` рендерятся задизейбленными (не скрываются)
