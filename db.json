@@ -292,6 +292,9 @@
         "flow": "до 2 л/мин",
         "weight": "25 кг"
       },
+      "spec_pressure_value": 400,
+      "spec_flow_value": 2,
+      "spec_weight_value": 25,
       "category_id": 10,
       "category_path": "1.4.6.8.10"
     },
@@ -305,6 +308,9 @@
         "flow": "до 3 л/мин",
         "weight": "32 кг"
       },
+      "spec_pressure_value": 450,
+      "spec_flow_value": 3,
+      "spec_weight_value": 32,
       "category_id": 11,
       "category_path": "1.4.6.8.11"
     },
@@ -318,6 +324,9 @@
         "flow": "до 1.5 л/мин",
         "weight": "18 кг"
       },
+      "spec_pressure_value": 350,
+      "spec_flow_value": 1.5,
+      "spec_weight_value": 18,
       "category_id": 12,
       "category_path": "1.4.6.8.12"
     },
@@ -331,6 +340,9 @@
         "flow": "до 0.5 л/мин",
         "weight": "2.5 кг"
       },
+      "spec_pressure_value": 350,
+      "spec_flow_value": 0.5,
+      "spec_weight_value": 2.5,
       "category_id": 13,
       "category_path": "1.4.6.9.13"
     },
@@ -344,6 +356,9 @@
         "flow": "до 0.3 л/мин",
         "weight": "2.3 кг"
       },
+      "spec_pressure_value": 350,
+      "spec_flow_value": 0.3,
+      "spec_weight_value": 2.3,
       "category_id": 14,
       "category_path": "1.4.6.9.14"
     },
@@ -358,6 +373,9 @@
         "thread": "BSP 1/4",
         "weight": "1.8 кг"
       },
+      "spec_pressure_value": 300,
+      "spec_flow_value": 0.2,
+      "spec_weight_value": 1.8,
       "category_id": 15,
       "category_path": "1.4.6.9.15"
     },
@@ -372,6 +390,9 @@
         "thread": "BSP 3/8",
         "weight": "2.1 кг"
       },
+      "spec_pressure_value": 320,
+      "spec_flow_value": 0.4,
+      "spec_weight_value": 2.1,
       "category_id": 15,
       "category_path": "1.4.6.9.15"
     },
@@ -387,6 +408,9 @@
         "weight": "2.4 кг",
         "control": "Интеллектуальная система контроля"
       },
+      "spec_pressure_value": 350,
+      "spec_flow_value": 0.3,
+      "spec_weight_value": 2.4,
       "category_id": 15,
       "category_path": "1.4.6.9.15"
     },
@@ -402,6 +426,11 @@
         "pressure": "до 250 бар",
         "weight": "45 кг"
       },
+      "spec_bore_value": 100,
+      "spec_rod_value": 50,
+      "spec_stroke_value": 500,
+      "spec_pressure_value": 250,
+      "spec_weight_value": 45,
       "category_id": 37,
       "category_path": "1.5.37"
     },
@@ -417,6 +446,11 @@
         "pressure": "до 200 бар",
         "weight": "28 кг"
       },
+      "spec_bore_value": 80,
+      "spec_rod_value": 40,
+      "spec_stroke_value": 300,
+      "spec_pressure_value": 200,
+      "spec_weight_value": 28,
       "category_id": 38,
       "category_path": "1.5.38"
     },
@@ -432,6 +466,11 @@
         "pressure": "до 210 бар",
         "weight": "18 кг"
       },
+      "spec_bore_value": 63,
+      "spec_rod_value": 36,
+      "spec_stroke_value": 250,
+      "spec_pressure_value": 210,
+      "spec_weight_value": 18,
       "category_id": 39,
       "category_path": "1.5.37.39"
     },
@@ -447,6 +486,11 @@
         "pressure": "до 250 бар",
         "weight": "65 кг"
       },
+      "spec_bore_value": 125,
+      "spec_rod_value": 70,
+      "spec_stroke_value": 600,
+      "spec_pressure_value": 250,
+      "spec_weight_value": 65,
       "category_id": 39,
       "category_path": "1.5.37.39"
     },
@@ -462,6 +506,11 @@
         "pressure": "до 350 бар",
         "weight": "120 кг"
       },
+      "spec_bore_value": 160,
+      "spec_rod_value": 90,
+      "spec_stroke_value": 800,
+      "spec_pressure_value": 350,
+      "spec_weight_value": 120,
       "category_id": 40,
       "category_path": "1.5.37.40"
     },
@@ -477,6 +526,11 @@
         "pressure": "до 350 бар",
         "weight": "180 кг"
       },
+      "spec_bore_value": 200,
+      "spec_rod_value": 110,
+      "spec_stroke_value": 1000,
+      "spec_pressure_value": 350,
+      "spec_weight_value": 180,
       "category_id": 40,
       "category_path": "1.5.37.40"
     },
@@ -490,6 +544,9 @@
         "flow": "до 0.1 л/мин",
         "weight": "12 кг"
       },
+      "spec_pressure_value": 180,
+      "spec_flow_value": 0.1,
+      "spec_weight_value": 12,
       "category_id": 7,
       "category_path": "1.4.7"
     },
@@ -505,6 +562,9 @@
         "port": "G1/4",
         "weight": "0.5 кг"
       },
+      "spec_pressure_value": 8,
+      "spec_flow_value": 1200,
+      "spec_weight_value": 0.5,
       "category_id": 21,
       "category_path": "2.16.19.21"
     },
@@ -521,6 +581,9 @@
         "weight": "0.6 кг",
         "manual": "Ручной дублер"
       },
+      "spec_pressure_value": 8,
+      "spec_flow_value": 1200,
+      "spec_weight_value": 0.6,
       "category_id": 21,
       "category_path": "2.16.19.21"
     },
@@ -536,6 +599,9 @@
         "port": "G1/8",
         "weight": "0.3 кг"
       },
+      "spec_pressure_value": 10,
+      "spec_flow_value": 800,
+      "spec_weight_value": 0.3,
       "category_id": 22,
       "category_path": "2.16.19.22"
     },
@@ -550,6 +616,9 @@
         "port": "G1/2",
         "weight": "0.8 кг"
       },
+      "spec_pressure_value": 12,
+      "spec_flow_value": 1500,
+      "spec_weight_value": 0.8,
       "category_id": 20,
       "category_path": "2.16.20"
     },
@@ -565,6 +634,11 @@
         "temperature": "-20°C до +80°C",
         "weight": "0.15 кг"
       },
+      "spec_bore_value": 10,
+      "spec_stroke_value": 200,
+      "spec_pressure_value": 10,
+      "spec_temperature_value": 80,
+      "spec_weight_value": 0.15,
       "category_id": 25,
       "category_path": "2.17.23.25"
     },
@@ -580,6 +654,11 @@
         "temperature": "-20°C до +80°C",
         "weight": "0.4 кг"
       },
+      "spec_bore_value": 25,
+      "spec_stroke_value": 200,
+      "spec_pressure_value": 10,
+      "spec_temperature_value": 80,
+      "spec_weight_value": 0.4,
       "category_id": 25,
       "category_path": "2.17.23.25"
     },
@@ -595,6 +674,11 @@
         "temperature": "-25°C до +85°C",
         "weight": "0.8 кг"
       },
+      "spec_bore_value": 32,
+      "spec_stroke_value": 300,
+      "spec_pressure_value": 12,
+      "spec_temperature_value": 85,
+      "spec_weight_value": 0.8,
       "category_id": 26,
       "category_path": "2.17.23.26"
     },
@@ -609,6 +693,10 @@
         "pressure": "до 10 бар",
         "weight": "2.5 кг"
       },
+      "spec_bore_value": 50,
+      "spec_stroke_value": 200,
+      "spec_pressure_value": 10,
+      "spec_weight_value": 2.5,
       "category_id": 24,
       "category_path": "2.17.24"
     },
@@ -623,6 +711,9 @@
         "flow": "до 700 л/мин",
         "weight": "0.3 кг"
       },
+      "spec_pressure_value": 8,
+      "spec_flow_value": 700,
+      "spec_weight_value": 0.3,
       "category_id": 18,
       "category_path": "2.18"
     },
@@ -638,6 +729,9 @@
         "weight": "12 кг",
         "oil": "смазываемый"
       },
+      "spec_flow_value": 20,
+      "spec_power_value": 0.75,
+      "spec_weight_value": 12,
       "category_id": 31,
       "category_path": "3.27.29.31"
     },
@@ -653,6 +747,9 @@
         "weight": "18 кг",
         "oil": "смазываемый"
       },
+      "spec_flow_value": 40,
+      "spec_power_value": 1.1,
+      "spec_weight_value": 18,
       "category_id": 31,
       "category_path": "3.27.29.31"
     },
@@ -668,6 +765,9 @@
         "weight": "15 кг",
         "oil": "безмасляный"
       },
+      "spec_flow_value": 25,
+      "spec_power_value": 0.55,
+      "spec_weight_value": 15,
       "category_id": 32,
       "category_path": "3.27.29.32"
     },
@@ -682,6 +782,8 @@
         "weight": "0.7 кг",
         "material": "алюминий"
       },
+      "spec_force_value": 200,
+      "spec_weight_value": 0.7,
       "category_id": 35,
       "category_path": "3.28.33.35"
     },
@@ -696,6 +798,8 @@
         "weight": "1.5 кг",
         "material": "алюминий"
       },
+      "spec_force_value": 500,
+      "spec_weight_value": 1.5,
       "category_id": 35,
       "category_path": "3.28.33.35"
     },
@@ -710,6 +814,8 @@
         "weight": "1.2 кг",
         "material": "нержавеющая сталь"
       },
+      "spec_force_value": 300,
+      "spec_weight_value": 1.2,
       "category_id": 36,
       "category_path": "3.28.33.36"
     },
@@ -724,6 +830,9 @@
         "temperature": "-40°C до +200°C",
         "weight": "0.05 кг"
       },
+      "spec_diameter_value": 25,
+      "spec_temperature_value": 200,
+      "spec_weight_value": 0.05,
       "category_id": 34,
       "category_path": "3.28.34"
     }

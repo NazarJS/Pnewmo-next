@@ -1,9 +1,16 @@
+
+.name {
+    padding-bottom: 20px;
+    font-weight: bold;
+}
+
 .wrap{
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
 }
 
 .item{
-    flex: 1;
     padding: 16px;
     border-radius: 12px;
     border: 1px solid black;

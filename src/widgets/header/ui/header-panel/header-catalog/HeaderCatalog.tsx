@@ -65,10 +65,22 @@ const HeaderCatalog = ({
       (category) => category.parent_id === null
     );
 
+// <<<<<<< HEAD
     if (firstCategory && catalogActive === null) {
       setCatalogActive(firstCategory.id);
     }
   }, [categories, isDesktop, catalogActive]);
+// =======
+//   mega menu
+//   const renderMegaMenu = (category: CategoryWithChildren) => {
+//     return (
+//       <div className={styles.subcategories_wrapper}>
+//         {category.children.map((subcategory) => (
+//           <div key={subcategory.id} className={styles.subcategory_group}>
+//             <Link className={styles.categories_title} href={subcategory.url} onClick={onClose}>
+//               {subcategory.name}
+//             </Link>
+// >>>>>>> c6abe42 (making filteцr API)
 
   useLockBodyScroll(isOpen);
 
@@ -137,6 +149,7 @@ const HeaderCatalog = ({
         {activeCategory && isDesktop && (
           <nav className={styles.mega_menu}>
             <div className={styles.mega_menu_content}>
+{/* <<<<<<< HEAD */}
               <h3 className={styles.categories_title}>
                 <Link href={activeCategory.url}>
                   {activeCategory.name}
@@ -147,6 +160,12 @@ const HeaderCatalog = ({
                 category={activeCategory}
                 onClose={handleClose}
               />
+
+              {/* <Link className={styles.categories_title} href={activeCategory.url} onClick={onClose}>
+                {activeCategory.name}{" "}
+              </Link>
+              {renderMegaMenu(activeCategory)} */}
+{/* >>>>>>> c6abe42 (making filter API) */}
             </div>
           </nav>
         )}

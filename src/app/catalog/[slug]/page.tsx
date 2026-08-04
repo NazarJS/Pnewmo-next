@@ -31,7 +31,7 @@ export default async function CatalogPage({ params }: { params: Promise<{ slug: 
 
   return (
     <>
-      <h1>{category.name}</h1>
+      <h1 className={styles.name}>{category.name}</h1>
 
       {products.length === 0 && <p>Товаров нет</p>}
 

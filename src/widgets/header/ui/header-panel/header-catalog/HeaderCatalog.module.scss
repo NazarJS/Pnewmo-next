@@ -63,7 +63,6 @@ $catalog-left-shift: calc((100vw - min(100vw, #{$container-max-width})) / 2 + 40
   padding-left: 0;
 
   @include xs {
-    height: auto;
     flex: 1;
     height: auto;
     margin-left: 0;
@@ -71,7 +70,6 @@ $catalog-left-shift: calc((100vw - min(100vw, #{$container-max-width})) / 2 + 40
 }
 
 .mega_menu {
-  // z-index: 0;
   position: relative;
   display: flex;
   justify-content: flex-start;
@@ -83,6 +81,11 @@ $catalog-left-shift: calc((100vw - min(100vw, #{$container-max-width})) / 2 + 40
 
   .mega_menu_content {
     width: 100%;
+    padding-bottom: 210px;
+  }
+
+  .categories_title{
+   font-weight: 800;
   }
 
   .categories {
@@ -101,4 +104,34 @@ $catalog-left-shift: calc((100vw - min(100vw, #{$container-max-width})) / 2 + 40
   margin-bottom: 24px;
 }
 
+
+
+.subcategories_wrapper{
+  display: flex;
+  column-gap: 25px;
+  padding-top: 25px;
+}
+
+.subcategory_grid {
+  display: flex;
+  flex-direction: column;
+
+
+  @media (width >= 1025px) and (width <= 700px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.subcategory_item {
+  color: #333;
+  font-size: 14px;
+  transition: color 0.2s;
+  line-height: 1.5;
+  cursor: pointer;
+}
+
+.subcategory_item:hover {
+  color: #c00;
+  text-decoration: underline;
+}
 
