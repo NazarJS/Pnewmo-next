@@ -236,13 +236,27 @@ $catalog-left-shift: calc((100vw - min(100vw, #{$container-max-width})) / 2 + 40
 }
 
 .subcategory_group{
+  width: 33.33%;
   gap: 5px;
 }
 
+.categories_title{
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+
+.subcategory_title{
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
 
 .subcategories_wrapper{
-  display: flex;
-  column-gap: 20px;
+    overflow: hidden;
+    height: auto;
+    display: flex;
+    width: 100%;
 }
 
 .subcategory_grid {
