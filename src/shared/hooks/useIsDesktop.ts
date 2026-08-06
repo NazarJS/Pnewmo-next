@@ -7,7 +7,7 @@ export const useIsDesktop = () => {
 
   useEffect(() => {
     const resize = () => {
-      setIsDesktop(window.innerWidth > 768);
+      setIsDesktop(window.innerWidth > 1024);
     };
 
     resize();

@@ -1,0 +1,122 @@
+@use "@/shared/styles/breakpoints" as *;
+.category_item {
+  position: relative;
+  padding: 0;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    color 0.2s,
+    background-color 0.2s;
+
+  @media (width >= 1025px) {
+    padding: 16px 52px;
+
+    &.active {
+      background-color: #0052b4;
+      color: #fff;
+    }
+  }
+
+
+  @include xs {
+    &:nth-child(n+2) {
+      border-top: 0.5px solid #b8b799;
+    }
+
+    &.active {
+      background-color: transparent;
+
+      .category_header {
+        padding: 16px 20px;
+        background-color: #0052b4;
+        color: white;
+      }
+    }
+  }
+}
+
+.category_header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+
+  @include xs {
+    padding: 16px 20px;
+  }
+}
+
+.active_arrow {
+  position: absolute;
+  z-index: 10;
+  top: 60%;
+  right: -12%;
+  display: none;
+  width: 0;
+  height: 0;
+  flex-shrink: 0;
+  border-top: 12px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-right: 12px solid #fff;
+  transform: translateY(-50%);
+
+  @media (width >= 1024px) {
+    top: 60%;
+    right: 0%;
+  }
+
+  @media (width >= 992px) {
+    width: 0;
+    padding-inline: 200px;
+  }
+
+  @media (width>=1440px) {
+    right: 0%;
+  }
+
+  @include xs {
+    display: contents;
+  }
+}
+
+.arrow {
+  display: none;
+
+  @include xs {
+    display: flex;
+    transform: translate(-50%, 10%) rotate(0deg);
+    transition: transform 0.2s ease;
+  }
+}
+
+.active_arrow.active .arrow {
+  @include xs {
+    transform: translate(-50%, 10%) rotateX(180deg);
+  }
+}
+
+.category_item.active .active_arrow {
+  @media (width > 1024px) {
+    position: absolute;
+    top: 28px;
+    display: block;
+  }
+}
+
+.mobile_accordion {
+  display: none;
+
+  @media (width <= 1024px) {
+    display: block;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.2s ease-in-out;
+  }
+}
+
+.mobile_accordion.accordion_open {
+  @include xs {
+    max-height: 400px;
+  }
+}
