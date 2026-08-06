@@ -1,6 +1,6 @@
 import Image from "next/image";
 import styles from "./HeaderFavorites.module.scss";
-import CatalogButton from "@/widgets/header/ui/header-panel/header-catalog/ui/CatalogButton";
+import CatalogButton from "@/widgets/header/ui/header-panel/header-catalog/ui/CatalogButton/CatalogButton";
 import Heart from "@/shared/ui/icons/heart/Heart";
 import Baskets from "@/shared/ui/icons/baskets/Baskets";
 import Entrance from "@/shared/ui/icons/entrance/Entrance";

@@ -54,12 +54,13 @@
 }
 
 .accordion_trigger {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 5px;
-  cursor: pointer;
   user-select: none;
   white-space: nowrap;
+  cursor: pointer;
 
   &:hover {
     color: #39f;
@@ -77,19 +78,11 @@
 }
 
 .active_arrow {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  width: 15px;
-  color: inherit;
-  padding-left: 7px;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: absolute;
+  right: 0;
+  top: 10px;
+  // transform: translate(0, -50%);
   cursor: pointer;
-  
-
-  &:hover {
-    color: #39f;
-  }
 
   &:hover {
     color: #39f;
@@ -97,14 +90,12 @@
 }
 
 .arrow {
-  position: absolute;
-  display: flex;
   transform: translate(0%, -30%) rotate(0deg);
   transition: transform 0.2s ease;
 }
 
 .active_arrow.active .arrow {
-  transform: translate(0%, -60%) rotateX(180deg);
+  transform: translate(0%, -60%)  rotateX(180deg);
 }
 
 

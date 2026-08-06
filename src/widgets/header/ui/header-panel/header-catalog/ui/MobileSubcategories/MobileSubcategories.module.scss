@@ -1,0 +1,17 @@
+.mobile_subcategory_list {
+  margin: 0;
+  padding: 10px 25px 5px;
+  list-style: none;
+}
+
+.mobile_subcategory_item {
+  padding: 8px 0;
+  color: black;
+  font-size: 14px;
+  font-weight: 400;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
