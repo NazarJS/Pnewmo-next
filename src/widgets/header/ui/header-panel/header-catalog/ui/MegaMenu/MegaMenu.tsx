@@ -4,6 +4,7 @@ import { CategoryWithChildren } from "@/entities/category/model/types";
 
 interface MegaMenuProps {
   category: CategoryWithChildren;
+  
   onClose?: () => void;
 }
 

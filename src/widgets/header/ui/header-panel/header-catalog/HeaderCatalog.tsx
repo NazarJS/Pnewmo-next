@@ -32,16 +32,9 @@ const HeaderCatalog = ({
 
   const isDesktop = useIsDesktop();
 
-  const {
-    categories,
-    loading,
-    error,
-  } = useCategories();
+  const { categories, loading, error } = useCategories();
 
-  const categoryTree = useMemo(
-    () => buildCategoryTree(categories),
-    [categories]
-  );
+  const categoryTree = useMemo(() => buildCategoryTree(categories), [categories]);
 
   const activeCategory = useMemo(() => {
     if (catalogActive === null) {
@@ -61,26 +54,12 @@ const HeaderCatalog = ({
       return;
     }
 
-    const firstCategory = categories.find(
-      (category) => category.parent_id === null
-    );
+    const firstCategory = categories.find((category) => category.parent_id === null);
 
-// <<<<<<< HEAD
     if (firstCategory && catalogActive === null) {
       setCatalogActive(firstCategory.id);
     }
   }, [categories, isDesktop, catalogActive]);
-// =======
-//   mega menu
-//   const renderMegaMenu = (category: CategoryWithChildren) => {
-//     return (
-//       <div className={styles.subcategories_wrapper}>
-//         {category.children.map((subcategory) => (
-//           <div key={subcategory.id} className={styles.subcategory_group}>
-//             <Link className={styles.categories_title} href={subcategory.url} onClick={onClose}>
-//               {subcategory.name}
-//             </Link>
-// >>>>>>> c6abe42 (making filteцr API)
 
   useLockBodyScroll(isOpen);
 
@@ -95,9 +74,7 @@ const HeaderCatalog = ({
       return;
     }
 
-    setMobileCategoryActive((prev) =>
-      prev === id ? null : id
-    );
+    setMobileCategoryActive((prev) => (prev === id ? null : id));
   };
 
   if (loading) {
@@ -149,23 +126,11 @@ const HeaderCatalog = ({
         {activeCategory && isDesktop && (
           <nav className={styles.mega_menu}>
             <div className={styles.mega_menu_content}>
-{/* <<<<<<< HEAD */}
-              <h3 className={styles.categories_title}>
-                <Link href={activeCategory.url}>
-                  {activeCategory.name}
-                </Link>
+              <h3 className={styles.categories_title} onClick={handleClose}>
+                <Link href={activeCategory.url}>{activeCategory.name} </Link>
               </h3>
 
-              <MegaMenu
-                category={activeCategory}
-                onClose={handleClose}
-              />
-
-              {/* <Link className={styles.categories_title} href={activeCategory.url} onClick={onClose}>
-                {activeCategory.name}{" "}
-              </Link>
-              {renderMegaMenu(activeCategory)} */}
-{/* >>>>>>> c6abe42 (making filter API) */}
+              <MegaMenu category={activeCategory} onClose={handleClose} />
             </div>
           </nav>
         )}

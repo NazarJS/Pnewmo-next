@@ -1,6 +1,6 @@
 import React from 'react'
 import styles from "./SocialIcons.module.scss";
-import Telegram from "@/shared/ui/icons/telegram/Telegram";
+import {Telegram} from "@/shared/ui/icons/telegram/Telegram";
 
 const SocialIcon = () => {
   return (

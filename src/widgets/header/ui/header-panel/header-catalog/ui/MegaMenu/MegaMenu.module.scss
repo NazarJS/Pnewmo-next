@@ -1,25 +1,20 @@
-.subcategory_title{
+.subcategory_title {
   font-size: 18px;
   font-weight: 700;
   margin-bottom: 16px;
 }
 
-.subcategories_wrapper{
-    overflow: hidden;
-    height: auto;
-    display: flex;
-    width: 100%;
+.subcategories_wrapper {
+  display: flex;
+  width: 100%;
+  height: auto;
+  overflow: hidden;
+  
 }
 
 .subcategory_grid {
   display: flex;
   flex-direction: column;
-  // display: grid;
-  // margin: 0;
-  // padding: 20px 10px;
-  // grid-template-columns: repeat(3, 1fr);
-  // gap: 20px 40px;
-  // list-style: none;
 
   @media (width >= 1025px) and (width <= 700px) {
     grid-template-columns: repeat(2, 1fr);
@@ -39,7 +34,7 @@
   text-decoration: underline;
 }
 
-.subcategory_group{
+.subcategory_group {
   width: 33.33%;
   gap: 5px;
 }

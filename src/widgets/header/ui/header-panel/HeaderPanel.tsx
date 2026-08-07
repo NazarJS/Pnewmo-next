@@ -10,7 +10,7 @@ import HeaderAccordion from "./header-accordion/HeaderAccordion";
 import HeaderFavorites from "./header-favorites/HeaderFavorites";
 import HeaderCatalog from "@/widgets/header/ui/header-panel/header-catalog/HeaderCatalog";
 
-import { useOpenInput } from "./hooks/useOpenInput";
+import { useOpenInput } from "./header-input/hooks/useOpenInput";
 import Loupe from "@/shared/ui/icons/loupe/Loupe";
 
 const HeaderCatalogPanel = () => {

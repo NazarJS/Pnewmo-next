@@ -22,7 +22,6 @@ const MobileSubcategories = ({
           <Link
             href={child.url}
             onClick={(event) => {
-              event.stopPropagation();
               onClose?.();
             }}
           >
