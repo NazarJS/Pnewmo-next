@@ -206,9 +206,23 @@ pnpm dev           # Postgres + web:3000 + api:4000
 3. `http://localhost:3000/dev` показывает статус, полученный от API через ts-rest-клиент.
 4. `http://localhost:3000/`, `/catalog/gidravlika`, `/product/1` работают как до переезда (на `json-server`).
 5. `pnpm db:psql` даёт рабочий psql-шелл; `pnpm db:down && pnpm db:up` не теряет данные.
-6. `pnpm build`, `pnpm lint`, `pnpm typecheck` проходят зелёными.
+6. `pnpm build` и `pnpm typecheck` проходят зелёными. `pnpm lint` не добавляет ошибок сверх зафиксированного ниже baseline.
 7. `git log --follow apps/web/src/widgets/header/Header.tsx` показывает историю до переезда — то есть переименования отследились.
 8. `git status` чист, `.env` и `.DS_Store` не попадают в индекс.
+
+### Baseline линтеров
+
+Первоначально критерий 6 требовал зелёного `pnpm lint`. Это оказалось недостижимо: линтеры на существующем коде фронтенда падали и до перестройки. Замеры сделаны 2026-08-11 на коммите `c1d0ad5`.
+
+**ESLint — 2 ошибки, 6 предупреждений.** Обе ошибки — `react-hooks/set-state-in-effect` в `apps/web/src/widgets/header/ui/header-panel/header-catalog/HeaderCatalog.tsx` (строки 69 и 77): `setState` вызывается прямо в теле эффекта, что даёт каскадные ререндеры. Это настоящий дефект, не стилистика. Предупреждения — неиспользованные переменные в `HeaderLocation.tsx` (1), `HeaderFavorites.tsx` (1), `HeaderInput.tsx` (4).
+
+**Stylelint — 21 ошибка в 8 файлах.** Конфиг `.stylelintrc.json` лежал в репозитории, но ни один скрипт его не вызывал, поэтому ошибки никогда не были видны. По правилам: `order/properties-order` — 11, `scss/double-slash-comment-empty-line-before` — 4, `rule-empty-line-before` — 2, по одной на `media-feature-range-notation`, `no-empty-source`, `keyframes-name-pattern`, `declaration-block-no-duplicate-properties`.
+
+По файлам: `Footer.module.scss` — 5, `SocialIcons.module.scss` — 4, `HeaderAccordion.module.scss` — 3, `MegaMenu.module.scss` — 3, `HeaderMenu.module.scss` — 2, `HeaderCatalog.module.scss` — 2, `Product.module.scss` — 1, `CategoryItem.module.scss` — 1.
+
+Два из 21 — содержательные, остальные 19 правятся `stylelint --fix`: дубликат `height` в `HeaderCatalog.module.scss:66` (одно из объявлений молча проигрывает) и пустой файл `Product.module.scss`.
+
+**Почему не исправляем сейчас.** Затронутые файлы — хедер, каталог и футер, то есть зона активной разработки (см. `2026-07-20-header-catalog-*`). Переформатирование восьми файлов дало бы конфликты при merge правок из репозитория NazarJS — ровно то, чего мы избегаем чистым коммитом переименований. Правки должны идти отдельной согласованной задачей, не внутри инфраструктурного этапа.
 
 ## Риски
 

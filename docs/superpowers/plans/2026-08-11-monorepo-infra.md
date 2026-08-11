@@ -450,10 +450,13 @@ Expected: три строки `200`. Запускается `turbo run dev mock`
 - [ ] **Step 15: Проверить lint, typecheck и build**
 
 ```bash
-pnpm typecheck && pnpm lint && pnpm build
+pnpm typecheck && pnpm build
+pnpm lint; echo "lint exit: $?"
 ```
 
-Expected: все три зелёные.
+Expected: `typecheck` и `build` зелёные. `pnpm lint` завершается с кодом 1 — это ожидаемо: на существующем коде фронтенда линтеры падали и до перестройки. Baseline зафиксирован в спеке, разделе «Baseline линтеров»: ESLint — 2 ошибки и 6 предупреждений, Stylelint — 21 ошибка в 8 файлах.
+
+Сверить вывод с baseline. Любая ошибка **сверх** перечисленных означает, что её внесла перестройка, и её надо устранить.
 
 - [ ] **Step 16: Коммит**
 

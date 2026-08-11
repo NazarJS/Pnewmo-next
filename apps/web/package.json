@@ -1,12 +1,14 @@
 {
-  "name": "pnewmo",
+  "name": "@pnewmo/web",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "mock": "json-server db.json --port 3001",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint && stylelint \"src/**/*.scss\"",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "next": "16.2.6",
@@ -22,20 +24,12 @@
     "eslint-config-next": "16.2.6",
     "json-server": "^1.0.0-beta.15",
     "postcss-pxtorem": "^6.1.0",
-    "prettier": "3.8.3",
     "sass": "^1.100.0",
     "stylelint": "^17.13.0",
     "stylelint-config-standard": "^40.0.0",
     "stylelint-config-standard-scss": "^17.0.0",
     "stylelint-order": "^8.1.1",
     "tailwindcss": "^4",
-    "typescript": "^5"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "@parcel/watcher",
-      "sharp",
-      "unrs-resolver"
-    ]
+    "typescript": "^5.9.3"
   }
 }

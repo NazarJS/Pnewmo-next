@@ -1,0 +1,27 @@
+{
+  "name": "pnewmo",
+  "version": "0.0.0",
+  "private": true,
+  "packageManager": "pnpm@10.20.0",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "bootstrap": "node scripts/bootstrap.mjs && pnpm install",
+    "dev": "pnpm db:up && turbo run dev mock",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "format": "prettier --write .",
+    "db:up": "docker compose up -d --wait postgres",
+    "db:down": "docker compose stop postgres",
+    "db:reset": "docker compose down -v && pnpm db:up",
+    "db:psql": "docker compose exec postgres psql -U pnewmo -d pnewmo"
+  },
+  "devDependencies": {
+    "prettier": "3.8.3",
+    "turbo": "2.10.9",
+    "typescript": "^5.9.3"
+  }
+}
