@@ -21,7 +21,8 @@
     "db:generate": "pnpm --filter @pnewmo/api db:generate",
     "db:migrate": "pnpm --filter @pnewmo/api db:migrate",
     "db:seed": "pnpm --filter @pnewmo/api db:seed",
-    "db:studio": "pnpm --filter @pnewmo/api db:studio"
+    "db:studio": "pnpm --filter @pnewmo/api db:studio",
+    "db:test:setup": "pnpm --filter @pnewmo/api db:test:setup && pnpm --filter @pnewmo/api db:test:migrate"
   },
   "devDependencies": {
     "prettier": "3.8.3",
