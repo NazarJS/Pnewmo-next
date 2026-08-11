@@ -42,7 +42,7 @@
 | `scripts/bootstrap.mjs` | идемпотентное копирование трёх `.env.example` в реальные файлы |
 | `packages/api-contract/src/health.contract.ts` | Zod-схема ответа и ts-rest-роут `/health` |
 | `packages/api-contract/src/index.ts` | сборка роутеров в единый `contract` |
-| `apps/api/src/main.ts` | точка входа: `ValidationPipe`, CORS, порт |
+| `apps/api/src/main.ts` | точка входа: CORS, порт. Валидацию делает Zod через контракт, не `ValidationPipe` |
 | `apps/api/src/app.module.ts` | корневой модуль |
 | `apps/api/src/health/health.controller.ts` | обработчик `/health` через `tsRestHandler` |
 | `apps/api/test/health.e2e-spec.ts` | e2e-тест на `/health` |
@@ -710,7 +710,7 @@ Compiled to CommonJS so NestJS can require it."
 
 **Files:**
 - Create: `apps/api/**` (скаффолд Nest CLI), `apps/api/.env.example`, `apps/api/src/health/health.controller.ts`, `apps/api/src/health/health.module.ts`, `apps/api/test/health.e2e-spec.ts`
-- Modify: `apps/api/package.json`, `apps/api/tsconfig.json`, `apps/api/src/main.ts`, `apps/api/src/app.module.ts`
+- Modify: `apps/api/package.json` (в том числе удаление `class-validator` и `class-transformer` из скаффолда), `apps/api/tsconfig.json`, `apps/api/src/main.ts`, `apps/api/src/app.module.ts`
 - Delete: `apps/api/src/app.controller.ts`, `apps/api/src/app.service.ts`, `apps/api/src/app.controller.spec.ts`, `apps/api/test/app.e2e-spec.ts`, `apps/api/.prettierrc`
 
 **Interfaces:**
@@ -771,8 +771,6 @@ rm -f apps/api/src/app.controller.ts apps/api/src/app.service.ts \
     "@pnewmo/api-contract": "workspace:*",
     "@ts-rest/core": "3.52.1",
     "@ts-rest/nest": "3.52.1",
-    "class-transformer": "^0.5.1",
-    "class-validator": "^0.14.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "zod": "3.25.76"
@@ -796,7 +794,9 @@ rm -f apps/api/src/app.controller.ts apps/api/src/app.service.ts \
 }
 ```
 
-Скаффолд называет задачу `start:dev`; turbo ищет `dev`, поэтому переименована. `class-validator` и `class-transformer` нужны глобальному `ValidationPipe`. `@ts-rest/nest@3.52.1` объявляет совместимость с `@nestjs/core ^11` — проверено.
+Скаффолд называет задачу `start:dev`; turbo ищет `dev`, поэтому переименована. `@ts-rest/nest@3.52.1` объявляет совместимость с `@nestjs/core ^11` — проверено.
+
+`class-validator` и `class-transformer` из скаффолда **удалены намеренно**, вместе с глобальным `ValidationPipe`. Они обслуживают DTO-классы с декораторами, а валидацию у нас выполняет Zod-схема контракта: `@ts-rest/nest` проверяет `body`, `pathParams`, `query` и `headers` и сам отдаёт 400. Держать две системы валидации — это тот самый пункт «нет преждевременных абстракций» из чеклиста стайлгайда. Обоснование целиком — в разделе спека «Валидация: только Zod через контракт».
 
 Блок `jest` сохранён из скаффолда: он настраивает юнит-тесты (`*.spec.ts` внутри `src`). В этапе 1 таких тестов нет, поэтому в скрипт `test` добавлен `--passWithNoTests`, иначе jest завершался бы с ошибкой «no tests found». E2E-тесты используют отдельный конфиг `test/jest-e2e.json` из скаффолда — он ищет `*.e2e-spec.ts` и остаётся без изменений.
 
@@ -841,7 +841,7 @@ WEB_ORIGIN=http://localhost:3000
 Create `apps/api/test/health.e2e-spec.ts`:
 
 ```ts
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
@@ -856,7 +856,6 @@ describe('GET /health', () => {
     }).compile();
 
     app = moduleRef.createNestApplication();
-    app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
     await app.init();
   });
 
@@ -944,7 +943,6 @@ export class AppModule {}
 `apps/api/src/main.ts`:
 
 ```ts
-import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 
 import { AppModule } from './app.module';
@@ -952,7 +950,6 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
   app.enableCors({ origin: process.env.WEB_ORIGIN ?? 'http://localhost:3000' });
 
   await app.listen(Number(process.env.PORT ?? 4000));
