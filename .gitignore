@@ -3,6 +3,11 @@ node_modules/
 .turbo/
 dist/
 next-env.d.ts
+
+# Сгенерированный клиент Prisma. Паттерн начинается с **/ намеренно: запись со
+# слешем в середине привязывается к каталогу этого .gitignore, поэтому просто
+# "src/generated/" матчила бы только корень, но не apps/api/src/generated/.
+**/src/generated/
 .env
 .env*.local
 .DS_Store

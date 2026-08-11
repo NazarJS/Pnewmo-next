@@ -1,4 +1,14 @@
 {
   "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    // Файл состояния инкрементальной сборки лежит ВНУТРИ outDir намеренно.
+    // nest-cli.json удаляет dist перед сборкой (deleteOutDir), но не тронул бы
+    // состояние снаружи — и tsc, считая, что пересобирать нечего, не выдал бы
+    // ни одного файла. Сборка при этом завершается успешно, что делает поломку
+    // незаметной. Внутри outDir оба удаляются вместе и не расходятся.
+    "tsBuildInfoFile": "./dist/.tsbuildinfo"
+  },
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "test", "dist", "**/*spec.ts"]
 }
