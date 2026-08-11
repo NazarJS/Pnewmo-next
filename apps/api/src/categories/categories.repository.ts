@@ -36,6 +36,10 @@ export class CategoriesRepository {
     return this.prisma.category.findUnique({ where: { id }, select: { parentId: true } });
   }
 
+  countChildren(id: number): Promise<number> {
+    return this.prisma.category.count({ where: { parentId: id } });
+  }
+
   create(data: { name: string; slug: string; parentId: number | null }): Promise<CategoryRow> {
     return this.prisma.category.create({ data, select: columns });
   }

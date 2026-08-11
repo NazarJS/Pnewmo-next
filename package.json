@@ -7,7 +7,7 @@
     "node": ">=24"
   },
   "scripts": {
-    "bootstrap": "node scripts/bootstrap.mjs && pnpm install",
+    "bootstrap": "node scripts/bootstrap.mjs && pnpm install && pnpm db:generate",
     "dev": "pnpm db:up && turbo run dev mock",
     "build": "turbo run build",
     "lint": "turbo run lint",

@@ -49,6 +49,19 @@ export class CategoriesService {
   async remove(id: number): Promise<{ id: number }> {
     await this.getById(id);
 
+    // Проверка здесь, а не только через onDelete: Restrict, ради внятного
+    // сообщения: фильтр маппит ошибку внешнего ключа по коду Prisma и про домен
+    // ничего не знает, поэтому выдал бы «на запись ссылаются другие данные».
+    // Ограничение в базе при этом остаётся страховкой от гонки.
+    const children = await this.repository.countChildren(id);
+
+    if (children > 0) {
+      throw new AppException(
+        AppError.CONFLICT,
+        `Нельзя удалить категорию: у неё ${children} подкатегорий`,
+      );
+    }
+
     const removed = await this.repository.remove(id);
 
     return { id: removed.id };

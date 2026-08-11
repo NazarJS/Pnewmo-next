@@ -21,7 +21,7 @@ const rows: CategoryRow[] = [
 // неявными any и strict-режим отверг бы файл.
 type RepositoryStub = Pick<
   CategoriesRepository,
-  'getList' | 'getById' | 'getParentId' | 'create' | 'update' | 'remove'
+  'getList' | 'getById' | 'getParentId' | 'countChildren' | 'create' | 'update' | 'remove'
 >;
 
 function makeRepository(): CategoriesRepository {
@@ -35,6 +35,7 @@ function makeRepository(): CategoriesRepository {
 
       return Promise.resolve(row ? { parentId: row.parentId } : null);
     },
+    countChildren: (id) => Promise.resolve(rows.filter((row) => row.parentId === id).length),
     create: (data) => Promise.resolve({ id: 99, ...data }),
     update: (id, data) => Promise.resolve({ ...(byId.get(id) as CategoryRow), ...data }),
     remove: (id) => Promise.resolve(byId.get(id) as CategoryRow),
@@ -100,6 +101,24 @@ describe('CategoriesService.create', () => {
     const created = await service.create({ name: 'Новая', slug: 'novaya', parentId: null });
 
     expect(created.slug).toBe('novaya');
+  });
+});
+
+describe('CategoriesService.remove', () => {
+  let service: CategoriesService;
+
+  beforeEach(() => {
+    service = new CategoriesService(makeRepository());
+  });
+
+  it('отклоняет удаление категории с потомками', async () => {
+    await expectAppError(service.remove(1), AppError.CONFLICT);
+  });
+
+  it('удаляет лист', async () => {
+    const removed = await service.remove(3);
+
+    expect(removed).toEqual({ id: 3 });
   });
 });
 

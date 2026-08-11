@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TsRestModule } from '@ts-rest/nest';
 
+import { CategoriesModule } from './categories/categories.module';
 import { HealthModule } from './health/health.module';
 import { PrismaModule } from './prisma/prisma.module';
 
@@ -14,6 +15,7 @@ import { PrismaModule } from './prisma/prisma.module';
     TsRestModule.register({ validateResponses: true }),
     PrismaModule,
     HealthModule,
+    CategoriesModule,
   ],
 })
 export class AppModule {}

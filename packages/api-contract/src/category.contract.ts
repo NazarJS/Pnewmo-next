@@ -16,7 +16,16 @@ export type Category = z.infer<typeof categorySchema>;
 
 export const createCategorySchema = z.object({
   name: z.string().min(1).max(200),
-  slug: z.string().min(1).max(200).regex(/^[a-z0-9_-]+$/),
+  slug: z
+    .string()
+    .min(1)
+    .max(200)
+    // Своё сообщение вместо дефолтного «Invalid»: этот текст увидит человек в
+    // форме админки, и он должен объяснять, что именно не так.
+    .regex(
+      /^[a-z0-9_-]+$/,
+      'Допустимы только строчные латинские буквы, цифры, дефис и подчёркивание',
+    ),
   parentId: z.number().int().positive().nullable(),
 });
 

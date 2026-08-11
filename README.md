@@ -50,8 +50,19 @@ docs/superpowers       спеки и планы
 | `pnpm db:up` / `pnpm db:down` | поднять / остановить Postgres, данные сохраняются |
 | `pnpm db:reset` | снести данные и поднять базу заново |
 | `pnpm db:psql` | psql-шелл в контейнере |
+| `pnpm db:migrate` | создать миграцию по изменению `schema.prisma` |
+| `pnpm db:generate` | перегенерировать клиент Prisma |
+| `pnpm db:seed` | залить категории из фикстуры |
+| `pnpm db:studio` | Prisma Studio, GUI по базе |
+| `pnpm db:test:setup` | создать базу `pnewmo_test` и накатить на неё миграции |
 
-E2E-тесты API: `pnpm --filter @pnewmo/api test:e2e`.
+E2E-тесты API: `pnpm --filter @pnewmo/api test:e2e`. Они работают против отдельной базы
+`pnewmo_test` — сначала выполните `pnpm db:test:setup`.
+
+**Правя контракт, запускайте `pnpm dev`, а не `pnpm --filter @pnewmo/api dev`.**
+`packages/api-contract` компилируемый, и его watch (`tsc --watch`) поднимает только
+turbo в составе `pnpm dev`. При запуске одного лишь `api` изменения в контракте не
+подхватятся, и вы будете отлаживать поведение старой сборки.
 
 `pnpm lint` в пакете `web` — это `eslint && stylelint`, поэтому пока eslint падает на
 baseline, до stylelint дело не доходит. Запускать линтеры по отдельности:
@@ -97,5 +108,14 @@ baseline — 2 ошибки eslint и 21 stylelint, полный список в
 
 ## Схема базы данных
 
-Пока отсутствует: Postgres поднимается пустым. Prisma, схема и доменные модули —
-следующие этапы, см. `docs/superpowers/specs/`.
+Prisma 7, PostgreSQL 16. Пока одна таблица — `categories`: дерево через `parent_id`
+(adjacency list) с `ON DELETE RESTRICT`, уникальным `slug` и вложенностью до 5 уровней
+в сидах. Схема — `apps/api/prisma/schema.prisma`.
+
+Товары и заказы — следующие этапы, см. `docs/superpowers/specs/`.
+
+Важное про Prisma 7: генератор называется `prisma-client` (не `prisma-client-js`),
+`output` обязателен, а рантайм требует драйвер-адаптера — `new PrismaClient({ adapter })`
+вокруг `pg.Pool`. Примеры для шестой версии не подойдут. Клиент генерируется в
+`apps/api/src/generated/prisma` и в git не попадает: после `pnpm install` на новой машине
+выполните `pnpm db:generate`.
