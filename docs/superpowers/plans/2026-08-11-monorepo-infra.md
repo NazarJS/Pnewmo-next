@@ -21,7 +21,7 @@
 - **Имя скрипта `bootstrap`, не `setup`** — `pnpm setup` перехватывается встроенной командой pnpm.
 - **Коммит переезда содержит только переименования.** Никаких правок содержимого файлов в том же коммите: при 100% similarity index git детектит переименования, и будущий `git merge` правок из репозитория NazarJS сам разложит их по новым путям.
 - **Push не выполняется ни в одной задаче.** `origin` в этом клоне указывает на `https://github.com/NazarJS/Pnewmo-next.git` — репозиторий тимлида. Все коммиты остаются локальными в ветке `dev`.
-- **Порты:** web 3000, json-server 3001, api 4000, Postgres 5432.
+- **Порты:** web 3000, json-server 3001, api 4000, Postgres **5433**. Порт 5432 на машине разработчика занят локальным PostgreSQL 12 из Homebrew, 5439 — сторонним контейнером `postgres-local`. Порт вынесен в `POSTGRES_PORT`.
 
 ## Замечание о тестах
 
@@ -204,7 +204,7 @@ Expected: видны коммиты, сделанные до переезда (�
 }
 ```
 
-`db:psql` — интерактивный шелл для человека, поэтому имя пользователя и базы записаны буквально. Подставить их из `.env` не получается: хост-шелл этих переменных не видит, а обёртка в `sh -c` внутри контейнера ломает передачу дополнительных аргументов вида `pnpm db:psql -- -c '...'`. Значения совпадают с `.env.example` из Task 3; при смене `POSTGRES_USER` или `POSTGRES_DB` в `.env` этот скрипт надо поправить.
+`db:psql` — интерактивный шелл для человека, поэтому имя пользователя и базы записаны буквально. Подставить их из `.env` не получается: хост-шелл этих переменных не видит, а обёртка в `sh -c` внутри контейнера ломает передачу дополнительных аргументов. Аргументы передаются **без** `--`: `pnpm db:psql -tAc 'select 1'`. Форма с `--` не работает — pnpm пробрасывает сам разделитель, и psql считает его лишним позиционным аргументом. Значения совпадают с `.env.example` из Task 3; при смене `POSTGRES_USER` или `POSTGRES_DB` в `.env` этот скрипт надо поправить.
 
 Для неинтерактивных проверок в шагах ниже используется прямой вызов с флагом `-T`: без него `docker compose exec` требует TTY и падает с `the input device is not a TTY`.
 
@@ -483,7 +483,7 @@ the web lint script and remove a dangling tsconfig include entry."
 
 **Interfaces:**
 - Consumes: корневые скрипты `db:up` / `db:down` / `db:reset` / `db:psql` из Task 2.
-- Produces: Postgres 16 на `localhost:5432`, база и пользователь `pnewmo`. Строка подключения — `postgresql://pnewmo:pnewmo_local_dev@localhost:5432/pnewmo`. Task 5 использует её в `apps/api/.env.example`.
+- Produces: Postgres 16 на `localhost:5433`, база и пользователь `pnewmo`. Строка подключения — `postgresql://pnewmo:pnewmo_local_dev@localhost:5433/pnewmo`. Task 5 использует её в `apps/api/.env.example`.
 
 - [ ] **Step 1: Создать `.env.example`**
 
@@ -491,7 +491,7 @@ the web lint script and remove a dangling tsconfig include entry."
 POSTGRES_USER=pnewmo
 POSTGRES_PASSWORD=pnewmo_local_dev
 POSTGRES_DB=pnewmo
-POSTGRES_PORT=5432
+POSTGRES_PORT=5433
 ```
 
 - [ ] **Step 2: Создать `docker-compose.yml`**
@@ -834,7 +834,7 @@ rm -f apps/api/src/app.controller.ts apps/api/src/app.service.ts \
 `DATABASE_URL` в этапе 1 ещё никем не читается — Prisma появится в этапе 3. Переменная задаётся сейчас, чтобы значение было согласовано с `docker-compose.yml` из Task 3 в одном месте.
 
 ```
-DATABASE_URL=postgresql://pnewmo:pnewmo_local_dev@localhost:5432/pnewmo?schema=public
+DATABASE_URL=postgresql://pnewmo:pnewmo_local_dev@localhost:5433/pnewmo?schema=public
 PORT=4000
 WEB_ORIGIN=http://localhost:3000
 ```
@@ -1244,7 +1244,7 @@ pnpm build
 
 Expected: `pnpm bootstrap` создаёт три `.env`-файла, `pnpm build` проходит зелёным.
 
-Postgres в этой проверке не поднимается: контейнер и порт 5432 общие с основным деревом, два экземпляра конфликтуют. Работа базы уже проверена в Task 3.
+Postgres в этой проверке не поднимается: контейнер и порт 5433 общие с основным деревом, два экземпляра конфликтуют. Работа базы уже проверена в Task 3.
 
 - [ ] **Step 6: Прибрать за проверкой**
 
