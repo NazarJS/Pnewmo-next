@@ -70,7 +70,30 @@ export default defineConfig({
 
 Раннер сидов — `tsx`, добавляется в devDependencies.
 
-Открытый вопрос, решаемый первым шагом плана: документация Prisma 7 описывает перенос адреса базы в `prisma.config.ts` как миграцию с версии 6, но не утверждает, что блок `url = env("DATABASE_URL")` в `datasource` при этом становится лишним. Спек оставляет его в схеме (нужен CLI для миграций) и дублирует в `prisma.config.ts`; если проверка покажет конфликт — лишнее место убирается. На рантайм это не влияет: `PrismaService` передаёт адрес в конструктор явно, см. раздел про тесты.
+### Драйвер-адаптер обязателен
+
+Это главное отличие седьмой версии и причина, по которой примеры из шестой не заведутся. Prisma 7 убрала Rust-движок запросов, и **рантайм-подключение требует явного драйвер-адаптера**. Документация формулирует прямо: «Avoid using `datasourceUrl` or instantiating `PrismaClient` without arguments».
+
+Отсюда состав зависимостей и вид сервиса:
+
+```bash
+@prisma/client @prisma/adapter-pg pg   # + prisma, tsx в devDependencies
+```
+
+```ts
+// apps/api/src/prisma/prisma.service.ts
+import { PrismaPg } from '@prisma/adapter-pg';
+import { Pool } from 'pg';
+import { PrismaClient } from '../generated/prisma/client';
+
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const adapter = new PrismaPg(pool);
+// super({ adapter })
+```
+
+Пул соединений теперь наш, а значит его надо и закрывать: `onModuleDestroy` вызывает `$disconnect()` и `pool.end()`. В Prisma 6 об этом думать не приходилось — движок управлял соединениями сам. Незакрытый пул в тестах даёт зависший процесс Jest.
+
+Разделение обязанностей такое: **CLI** (миграции, `db seed`, Studio) берёт адрес из `prisma.config.ts`, **рантайм** — из строки подключения пула. Поэтому блок `url` в `datasource` схемы не нужен; первым шагом плана это проверяется, и если CLI его всё же требует — возвращается.
 
 ### Куда кладётся сгенерированный клиент и почему это важно
 
@@ -256,13 +279,15 @@ export const appErrorSchema = z.object({
 
 Переключение адреса базы — явное, без магии. В `apps/api/.env.example` добавляется `DATABASE_URL_TEST`. Конфиг `test/jest-e2e.json` получает `globalSetup: './setup-env.ts'`, который загружает `apps/api/.env` через `dotenv` и присваивает `process.env.DATABASE_URL = process.env.DATABASE_URL_TEST`. Дальше `PrismaService` подхватывает уже подменённое значение.
 
-Это работает потому, что `PrismaService` передаёт адрес в конструктор явно:
+Это работает потому, что `PrismaService` строит пул из переменной окружения:
 
 ```ts
-super({ datasourceUrl: process.env.DATABASE_URL });
+new Pool({ connectionString: process.env.DATABASE_URL })
 ```
 
-Явная передача выбрана вместо неявного чтения переменной генерируемым клиентом: подмена в тестах становится однострочной, и поведение не зависит от того, как именно Prisma 7 разрешает `url` между `schema.prisma` и `prisma.config.ts`.
+К моменту создания пула `globalSetup` уже подменил переменную, так что подключение уходит в тестовую базу. Никакой отдельной тестовой конфигурации Prisma не требуется.
+
+Отдельно: `globalSetup` должен также закрывать пул после прогона — иначе Jest зависает с открытым соединением. Пул создаётся внутри `PrismaService`, поэтому закрывает его `onModuleDestroy`, вызываемый при `app.close()` в `afterAll`.
 
 ### e2e на весь HTTP-контур
 
@@ -310,7 +335,8 @@ super({ datasourceUrl: process.env.DATABASE_URL });
 | Код ошибки Prisma при нарушении внешнего ключа на удалении отличается от `P2003` | e2e-проверка удаления родителя с потомками зафиксирует фактический код; маппинг правится по факту |
 | Prisma 7 несовместима с Node 24 на практике | engines заявляет `>=24.0`; при сбое откат на Node 22, который тоже в диапазоне |
 | Генерируемый клиент попадает под eslint и prettier и ломает `lint` | `src/generated` добавляется в игноры обоих инструментов и в `.gitignore` |
-| Prisma 7 требует убрать `url` из `datasource` в пользу `prisma.config.ts` либо наоборот | проверяется первым шагом плана; рантайм защищён явным `datasourceUrl` в конструкторе |
+| CLI Prisma 7 всё же требует `url` в блоке `datasource` схемы | проверяется первым шагом плана: если `prisma migrate dev` ругается — `url = env("DATABASE_URL")` возвращается в схему. На рантайм не влияет, там адрес берётся из строки подключения пула |
+| Незакрытый пул `pg` оставляет процесс Jest висеть после прогона | `onModuleDestroy` закрывает `$disconnect()` и `pool.end()`; e2e-тесты вызывают `app.close()` в `afterAll` |
 | `orderBy` с `nulls: 'first'` для `parentId` не поддерживается в текущей Prisma | сортировка вынесена в один вызов репозитория; при отказе сортируется в памяти после выборки — 40 строк |
 
 ## Отложено осознанно
