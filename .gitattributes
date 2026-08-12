@@ -1,0 +1,13 @@
+# Все текстовые файлы хранятся и выгружаются с переводами строки LF независимо от
+# системы. Без этого на Windows с core.autocrlf=true рабочая копия получает CRLF, и
+# prettier, настроенный на LF, начинает считать каждый файл неотформатированным.
+* text=auto eol=lf
+
+# Бинарные файлы не трогать
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary

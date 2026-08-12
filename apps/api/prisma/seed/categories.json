@@ -1,0 +1,282 @@
+[
+  {
+    "id": 1,
+    "parent_id": null,
+    "path": "1",
+    "slug": "gidravlika",
+    "name": "Гидравлика"
+  },
+  {
+    "id": 2,
+    "parent_id": null,
+    "path": "2",
+    "slug": "pnevmatika",
+    "name": "Пневматика"
+  },
+  {
+    "id": 3,
+    "parent_id": null,
+    "path": "3",
+    "slug": "vakuumnaya_tekhnika",
+    "name": "Вакуумная техника"
+  },
+  {
+    "id": 4,
+    "parent_id": 1,
+    "path": "1.4",
+    "slug": "smazochnaya_tekhnika",
+    "name": "Смазочная техника"
+  },
+  {
+    "id": 5,
+    "parent_id": 1,
+    "path": "1.5",
+    "slug": "gidrotsilindry",
+    "name": "Гидроцилиндры"
+  },
+  {
+    "id": 6,
+    "parent_id": 4,
+    "path": "1.4.6",
+    "slug": "sistemy_dvukhlineynogo_deystviya",
+    "name": "Системы двухлинейного действия"
+  },
+  {
+    "id": 7,
+    "parent_id": 4,
+    "path": "1.4.7",
+    "slug": "sistemy_odnolineynogo_deystviya",
+    "name": "Системы однолинейного действия"
+  },
+  {
+    "id": 8,
+    "parent_id": 6,
+    "path": "1.4.6.8",
+    "slug": "stantsii_nasosnye",
+    "name": "Станции насосные"
+  },
+  {
+    "id": 9,
+    "parent_id": 6,
+    "path": "1.4.6.9",
+    "slug": "pitateli",
+    "name": "Питатели"
+  },
+  {
+    "id": 10,
+    "parent_id": 8,
+    "path": "1.4.6.8.10",
+    "slug": "z2_stantsiya",
+    "name": "Z2 — Станция насосная"
+  },
+  {
+    "id": 11,
+    "parent_id": 8,
+    "path": "1.4.6.8.11",
+    "slug": "z3_stantsiya",
+    "name": "Z3 — Станция насосная"
+  },
+  {
+    "id": 12,
+    "parent_id": 8,
+    "path": "1.4.6.8.12",
+    "slug": "dlm_nasos",
+    "name": "DLM — Насос"
+  },
+  {
+    "id": 13,
+    "parent_id": 9,
+    "path": "1.4.6.9.13",
+    "slug": "dldc_pitateli",
+    "name": "DLDC"
+  },
+  {
+    "id": 14,
+    "parent_id": 9,
+    "path": "1.4.6.9.14",
+    "slug": "dldf_pitateli",
+    "name": "DLDF"
+  },
+  {
+    "id": 15,
+    "parent_id": 9,
+    "path": "1.4.6.9.15",
+    "slug": "5n_pitateli",
+    "name": "5N"
+  },
+  {
+    "id": 37,
+    "parent_id": 5,
+    "path": "1.5.37",
+    "slug": "standartnye_gidrotsilindry",
+    "name": "Стандартные гидроцилиндры"
+  },
+  {
+    "id": 38,
+    "parent_id": 5,
+    "path": "1.5.38",
+    "slug": "kompaktnye_gidrotsilindry",
+    "name": "Компактные гидроцилиндры"
+  },
+  {
+    "id": 39,
+    "parent_id": 37,
+    "path": "1.5.37.39",
+    "slug": "serii_hc_standart",
+    "name": "Серия HC Standard"
+  },
+  {
+    "id": 40,
+    "parent_id": 37,
+    "path": "1.5.37.40",
+    "slug": "serii_hd_heavy_duty",
+    "name": "Серия HD Heavy Duty"
+  },
+  {
+    "id": 16,
+    "parent_id": 2,
+    "path": "2.16",
+    "slug": "pnevmaticheskie_klapany",
+    "name": "Пневматические клапаны"
+  },
+  {
+    "id": 17,
+    "parent_id": 2,
+    "path": "2.17",
+    "slug": "pnevmaticheskie_tsilindry",
+    "name": "Пневматические цилиндры"
+  },
+  {
+    "id": 18,
+    "parent_id": 2,
+    "path": "2.18",
+    "slug": "pnevmaticheskie_raspredeliteli",
+    "name": "Пневматические распределители"
+  },
+  {
+    "id": 19,
+    "parent_id": 16,
+    "path": "2.16.19",
+    "slug": "elektropnevmaticheskie_klapany",
+    "name": "Электропневматические клапаны"
+  },
+  {
+    "id": 20,
+    "parent_id": 16,
+    "path": "2.16.20",
+    "slug": "pnevmaticheskie_klapany_davleniya",
+    "name": "Клапаны давления"
+  },
+  {
+    "id": 21,
+    "parent_id": 19,
+    "path": "2.16.19.21",
+    "slug": "serii_v551",
+    "name": "Серия V551"
+  },
+  {
+    "id": 22,
+    "parent_id": 19,
+    "path": "2.16.19.22",
+    "slug": "serii_v531",
+    "name": "Серия V531"
+  },
+  {
+    "id": 23,
+    "parent_id": 17,
+    "path": "2.17.23",
+    "slug": "kompaknye_tsilindry",
+    "name": "Компактные цилиндры"
+  },
+  {
+    "id": 24,
+    "parent_id": 17,
+    "path": "2.17.24",
+    "slug": "tsilindry_s_shtokom",
+    "name": "Цилиндры со штоком"
+  },
+  {
+    "id": 25,
+    "parent_id": 23,
+    "path": "2.17.23.25",
+    "slug": "serii_c85",
+    "name": "Серия C85"
+  },
+  {
+    "id": 26,
+    "parent_id": 23,
+    "path": "2.17.23.26",
+    "slug": "serii_c96",
+    "name": "Серия C96"
+  },
+  {
+    "id": 27,
+    "parent_id": 3,
+    "path": "3.27",
+    "slug": "vakuumnye_nasosy",
+    "name": "Вакуумные насосы"
+  },
+  {
+    "id": 28,
+    "parent_id": 3,
+    "path": "3.28",
+    "slug": "vakuumnye_komponenty",
+    "name": "Вакуумные компоненты"
+  },
+  {
+    "id": 29,
+    "parent_id": 27,
+    "path": "3.27.29",
+    "slug": "plastinchatye_nasosy",
+    "name": "Пластинчатые насосы"
+  },
+  {
+    "id": 30,
+    "parent_id": 27,
+    "path": "3.27.30",
+    "slug": "rotornye_nasosy",
+    "name": "Роторные насосы"
+  },
+  {
+    "id": 31,
+    "parent_id": 29,
+    "path": "3.27.29.31",
+    "slug": "serii_tr",
+    "name": "Серия TR"
+  },
+  {
+    "id": 32,
+    "parent_id": 29,
+    "path": "3.27.29.32",
+    "slug": "serii_ts",
+    "name": "Серия TS"
+  },
+  {
+    "id": 33,
+    "parent_id": 28,
+    "path": "3.28.33",
+    "slug": "vakuumnye_zahvaty",
+    "name": "Вакуумные захваты"
+  },
+  {
+    "id": 34,
+    "parent_id": 28,
+    "path": "3.28.34",
+    "slug": "vakuumnye_prisoski",
+    "name": "Вакуумные присоски"
+  },
+  {
+    "id": 35,
+    "parent_id": 33,
+    "path": "3.28.33.35",
+    "slug": "serii_fm",
+    "name": "Серия FM"
+  },
+  {
+    "id": 36,
+    "parent_id": 33,
+    "path": "3.28.33.36",
+    "slug": "serii_fx",
+    "name": "Серия FX"
+  }
+]

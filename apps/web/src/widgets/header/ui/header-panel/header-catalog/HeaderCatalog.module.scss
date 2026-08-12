@@ -1,0 +1,104 @@
+@use "../../../../../shared/styles/breakpoints" as *;
+
+$container-max-width: 1440px;
+$sidebar-width: 340px;
+$megamenu-width: calc(#{$container-max-width} - #{$sidebar-width});
+$catalog-left-shift: calc((100vw - min(100vw, #{$container-max-width})) / 2 + 40px);
+
+.search_wrapper {
+  padding: 0 0 16px;
+}
+
+.catalog_container {
+  position: absolute;
+  z-index: 1;
+  top: 100%;
+  left: 0;
+  display: flex;
+  width: 100%;
+  background-color: #f4f4f4;
+  transform: none;
+  min-height: 100vh;
+  box-shadow: 0 15px 30px rgb(0 0 0 / 0.08%);
+
+  @include xs {
+    left: -26px;
+    display: block;
+    width:calc( 100% + 46px );
+    height: calc(95vh - 90px);
+    min-height: 0;
+    padding-inline: 0;
+    overflow-y: auto;
+  }
+
+}
+
+.sidebar {
+  position: relative;
+  z-index: 0;
+  display: flex;
+  justify-content: flex-end;
+  width: auto;
+  background-color: #f4f4f4;
+  
+  @media (width >= 1024px) {
+    &::after {
+      position: absolute;
+      top: 0;
+      right: 100%;
+      bottom: 0;
+      width: $catalog-left-shift;
+      background-color: inherit;
+      content: "";
+    }
+  }
+}
+
+.categories_list {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: $sidebar-width;
+  margin: 0;
+  padding-left: 0;
+
+  @include xs {
+    height: auto;
+    flex: 1;
+    height: auto;
+    margin-left: 0;
+  }
+}
+
+.mega_menu {
+  // z-index: 0;
+  position: relative;
+  display: flex;
+  justify-content: flex-start;
+  width: 100%;
+  padding: 16px 16px 0;
+  background-color: #fff;
+  grid-column: mega-menu;
+  box-shadow: 0 0 8px #0000001a;
+
+  .mega_menu_content {
+    width: 100%;
+  }
+
+  .categories {
+    font-size: larger;
+    font-weight: 700;
+  }
+
+  @media (width <= 1024px) {
+    display: none;
+  }
+}
+
+.categories_title{
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+
+

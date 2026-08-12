@@ -1,41 +1,33 @@
 {
   "name": "pnewmo",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
+  "packageManager": "pnpm@10.20.0",
+  "engines": {
+    "node": ">=24"
   },
-  "dependencies": {
-    "next": "16.2.6",
-    "react": "19.2.6",
-    "react-dom": "19.2.6"
+  "scripts": {
+    "bootstrap": "node scripts/bootstrap.mjs && pnpm install && pnpm db:generate",
+    "dev": "pnpm db:up && pnpm db:sync && turbo run dev mock",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "format": "prettier --write .",
+    "db:up": "docker compose up -d --wait postgres",
+    "db:down": "docker compose stop postgres",
+    "db:reset": "docker compose down -v && pnpm db:up",
+    "db:sync": "pnpm --filter @pnewmo/api db:deploy && pnpm --filter @pnewmo/api db:generate",
+    "db:psql": "docker compose exec postgres psql -U pnewmo -d pnewmo",
+    "db:generate": "pnpm --filter @pnewmo/api db:generate",
+    "db:migrate": "pnpm --filter @pnewmo/api db:migrate",
+    "db:seed": "pnpm --filter @pnewmo/api db:seed",
+    "db:studio": "pnpm --filter @pnewmo/api db:studio",
+    "db:test:setup": "pnpm --filter @pnewmo/api db:test:setup && pnpm --filter @pnewmo/api db:test:migrate"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "16.2.6",
-    "json-server": "^1.0.0-beta.15",
-    "postcss-pxtorem": "^6.1.0",
     "prettier": "3.8.3",
-    "sass": "^1.100.0",
-    "stylelint": "^17.13.0",
-    "stylelint-config-standard": "^40.0.0",
-    "stylelint-config-standard-scss": "^17.0.0",
-    "stylelint-order": "^8.1.1",
-    "tailwindcss": "^4",
-    "typescript": "^5"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "@parcel/watcher",
-      "sharp",
-      "unrs-resolver"
-    ]
+    "turbo": "2.10.9",
+    "typescript": "^5.9.3"
   }
 }
