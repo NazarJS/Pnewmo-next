@@ -1,7 +1,10 @@
 services:
   postgres:
+    # container_name намеренно не задан: жёсткое имя занимает его глобально в Docker,
+    # и второй чекаут проекта или переименованная папка упираются в «container name
+    # already in use», хотя порт свободен. Compose сам назовёт контейнер по имени
+    # проекта, а все команды обращаются к сервису postgres, не к имени контейнера.
     image: postgres:16-alpine
-    container_name: pnewmo-postgres
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER}

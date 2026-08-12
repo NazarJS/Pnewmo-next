@@ -4,118 +4,452 @@
 
 Монорепо: Next.js фронтенд, NestJS API, общий контракт на ts-rest, Postgres в Docker.
 
-## Требования
+---
 
-- Node 24 — `nvm use` подхватит из `.nvmrc`
-- pnpm 10 — `npm i -g pnpm@10`
-- Docker с запущенным демоном
+# Первый запуск
 
-## Запуск
+Ниже два раздела — для macOS и для Windows. Выполняйте подряд, ничего не пропуская.
+После каждого шага написано, что вы должны увидеть: если увидели другое, смотрите
+раздел «Если что-то не работает» в конце.
+
+Заполнять вручную ничего не нужно — команда `pnpm bootstrap` создаёт все файлы
+настроек сама. Что в них лежит, объяснено в разделе «Файлы настроек».
+
+## macOS
+
+### Шаг 1. Проверьте, установлен ли nvm
+
+nvm — это менеджер версий Node.js. Откройте Терминал и введите:
 
 ```bash
+command -v nvm || echo "нет"
+```
+
+Если увидели `нет` — установите:
+
+```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+```
+
+После установки **закройте Терминал и откройте заново** — иначе команда не появится.
+
+### Шаг 2. Установите Node 24
+
+Перейдите в папку проекта и выполните:
+
+```bash
+cd путь/к/Pnewmo
+nvm install
 nvm use
+node -v
+```
+
+Ожидаемый вывод последней команды: `v24.19.0` или другая версия, начинающаяся с `v24`.
+
+Команды `nvm install` и `nvm use` без номера версии берут её из файла `.nvmrc` в
+проекте. Версию 20 использовать нельзя: она снята с поддержки 30 апреля 2026 года.
+
+### Шаг 3. Установите pnpm
+
+```bash
+npm i -g pnpm@10
+pnpm -v
+```
+
+Ожидаемый вывод: `10.20.0` или другая версия, начинающаяся с `10`.
+
+**Не используйте corepack** для установки pnpm — на этой конфигурации он сломан,
+подробности в разделе «Известные особенности».
+
+### Шаг 4. Установите Docker Desktop
+
+Скачайте с [docker.com](https://www.docker.com/products/docker-desktop/), установите и
+**запустите** приложение. Дождитесь, пока значок китёнка в строке меню перестанет
+анимироваться.
+
+Проверьте:
+
+```bash
+docker ps
+```
+
+Ожидаемый вывод: заголовок таблицы `CONTAINER ID   IMAGE   ...`, возможно с пустым
+списком под ним. Если написано `Cannot connect to the Docker daemon` — Docker Desktop
+не запущен.
+
+### Шаг 5. Установите зависимости
+
+```bash
 pnpm bootstrap
+```
+
+Команда делает три вещи: создаёт файлы настроек, скачивает зависимости и генерирует
+клиент базы данных. Занимает 1–2 минуты.
+
+Ожидаемый вывод в конце: `✔ Generated Prisma Client (7.9.1) to ./src/generated/prisma`.
+
+### Шаг 6. Поднимите базу данных и создайте таблицы
+
+```bash
+pnpm db:up
+pnpm db:migrate
+pnpm db:seed
+```
+
+Ожидаемый вывод по очереди: `Container pnewmo-postgres  Healthy`, затем
+`Your database is now in sync with your schema`, затем `seeded 40 categories`.
+
+Порядок важен: таблицы создаются до запуска проекта, иначе API будет отвечать ошибкой на
+запросы каталога.
+
+### Шаг 7. Запустите проект
+
+```bash
 pnpm dev
 ```
 
-- http://localhost:3000 — фронтенд
-- http://localhost:3000/dev — служебная страница, показывает статус API
-- http://localhost:4000/health — API
-- http://localhost:3001 — mock-данные (json-server, до перехода на реальный API)
-
-## Структура
+Ожидаемый вывод содержит строки:
 
 ```
-apps/web               Next.js: фронтенд и служебный роут /dev
+Container pnewmo-postgres  Healthy
+▲ Next.js 16.2.6 (Turbopack)  - Local: http://localhost:3000
+Nest application successfully started
+JSON Server started on PORT :3001
+```
+
+Оставьте это окно Терминала открытым — проект работает, пока команда запущена.
+Остановить: `Ctrl+C`. Для остальных команд открывайте **второе** окно Терминала и не
+забывайте в нём `cd` в папку проекта и `nvm use`.
+
+Переходите к разделу «Проверьте, что всё работает».
+
+---
+
+## Windows
+
+Все команды выполняйте в **PowerShell** или **Windows Terminal**, не в старом `cmd`.
+Найти: меню Пуск → введите `PowerShell` → откройте.
+
+### Шаг 1. Установите менеджер версий Node.js
+
+На Windows nvm — это **другая программа**, чем на macOS, и она **не умеет читать файл
+`.nvmrc`**. Поэтому версию придётся указывать вручную. Есть два варианта.
+
+**Вариант А — nvm-windows.** Скачайте `nvm-setup.exe` со страницы
+[github.com/coreybutler/nvm-windows/releases](https://github.com/coreybutler/nvm-windows/releases)
+и установите. Затем **закройте PowerShell и откройте заново**.
+
+**Вариант Б — fnm (рекомендую).** Умеет читать `.nvmrc`, как на macOS:
+
+```powershell
+winget install Schniz.fnm
+```
+
+После установки закройте PowerShell, откройте заново и добавьте fnm в автозагрузку:
+
+```powershell
+if (-not (Test-Path $PROFILE)) { New-Item -ItemType File -Path $PROFILE -Force }
+Add-Content $PROFILE 'fnm env --use-on-cd | Out-String | Invoke-Expression'
+```
+
+Снова закройте и откройте PowerShell.
+
+### Шаг 2. Установите Node 24
+
+Перейдите в папку проекта:
+
+```powershell
+cd C:\путь\к\Pnewmo
+```
+
+**Если выбрали nvm-windows** — версию указываем явно, файл `.nvmrc` он не прочитает:
+
+```powershell
+nvm install 24.19.0
+nvm use 24.19.0
+node -v
+```
+
+**Если выбрали fnm:**
+
+```powershell
+fnm install
+fnm use
+node -v
+```
+
+Ожидаемый вывод: `v24.19.0`.
+
+### Шаг 3. Установите pnpm
+
+```powershell
+npm i -g pnpm@10
+pnpm -v
+```
+
+Ожидаемый вывод: `10.20.0`.
+
+Если PowerShell отвечает `pnpm : File ... cannot be loaded because running scripts is
+disabled`, разрешите запуск скриптов:
+
+```powershell
+Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+```
+
+На вопрос ответьте `Y`, затем повторите `pnpm -v`.
+
+### Шаг 4. Установите Docker Desktop
+
+Скачайте с [docker.com](https://www.docker.com/products/docker-desktop/). Установщик
+предложит включить **WSL 2** — согласитесь, без него не заработает. Может потребоваться
+перезагрузка.
+
+Запустите Docker Desktop и дождитесь, пока в левом нижнем углу окна индикатор станет
+зелёным. Проверьте:
+
+```powershell
+docker ps
+```
+
+Ожидаемый вывод: заголовок таблицы `CONTAINER ID   IMAGE   ...`.
+
+### Шаг 5. Установите зависимости
+
+```powershell
+pnpm bootstrap
+```
+
+Ожидаемый вывод в конце: `✔ Generated Prisma Client (7.9.1) to ./src/generated/prisma`.
+
+### Шаг 6. Поднимите базу данных и создайте таблицы
+
+```powershell
+pnpm db:up
+pnpm db:migrate
+pnpm db:seed
+```
+
+Ожидаемый вывод по очереди: `Container pnewmo-postgres  Healthy`, затем
+`Your database is now in sync with your schema`, затем `seeded 40 categories`.
+
+Порядок важен: таблицы создаются до запуска проекта, иначе API будет отвечать ошибкой на
+запросы каталога.
+
+### Шаг 7. Запустите проект
+
+```powershell
+pnpm dev
+```
+
+Ожидаемый вывод содержит `Container pnewmo-postgres  Healthy`,
+`▲ Next.js 16.2.6 (Turbopack)` и `Nest application successfully started`.
+
+Оставьте окно открытым. Остановить: `Ctrl+C`. Для остальных команд открывайте **второе**
+окно PowerShell и не забывайте в нём `cd` в папку проекта.
+
+---
+
+# Проверьте, что всё работает
+
+Откройте в браузере по очереди:
+
+| Адрес | Что должны увидеть |
+|---|---|
+| http://localhost:3000 | витрину магазина, в шапке работает меню каталога |
+| http://localhost:3000/dev | строку вида `API: ok, uptime 12.4s` |
+| http://localhost:4000/categories | текст, начинающийся с `[{"id":` — это 40 категорий |
+| http://localhost:3001/categories | то же самое из mock-данных |
+
+Если открылись все четыре — проект запущен правильно.
+
+Посмотреть содержимое базы данных в удобном виде:
+
+```
+pnpm db:studio
+```
+
+Откроется браузер с таблицей `categories`.
+
+---
+
+# Файлы настроек
+
+Их три, и **все создаёт `pnpm bootstrap`** из файлов-образцов `.env.example`.
+Заполнять вручную ничего не нужно — значения по умолчанию рабочие.
+
+| Файл | Что задаёт |
+|---|---|
+| `.env` в корне | доступы к Postgres: пользователь, пароль, имя базы, порт |
+| `apps/api/.env` | адрес базы для сервера, порт API, адрес фронтенда для CORS |
+| `apps/web/.env.local` | адрес API для фронтенда |
+
+Файлы **не попадают в git** — у каждого разработчика свои. Образцы `.env.example` в git
+есть, их и надо править, если нужно поменять значение для всей команды.
+
+## Когда всё-таки придётся править
+
+**Порт 5432 занят другим Postgres.** Проект использует **5433** именно поэтому: на машине,
+где он настраивался, 5432 был занят локальным PostgreSQL из Homebrew. Если у вас 5432
+свободен и хочется стандартный порт, поменяйте в **двух** местах:
+
+```
+.env               POSTGRES_PORT=5432
+apps/api/.env      DATABASE_URL=postgresql://pnewmo:pnewmo_local_dev@localhost:5432/pnewmo?schema=public
+apps/api/.env      DATABASE_URL_TEST=postgresql://pnewmo:pnewmo_local_dev@localhost:5432/pnewmo_test?schema=public
+```
+
+После правки: `pnpm db:down`, затем `pnpm db:up`.
+
+**Порт 3000 или 4000 занят.** Порт фронтенда меняется в `apps/web/package.json`
+(`next dev --port 3005`), порт API — в `apps/api/.env` (`PORT=4005`). Если поменяли
+порт API, обновите `NEXT_PUBLIC_API_URL` в `apps/web/.env.local` и `WEB_ORIGIN` в
+`apps/api/.env`.
+
+Пароль `pnewmo_local_dev` — для локальной разработки. Ни на какой сервер эти значения
+не поедут: продовые настройки будут отдельными.
+
+---
+
+# Ежедневная работа
+
+| Команда | Что делает |
+|---|---|
+| `pnpm dev` | запускает всё: Postgres, фронтенд, API, mock-данные |
+| `pnpm build` | собирает все пакеты |
+| `pnpm lint` | проверяет стиль кода |
+| `pnpm typecheck` | проверяет типы |
+| `pnpm test` | юнит-тесты |
+| `pnpm format` | форматирует код prettier |
+
+## База данных
+
+| Команда | Что делает |
+|---|---|
+| `pnpm db:up` / `pnpm db:down` | поднять / остановить Postgres, данные сохраняются |
+| `pnpm db:reset` | **удалить все данные** и поднять базу заново |
+| `pnpm db:migrate` | создать миграцию после правки `schema.prisma` |
+| `pnpm db:generate` | перегенерировать клиент базы |
+| `pnpm db:seed` | залить 40 категорий из фикстуры |
+| `pnpm db:studio` | открыть базу в браузере |
+| `pnpm db:psql` | консоль psql внутри контейнера |
+| `pnpm db:test:setup` | создать базу `pnewmo_test` для тестов и накатить миграции |
+
+## Тесты API
+
+```
+pnpm db:test:setup                          # один раз
+pnpm --filter @pnewmo/api test:e2e          # дальше только это
+```
+
+E2E-тесты работают против отдельной базы `pnewmo_test` и данные в рабочей базе не
+трогают. Без `db:test:setup` они упадут с сообщением, что база не найдена.
+
+## Полезно знать
+
+**Правя `packages/api-contract`, запускайте `pnpm dev`, а не отдельное приложение.**
+Контракт компилируется, и его слежение за изменениями поднимает только `pnpm dev`. При
+запуске одного лишь API правки контракта не подхватятся, и вы будете отлаживать старую
+сборку, ничего об этом не зная.
+
+**Аргументы командам передаются без `--`:** `pnpm db:psql -tAc 'select 1'`. Форма с `--`
+не работает — pnpm пробрасывает сам разделитель дальше.
+
+**`pnpm lint` завершается с ошибкой, и это нормально.** Подробности ниже, в «Известных
+особенностях».
+
+---
+
+# Если что-то не работает
+
+| Симптом | Причина и что делать |
+|---|---|
+| `Cannot connect to the Docker daemon` | Docker Desktop не запущен. Запустите и дождитесь зелёного индикатора |
+| `port is already allocated` при `pnpm db:up` | порт 5433 занят. Найдите чем: `docker ps`. Либо остановите, либо поменяйте `POSTGRES_PORT` — см. «Файлы настроек» |
+| `EADDRINUSE :::3000` или `:::4000` | порт занят другим процессом, чаще всего незакрытым запуском проекта. Найти и снять — macOS: `lsof -tiTCP:4000 -sTCP:LISTEN` покажет номер процесса, затем `kill <номер>`. Windows: `netstat -ano \| findstr :4000` покажет номер в последней колонке, затем `taskkill /PID <номер> /F` |
+| `container name "/pnewmo-postgres" is already in use` | остался контейнер от прежней версии проекта, где имя задавалось жёстко. Выполните `docker rm -f pnewmo-postgres`, затем `pnpm db:up`. Данные не пострадают — они в отдельном томе |
+| `Cannot find module '../generated/prisma/client'` | клиент базы не сгенерирован. Выполните `pnpm db:generate` |
+| `Environment variable not found: DATABASE_URL` | нет файла `apps/api/.env`. Выполните `pnpm bootstrap` |
+| `The table 'public.categories' does not exist` | миграции не накатаны. Выполните `pnpm db:migrate` |
+| `/dev` показывает `API недоступен` | API не запущен либо упал. Посмотрите на окно с `pnpm dev` |
+| Каталог в шапке пустой | не залиты данные. Выполните `pnpm db:seed` |
+| `nvm: command not found` после установки | не перезапущен терминал. Закройте и откройте заново |
+| PowerShell: `running scripts is disabled` | `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`, ответить `Y` |
+| `pnpm: command not found` на Windows после `npm i -g` | не перезапущен PowerShell. Закройте и откройте заново |
+| `nvm use` на Windows отвечает ошибкой | nvm-windows не читает `.nvmrc`. Укажите версию: `nvm use 24.19.0` |
+| `pnpm build` прошёл, но `dist` пуст | не должно случаться — исправлено. Если повторилось, удалите `apps/api/dist` и соберите заново |
+| Тесты падают с `database "pnewmo_test" does not exist` | выполните `pnpm db:test:setup` |
+
+Ничего из перечисленного не помогло — полная переустановка с нуля:
+
+```
+pnpm db:reset
+pnpm bootstrap
+pnpm db:migrate
+pnpm db:seed
+```
+
+---
+
+# Структура
+
+```
+apps/web               Next.js: витрина и служебный роут /dev
 apps/api               NestJS: HTTP API
 packages/api-contract  ts-rest + Zod: общий контракт для web и api
-docs/superpowers       спеки и планы
+docs/superpowers       спеки и планы: что решено и почему
+.claude                контекст проекта, стайлгайд, скиллы, агенты
 ```
 
 Контракт — единственный источник правды об API. Zod-схема в `packages/api-contract`
 одновременно валидирует входящие запросы на сервере и типизирует клиент на фронтенде.
 Поэтому опечатка в имени поля ломает `pnpm typecheck`, а не проявляется в рантайме.
 
-## Команды
+Порты: фронтенд 3000, mock-данные 3001, API 4000, Postgres 5433.
 
-| Команда | Что делает |
-|---|---|
-| `pnpm bootstrap` | создаёт `.env` из примеров, ставит зависимости |
-| `pnpm dev` | Postgres + web + api + mock |
-| `pnpm build` | сборка всех пакетов |
-| `pnpm lint` | eslint и stylelint |
-| `pnpm typecheck` | проверка типов |
-| `pnpm test` | юнит-тесты |
-| `pnpm format` | prettier по всему репозиторию |
-| `pnpm db:up` / `pnpm db:down` | поднять / остановить Postgres, данные сохраняются |
-| `pnpm db:reset` | снести данные и поднять базу заново |
-| `pnpm db:psql` | psql-шелл в контейнере |
-| `pnpm db:migrate` | создать миграцию по изменению `schema.prisma` |
-| `pnpm db:generate` | перегенерировать клиент Prisma |
-| `pnpm db:seed` | залить категории из фикстуры |
-| `pnpm db:studio` | Prisma Studio, GUI по базе |
-| `pnpm db:test:setup` | создать базу `pnewmo_test` и накатить на неё миграции |
+---
 
-E2E-тесты API: `pnpm --filter @pnewmo/api test:e2e`. Они работают против отдельной базы
-`pnewmo_test` — сначала выполните `pnpm db:test:setup`.
+# Схема базы данных
 
-**Правя контракт, запускайте `pnpm dev`, а не `pnpm --filter @pnewmo/api dev`.**
-`packages/api-contract` компилируемый, и его watch (`tsc --watch`) поднимает только
-turbo в составе `pnpm dev`. При запуске одного лишь `api` изменения в контракте не
-подхватятся, и вы будете отлаживать поведение старой сборки.
-
-`pnpm lint` в пакете `web` — это `eslint && stylelint`, поэтому пока eslint падает на
-baseline, до stylelint дело не доходит. Запускать линтеры по отдельности:
-`pnpm --filter @pnewmo/web lint:js` и `lint:css`.
-
-Аргументы в `db:psql` передаются **без** `--`: `pnpm db:psql -tAc 'select 1'`.
-Форма с `--` не работает — pnpm пробрасывает сам разделитель, и psql считает его
-лишним позиционным аргументом.
-
-## Переменные окружения
-
-Три файла, по одному на область ответственности. Все три создаёт `pnpm bootstrap`,
-реальные значения в `.gitignore`.
-
-| Файл | Что задаёт | Кто читает |
-|---|---|---|
-| `.env` | `POSTGRES_*` | docker-compose |
-| `apps/api/.env` | `DATABASE_URL`, `PORT`, `WEB_ORIGIN` | NestJS |
-| `apps/web/.env.local` | `NEXT_PUBLIC_API_URL` | Next |
-
-## Известные особенности окружения
-
-**Postgres на порту 5433, не 5432.** На машине, где проект настраивался, 5432 занят
-локальным PostgreSQL из Homebrew. Порт вынесен в `POSTGRES_PORT` в корневом `.env` —
-если у вас 5432 свободен, поменяйте одну строку.
-
-**Corepack не работает на этой конфигурации.** Под Node 20 закешированный pnpm 11
-падает с `ERR_VM_DYNAMIC_IMPORT_CALLBACK_MISSING`, под Node 23 — `Cannot find matching
-keyid` из-за устаревших ключей подписи реестра. Ставьте pnpm через `npm i -g pnpm@10`.
-Если corepack всё же нужен: `COREPACK_INTEGRITY_KEYS=0 corepack prepare pnpm@10.20.0 --activate`.
-
-**Node 20 не поддерживается** — EOL с 30 апреля 2026, security-патчей нет.
-
-**Zod пинится на 3.x.** ts-rest 3.52.1 требует `zod ^3.22.3`; поддержка Zod 4 есть
-только в нестабильной `3.53.0-rc`. **TypeScript пинится на 5.x** — в реестре уже
-`typescript@7`, но Next 16 и Nest 11 собраны против 5.x.
-
-**`pnpm lint` завершается с кодом 1.** Это известный долг, а не поломка: линтеры
-падали на существующем коде фронтенда до перестройки в монорепо. Зафиксированный
-baseline — 2 ошибки eslint и 21 stylelint, полный список в
-`docs/superpowers/specs/2026-08-11-monorepo-infra-design.md`, раздел «Baseline
-линтеров». Любая ошибка сверх этого списка — новая, её надо исправлять.
-
-## Схема базы данных
-
-Prisma 7, PostgreSQL 16. Пока одна таблица — `categories`: дерево через `parent_id`
-(adjacency list) с `ON DELETE RESTRICT`, уникальным `slug` и вложенностью до 5 уровней
-в сидах. Схема — `apps/api/prisma/schema.prisma`.
+Prisma 7, PostgreSQL 16. Одна таблица — `categories`: дерево через `parent_id`
+(adjacency list) с `ON DELETE RESTRICT`, уникальным `slug`, вложенность до 5 уровней в
+сидах. Схема — `apps/api/prisma/schema.prisma`.
 
 Товары и заказы — следующие этапы, см. `docs/superpowers/specs/`.
 
 Важное про Prisma 7: генератор называется `prisma-client` (не `prisma-client-js`),
 `output` обязателен, а рантайм требует драйвер-адаптера — `new PrismaClient({ adapter })`
-вокруг `pg.Pool`. Примеры для шестой версии не подойдут. Клиент генерируется в
-`apps/api/src/generated/prisma` и в git не попадает: после `pnpm install` на новой машине
-выполните `pnpm db:generate`.
+вокруг `pg.Pool`. Примеры для шестой версии из интернета не подойдут. Клиент генерируется
+в `apps/api/src/generated/prisma` и в git не попадает.
+
+---
+
+# Известные особенности
+
+**`pnpm lint` завершается с кодом 1 — это долг, а не поломка.** Линтеры падали на
+существующем коде фронтенда ещё до перестройки в монорепо. Зафиксированный baseline —
+2 ошибки eslint и 21 stylelint, полный список в
+`docs/superpowers/specs/2026-08-11-monorepo-infra-design.md`, раздел «Baseline линтеров».
+Любая ошибка **сверх** этого списка — новая, её надо исправлять. Пакеты `@pnewmo/api` и
+`@pnewmo/api-contract` линтуются чисто.
+
+В пакете `web` команда `lint` — это `eslint && stylelint`, поэтому пока eslint падает на
+baseline, до stylelint дело не доходит. Запускать по отдельности:
+`pnpm --filter @pnewmo/web lint:js` и `lint:css`.
+
+**Corepack на этой конфигурации сломан.** Под Node 20 закешированный pnpm 11 падает с
+`ERR_VM_DYNAMIC_IMPORT_CALLBACK_MISSING`, под Node 23 — `Cannot find matching keyid`
+из-за устаревших ключей подписи реестра. Ставьте pnpm через `npm i -g pnpm@10`. Если
+corepack всё же нужен:
+`COREPACK_INTEGRITY_KEYS=0 corepack prepare pnpm@10.20.0 --activate`.
+
+**Node 20 не поддерживается** — снят с поддержки 30 апреля 2026, обновлений безопасности
+нет.
+
+**Zod пинится на 3.x.** ts-rest 3.52.1 требует `zod ^3.22.3`, поддержка Zod 4 есть только
+в нестабильной `3.53.0-rc`. **TypeScript пинится на 5.x** — в реестре уже `typescript@7`,
+но Next 16 и Nest 11 собраны против 5.x.
+
+**Фронтенд пока читает каталог из `apps/web/db.json`** через json-server на порту 3001.
+Категория, созданная через API, появится в меню шапки, но страница каталога о ней не
+знает и покажет «Категория не найдена». Это ожидаемое переходное состояние: витрина
+переедет на реальный API вместе с товарами.
