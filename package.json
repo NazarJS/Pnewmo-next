@@ -8,7 +8,7 @@
   },
   "scripts": {
     "bootstrap": "node scripts/bootstrap.mjs && pnpm install && pnpm db:generate",
-    "dev": "pnpm db:up && turbo run dev mock",
+    "dev": "pnpm db:up && pnpm db:sync && turbo run dev mock",
     "build": "turbo run build",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
@@ -17,6 +17,7 @@
     "db:up": "docker compose up -d --wait postgres",
     "db:down": "docker compose stop postgres",
     "db:reset": "docker compose down -v && pnpm db:up",
+    "db:sync": "pnpm --filter @pnewmo/api db:deploy && pnpm --filter @pnewmo/api db:generate",
     "db:psql": "docker compose exec postgres psql -U pnewmo -d pnewmo",
     "db:generate": "pnpm --filter @pnewmo/api db:generate",
     "db:migrate": "pnpm --filter @pnewmo/api db:migrate",
