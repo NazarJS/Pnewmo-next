@@ -11,7 +11,10 @@ if (!testUrl) {
   throw new Error('DATABASE_URL_TEST не задан в apps/api/.env');
 }
 
+// shell: true обязателен для Windows: там pnpm — это pnpm.cmd, и без оболочки
+// execFileSync не найдёт исполняемый файл (ENOENT).
 execFileSync('pnpm', ['exec', 'prisma', 'migrate', 'deploy'], {
   stdio: 'inherit',
+  shell: true,
   env: { ...process.env, DATABASE_URL: testUrl },
 });

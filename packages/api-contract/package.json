@@ -4,11 +4,13 @@
   "private": true,
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "dev": "tsc -p tsconfig.json --watch --preserveWatchOutput",
-    "clean": "rm -rf dist"
+    "clean": "node --eval \"require('node:fs').rmSync('dist', { recursive: true, force: true })\""
   },
   "dependencies": {
     "@ts-rest/core": "3.52.1",
