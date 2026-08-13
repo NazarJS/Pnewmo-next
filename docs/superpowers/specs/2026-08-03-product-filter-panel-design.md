@@ -121,7 +121,7 @@ type FilterField =
 
 ```
 1. найти категорию по slug (как сейчас) → берём её category.path
-2. filters = parseFiltersFromSearchParams(searchParams)
+2. filters = (searchParams)
 3. Promise.all([
      getCategoryFilterSchema(category.path),
      getFilteredProducts(category.path, filters),

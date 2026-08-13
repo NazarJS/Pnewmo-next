@@ -1,3 +1,4 @@
+
 export const LABELS: Record<string, { label: string; unit?: string }> = {
   bore: { label: "Диаметр поршня", unit: "мм" },
   diameter: { label: "Диаметр", unit: "мм" },

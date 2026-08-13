@@ -1,15 +1,13 @@
-import { Product, ProductId, FilterFiled } from "@/entities/product/model/types";
+import { Product, ProductId, FilterFiled, ProductFilters } from "@/entities/product/model/types";
 import { categoryDescendantsParam, categorySelfParam } from "@/entities/product/lib/buildCategoryPath";
+import {buildFilterQueryParams} from "@/entities/product/lib/buildFilterQueryParams"
 import { LABELS } from "@/entities/product/lib/labels";
 
 const BASE_URL = 'http://localhost:3001';
 
 const SPEC_VALUE_KEY_RE = /^spec_(.+)_value$/;
 
-// Товары категории = сам узел (eq) ИЛИ его потомки (startsWith) — два раздельных
-// запроса, т.к. этот json-server не умеет OR между разными полями в одном запросе.
-// Оба запроса принимают одинаковые extraParams (диапазон/enum фильтры), поэтому
-// результат остаётся ограничен категорией даже с наложенными фильтрами.
+
 async function fetchProductsInCategoryScope(
   categoryPath: string,
   extraParams: URLSearchParams = new URLSearchParams(),
@@ -34,8 +32,7 @@ async function fetchProductsInCategoryScope(
     selfRes.json(),
   ]);
 
-  // дедупликация по id — теоретически товар не может одновременно совпасть
-  // по eq и по startsWith, но Map по id всё равно самый дешёвый и надёжный способ слить два списка
+
   const merged = new Map<string, Product>();
   for (const product of [...descendants, ...self]) {
     merged.set(product.id, product);
@@ -73,11 +70,9 @@ export async function getCategoryFilterSchema(categoryPath: string): Promise<Fil
     return null;
   }
 
-  // key -> границы диапазона, встреченные хотя бы у одного товара
+
   const ranges = new Map<string, { min: number; max: number }>();
-  // key -> множество уникальных строковых значений (категориальные характеристики)
   const enums = new Map<string, Set<string>>();
-  // порядок первого появления ключа — чтобы панель фильтров не «прыгала» между рендерами
   const order: string[] = [];
 
   const rememberOrder = (key: string) => {
@@ -86,8 +81,7 @@ export async function getCategoryFilterSchema(categoryPath: string): Promise<Fil
     }
   };
 
-  // проход 1: диапазонные ключи определяются по факту наличия spec_<key>_value
-  // хотя бы у одного товара — а не по хардкоду списка ключей
+
   for (const product of products) {
     for (const [propName, propValue] of Object.entries(product)) {
       const match = propName.match(SPEC_VALUE_KEY_RE);
@@ -109,10 +103,6 @@ export async function getCategoryFilterSchema(categoryPath: string): Promise<Fil
     }
   }
 
-  // проход 2: категориальные ключи — то, что есть в specifications,
-  // но ни у одного товара нет соответствующего spec_<key>_value.
-  // Идёт отдельным проходом после того, как ranges уже полностью собран,
-  // иначе результат зависел бы от порядка товаров в ответе.
   for (const product of products) {
     for (const [key, value] of Object.entries(product.specifications ?? {})) {
       if (ranges.has(key)) {
@@ -139,4 +129,39 @@ export async function getCategoryFilterSchema(categoryPath: string): Promise<Fil
     const values = enums.get(key) ?? new Set<string>();
     return { type: "enum", key, label, values: [...values] };
   });
+}
+
+
+
+export async function getFilteredProducts(categoryPath: string, filtres: ProductFilters): Promise<Product[] | null> {
+  const params = buildFilterQueryParams(filtres);
+
+  return fetchProductsInCategoryScope(categoryPath, params);
+}
+
+
+export async function getFilterFieldCounts(categoryPath: string, activeFilters: ProductFilters, field: FilterFiled ): Promise<Record<string, number> |  null> {
+
+  if (field.type !=="enum") {
+    return null
+  }
+
+  const { [field.key]: _own, ...filtersWithoutOwnGroup } = activeFilters;
+
+  const products = await getFilteredProducts(categoryPath, filtersWithoutOwnGroup);
+  if (products === null) {
+    return null;
+  }
+
+  const counts: Record<string, number> = {};
+  for (const value of field.values) {
+    counts[value] = 0;
+  }
+  for (const product of products) {
+    const value = product.specifications?.[field.key];
+    if (value !== undefined && value in counts) {
+      counts[value] += 1;
+    }
+  }
+  return counts;
 }

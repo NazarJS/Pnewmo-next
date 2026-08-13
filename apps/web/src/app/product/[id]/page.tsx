@@ -1,4 +1,6 @@
 import { getProductId } from "@/entities/product/api/products.api";
+import { LABELS } from "@/entities/product/lib/labels";
+
 
 interface ProductPageProps {
   params: Promise<{
@@ -10,6 +12,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const { id } = await params;
 
   const product = await getProductId(id);
+  
 
   if (!product) {
     return <div>Товар не найден</div>;
@@ -21,12 +24,12 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
       <p>{product.description}</p>
 
-      <h3>Характеристики</h3>
+      <h3>Характеристики: </h3>
 
       <ul>
         {Object.entries(product.specifications).map(([key, value]) => (
           <li key={key}>
-            {key}: {value}
+            {LABELS[key]?.label ?? key }: {value}
           </li>
         ))}
       </ul>
