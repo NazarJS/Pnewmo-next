@@ -1,6 +1,14 @@
 @use "../../../shared/styles/breakpoints" as *;
 
 
+.container_page{
+    display: flex;
+}
+
+.section{
+    padding: 0 10px;
+}
+
 .name {
     padding-bottom: 20px;
     font-weight: bold;
@@ -9,8 +17,8 @@
 .wrap{
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
-
+    gap: 14px;
+    
     // @include xs {
     //     display: none;
     // }

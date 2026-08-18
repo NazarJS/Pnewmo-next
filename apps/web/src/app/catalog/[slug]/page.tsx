@@ -1,13 +1,14 @@
-import Link from "next/link";
-import styles from "./Catalog.module.scss";
-import { fetchCategories } from "@/entities/category/api/category.api";
+import Link from 'next/link';
+import styles from './Catalog.module.scss';
+import { fetchCategories } from '@/entities/category/api/category.api';
 import {
   getCategoryFilterSchema,
   getFilteredProducts,
   getFilterFieldCounts,
-} from "@/entities/product/api/products.api";
-import { parseFiltersFromSearchParams } from "@/features/product-filter/model/parseFiltersFromSearchParams";
-import { Category } from "@/entities/category/model/types";
+} from '@/entities/product/api/products.api';
+import { parseFiltersFromSearchParams } from '@/features/product-filter/model/parseFiltersFromSearchParams';
+import { Category } from '@/entities/category/model/types';
+import { ProductFilterPanel } from '@/features/product-filter/ui/ProductFilterPanel';
 
 interface CatalogPageProps {
   params: Promise<{ slug: string }>;
@@ -29,7 +30,7 @@ export default async function CatalogPage({ params, searchParams }: CatalogPageP
 
   const schema = (await getCategoryFilterSchema(category.path)) ?? [];
   const filters = parseFiltersFromSearchParams(rawSearchParams, schema);
-  const enumFields = schema.filter((field) => field.type === "enum");
+  const enumFields = schema.filter((field) => field.type === 'enum');
 
   const [rawProducts, countsList] = await Promise.all([
     getFilteredProducts(category.path, filters),
@@ -44,13 +45,16 @@ export default async function CatalogPage({ params, searchParams }: CatalogPageP
   });
 
   return (
-    <>
-      <h1>{category.name}</h1>
-
-      {/* TODO (Шаг 3): <ProductFilterPanel schema={schema} counts={counts} activeFilters={filters} /> */}
-
+    <div className={styles.container_page}>
+      
+      <div className={styles.panel_container}>
+        <ProductFilterPanel schema={schema} counts={counts} activeFilters={filters} />
+      </div>
+      
       {products.length === 0 && <p>Товаров нет</p>}
 
+      <section className={styles.section}>
+        <h1 className={styles.name}>{category.name}</h1>
       <div className={styles.wrap}>
         {products.map((product) => (
           <Link key={product.id} href={`/product/${product.id}`} className={styles.item}>
@@ -60,6 +64,7 @@ export default async function CatalogPage({ params, searchParams }: CatalogPageP
           </Link>
         ))}
       </div>
-    </>
+      </section>
+    </div>
   );
 }
