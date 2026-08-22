@@ -18,11 +18,13 @@
 6. Стили — рядом с компонентом (`*.module.scss`) для нестандартной вёрстки, Tailwind
    для всего, что укладывается в утилиты.
 
-**Экспорт в `entities/`/`features/` — именованный**, не `export default`:
-`export const useCategories = ...`, `export function CategoryList(...)`. Это отличается
-от `widgets/`/`shared/`, где принят `export default` снизу файла (см. скилл
-`component-structure`) — граница проходит по слою, а не по типу файла (хук vs
-компонент).
+**Экспорт зависит от типа файла, не от слоя.** Компонент (`.tsx`) — всегда
+`export default` снизу файла: `const ProductFilterPanel = (...) => {...}; export default
+ProductFilterPanel;` — так зафиксировано в `component-structure` и подтверждено планом
+на `ProductFilterPanel` (`docs/superpowers/plans/2026-08-13-product-filter-ui-plan.md`,
+шаг 3). Хук (`useXxx`) — всегда именованный экспорт: `export const useCategories = ...`,
+как в `entities/category/hooks/useCategories.ts`. Это касается `entities/`, `features/`,
+`widgets/` и `shared/` одинаково — деления по слою здесь нет.
 
 ## Шаблон хука данных
 
@@ -67,7 +69,7 @@ export function useCategory(id: number) {
 ```tsx
 'use client';
 
-export function CategoryListContainer({ initialData }: { initialData?: CategoryRow[] }) {
+const CategoryListContainer = ({ initialData }: { initialData?: CategoryRow[] }) => {
   const { data, isPending, isError } = useCategories({ initialData });
 
   if (isError) {
@@ -79,7 +81,9 @@ export function CategoryListContainer({ initialData }: { initialData?: CategoryR
   }
 
   return <CategoryList categories={data} />;
-}
+};
+
+export default CategoryListContainer;
 ```
 
 Состояния загрузки и ошибки обрабатываются явно, каждое своим presentational-компонентом,

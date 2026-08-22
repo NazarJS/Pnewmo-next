@@ -1,30 +1,179 @@
 'use client';
+
+import { useEffect, useRef, useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { FilterFiled, ProductFilters } from '@/entities/product/model/types';
+import { buildSearchParamsFromFilters } from '../model/buildSearchParamsFromFilters';
 import styles from './ProductFilterPanel.module.scss';
 
-import React from 'react';
+type RangeField = Extract<FilterFiled, { type: 'range' }>;
+type EnumField = Extract<FilterFiled, { type: 'enum' }>;
+type RangeValue = { min: number; max: number };
 
-interface ProductFilterPanelProps {}
+interface ProductFilterPanelProps {
+  schema: FilterFiled[];
+  counts: Record<string, Record<string, number> | null>;
+  activeFilters: ProductFilters;
+}
 
-export const ProductFilterPanel = () => {
+const RANGE_PUSH_DELAY_MS = 300;
+
+function getSelectedValues(field: EnumField, activeFilters: ProductFilters): string[] {
+  const active = activeFilters[field.key];
+  return Array.isArray(active) ? active : [];
+}
+
+function buildRangeDraft(schema: FilterFiled[], activeFilters: ProductFilters): Record<string, RangeValue> {
+  const draft: Record<string, RangeValue> = {};
+
+  for (const field of schema) {
+    if (field.type !== 'range') {
+      continue;
+    }
+
+    const active = activeFilters[field.key];
+    draft[field.key] = active && !Array.isArray(active) ? active : { min: field.min, max: field.max };
+  }
+
+  return draft;
+}
+
+const ProductFilterPanel = ({ schema, counts, activeFilters }: ProductFilterPanelProps) => {
+  const router = useRouter();
+  const pathname = usePathname();
+  const [prevActiveFilters, setPrevActiveFilters] = useState(activeFilters);
+  const [rangeDraft, setRangeDraft] = useState<Record<string, RangeValue>>(() =>
+    buildRangeDraft(schema, activeFilters),
+  );
+  const pushTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  if (activeFilters !== prevActiveFilters) {
+    setPrevActiveFilters(activeFilters);
+    setRangeDraft(buildRangeDraft(schema, activeFilters));
+  }
+
+  useEffect(() => {
+    return () => {
+      if (pushTimeoutRef.current) {
+        clearTimeout(pushTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  if (schema.length === 0) {
+    return null;
+  }
+
+  const pushFilters = (nextFilters: ProductFilters) => {
+    const query = buildSearchParamsFromFilters(nextFilters).toString();
+    router.push(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  };
+
+  const handleRangeChange = (field: RangeField, edge: 'min' | 'max', rawValue: string) => {
+    if (rawValue === '') {
+      return;
+    }
+
+    const value = Number(rawValue);
+    if (Number.isNaN(value)) {
+      return;
+    }
+
+    const nextRange: RangeValue = { ...rangeDraft[field.key], [edge]: value };
+    setRangeDraft((prev) => ({ ...prev, [field.key]: nextRange }));
+
+    if (pushTimeoutRef.current) {
+      clearTimeout(pushTimeoutRef.current);
+    }
+
+    pushTimeoutRef.current = setTimeout(() => {
+      pushFilters({ ...activeFilters, [field.key]: nextRange });
+    }, RANGE_PUSH_DELAY_MS);
+  };
+
+  const handleEnumToggle = (field: EnumField, value: string, checked: boolean) => {
+    const current = getSelectedValues(field, activeFilters);
+    const nextValues = checked ? [...current, value] : current.filter((item) => item !== value);
+
+    const nextFilters = { ...activeFilters };
+    if (nextValues.length > 0) {
+      nextFilters[field.key] = nextValues;
+    } else {
+      delete nextFilters[field.key];
+    }
+
+    pushFilters(nextFilters);
+  };
+
   return (
-    <aside className={styles.container_panel}>
-      <h3 className={styles.h3}>Фильтр</h3>
-      <form action="" className={styles.form}>
-        <div className="item-1"></div>
-        <div className="item-2"></div>
-        <div className="item-3"></div>
-        <div className="item-4"></div>
-        <div className="item-5"></div>
-        
-        <div className="filter-button">
-          <div className="btn-apply">
-            <input type="button" className="input" value="Сбросить" />
-          </div>
-          <div className="btn-reset">
-            <input type="button" className="input" value="Показать" />
-          </div>
-        </div>
-      </form>
+    <aside className={styles.panel}>
+      <h3 className={styles.title}>Фильтр</h3>
+
+      {schema.map((field) => {
+        if (field.type === 'range') {
+          const draft = rangeDraft[field.key] ?? { min: field.min, max: field.max };
+
+          return (
+            <fieldset key={field.key} className={styles.field}>
+              <legend className={styles.legend}>
+                {field.label}
+                {field.unit ? `, ${field.unit}` : ''}
+              </legend>
+
+              <div className={styles.range}>
+                <input
+                  type="number"
+                  className={styles.rangeInput}
+                  min={field.min}
+                  max={field.max}
+                  value={draft.min}
+                  onChange={(event) => handleRangeChange(field, 'min', event.target.value)}
+                  aria-label={`${field.label}, от`}
+                />
+                <span className={styles.rangeDivider}>—</span>
+                <input
+                  type="number"
+                  className={styles.rangeInput}
+                  min={field.min}
+                  max={field.max}
+                  value={draft.max}
+                  onChange={(event) => handleRangeChange(field, 'max', event.target.value)}
+                  aria-label={`${field.label}, до`}
+                />
+              </div>
+            </fieldset>
+          );
+        }
+
+        const fieldCounts = counts[field.key] ?? null;
+        const selectedValues = getSelectedValues(field, activeFilters);
+
+        return (
+          <fieldset key={field.key} className={styles.field}>
+            <legend className={styles.legend}>{field.label}</legend>
+
+            {field.values.map((value) => {
+              const count = fieldCounts?.[value];
+              const isDisabled = count === 0;
+
+              return (
+                <label key={value} className={styles.checkboxLabel}>
+                  <input
+                    type="checkbox"
+                    checked={selectedValues.includes(value)}
+                    disabled={isDisabled}
+                    onChange={(event) => handleEnumToggle(field, value, event.target.checked)}
+                  />
+                  {value}
+                  {count !== undefined && count !== null ? ` (${count})` : ''}
+                </label>
+              );
+            })}
+          </fieldset>
+        );
+      })}
     </aside>
   );
 };
+
+export default ProductFilterPanel;

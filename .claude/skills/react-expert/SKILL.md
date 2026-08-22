@@ -30,12 +30,11 @@ Server Component или `useQuery`, а не `useEffect` + `fetch`. Презен�
 принимает пропсы и не знает про TanStack Query. Токены дизайна живут в `@theme`,
 а не разбросаны по `w-[123px]`. Тип пропсов явный, `any` не используется.
 
-**Экспорт зависит от слоя, не от личного вкуса:** `entities/`/`features/` — именованный
-экспорт (`export const useCategories = ...`, `export function CategoryList(...)`), так
-уже написан существующий код в этих слоях. `widgets/`/`shared/` — `export default`
-снизу файла, конвенция зафиксирована в скилле `component-structure`. Это не
-противоречие между скиллами, а граница по слоям — не переносить правило одного слоя
-на другой.
+**Экспорт зависит от типа файла, не от слоя.** Компонент (`.tsx`) — `export default`
+снизу файла, конвенция зафиксирована в скилле `component-structure` и действует
+одинаково в `widgets/`, `shared/`, `entities/`, `features/`. Хук (`useXxx`) — всегда
+именованный экспорт, как в `entities/category/hooks/useCategories.ts`. Не смешивать
+это с делением по слоям — деления тут нет, только компонент vs хук.
 
 ## Tailwind CSS 4, а не 3
 

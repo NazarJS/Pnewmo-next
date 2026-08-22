@@ -8,7 +8,7 @@ import {
 } from '@/entities/product/api/products.api';
 import { parseFiltersFromSearchParams } from '@/features/product-filter/model/parseFiltersFromSearchParams';
 import { Category } from '@/entities/category/model/types';
-import { ProductFilterPanel } from '@/features/product-filter/ui/ProductFilterPanel';
+import ProductFilterPanel from '@/features/product-filter/ui/ProductFilterPanel';
 
 interface CatalogPageProps {
   params: Promise<{ slug: string }>;
