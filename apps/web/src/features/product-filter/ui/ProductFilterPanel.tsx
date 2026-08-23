@@ -23,7 +23,10 @@ function getSelectedValues(field: EnumField, activeFilters: ProductFilters): str
   return Array.isArray(active) ? active : [];
 }
 
-function buildRangeDraft(schema: FilterFiled[], activeFilters: ProductFilters): Record<string, RangeValue> {
+function buildRangeDraft(
+  schema: FilterFiled[],
+  activeFilters: ProductFilters,
+): Record<string, RangeValue> {
   const draft: Record<string, RangeValue> = {};
 
   for (const field of schema) {
@@ -32,7 +35,8 @@ function buildRangeDraft(schema: FilterFiled[], activeFilters: ProductFilters): 
     }
 
     const active = activeFilters[field.key];
-    draft[field.key] = active && !Array.isArray(active) ? active : { min: field.min, max: field.max };
+    draft[field.key] =
+      active && !Array.isArray(active) ? active : { min: field.min, max: field.max };
   }
 
   return draft;
@@ -45,6 +49,7 @@ const ProductFilterPanel = ({ schema, counts, activeFilters }: ProductFilterPane
   const [rangeDraft, setRangeDraft] = useState<Record<string, RangeValue>>(() =>
     buildRangeDraft(schema, activeFilters),
   );
+  const [expandedKeys, setExpandedKeys] = useState<Set<string>>(() => new Set());
   const pushTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   if (activeFilters !== prevActiveFilters) {
@@ -105,71 +110,110 @@ const ProductFilterPanel = ({ schema, counts, activeFilters }: ProductFilterPane
     pushFilters(nextFilters);
   };
 
+  const toggleSection = (key: string) => {
+    setExpandedKeys((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) {
+        next.delete(key);
+      } else {
+        next.add(key);
+      }
+      return next;
+    });
+  };
+
+  const renderRangeBody = (field: RangeField) => {
+    const draft = rangeDraft[field.key] ?? { min: field.min, max: field.max };
+
+    return (
+      <div className={styles.range}>
+        <input
+          type="number"
+          className={styles.rangeInput}
+          min={field.min}
+          max={field.max}
+          value={draft.min}
+          onChange={(event) => handleRangeChange(field, 'min', event.target.value)}
+          aria-label={`${field.label}, от`}
+        />
+        <span className={styles.rangeDivider}>—</span>
+        <input
+          type="number"
+          className={styles.rangeInput}
+          min={field.min}
+          max={field.max}
+          value={draft.max}
+          onChange={(event) => handleRangeChange(field, 'max', event.target.value)}
+          aria-label={`${field.label}, до`}
+        />
+      </div>
+    );
+  };
+
+  const renderEnumBody = (field: EnumField) => {
+    const fieldCounts = counts[field.key] ?? null;
+    const selectedValues = getSelectedValues(field, activeFilters);
+
+    return field.values.map((value) => {
+      const count = fieldCounts?.[value];
+      const isDisabled = count === 0;
+
+      return (
+        <label key={value} className={styles.checkboxLabel}>
+          <input
+            type="checkbox"
+            checked={selectedValues.includes(value)}
+            disabled={isDisabled}
+            onChange={(event) => handleEnumToggle(field, value, event.target.checked)}
+          />
+          {value}
+          {count !== undefined && count !== null ? ` (${count})` : ''}
+        </label>
+      );
+    });
+  };
+
   return (
     <aside className={styles.panel}>
-      <h3 className={styles.title}>Фильтр</h3>
+      <h3 className={styles.title}>ФИЛЬТР</h3>
 
       {schema.map((field) => {
-        if (field.type === 'range') {
-          const draft = rangeDraft[field.key] ?? { min: field.min, max: field.max };
-
-          return (
-            <fieldset key={field.key} className={styles.field}>
-              <legend className={styles.legend}>
-                {field.label}
-                {field.unit ? `, ${field.unit}` : ''}
-              </legend>
-
-              <div className={styles.range}>
-                <input
-                  type="number"
-                  className={styles.rangeInput}
-                  min={field.min}
-                  max={field.max}
-                  value={draft.min}
-                  onChange={(event) => handleRangeChange(field, 'min', event.target.value)}
-                  aria-label={`${field.label}, от`}
-                />
-                <span className={styles.rangeDivider}>—</span>
-                <input
-                  type="number"
-                  className={styles.rangeInput}
-                  min={field.min}
-                  max={field.max}
-                  value={draft.max}
-                  onChange={(event) => handleRangeChange(field, 'max', event.target.value)}
-                  aria-label={`${field.label}, до`}
-                />
-              </div>
-            </fieldset>
-          );
-        }
-
-        const fieldCounts = counts[field.key] ?? null;
-        const selectedValues = getSelectedValues(field, activeFilters);
+        const isExpanded = expandedKeys.has(field.key);
+        const panelId = `product-filter-panel-${field.key}`;
 
         return (
-          <fieldset key={field.key} className={styles.field}>
-            <legend className={styles.legend}>{field.label}</legend>
+          <div key={field.key} className={styles.section}>
+            <button
+              type="button"
+              className={styles.sectionHeader}
+              aria-expanded={isExpanded}
+              aria-controls={panelId}
+              onClick={() => toggleSection(field.key)}
+            >
+              <span
+                className={isExpanded ? styles.iconMinus : styles.iconPlus}
+                aria-hidden="true"
+              />
+              <span className={styles.sectionLabel}>
+                {field.label}
+                {field.type === 'range' && field.unit ? `, ${field.unit}` : ''}
+              </span>
+            </button>
 
-            {field.values.map((value) => {
-              const count = fieldCounts?.[value];
-              const isDisabled = count === 0;
-
-              return (
-                <label key={value} className={styles.checkboxLabel}>
-                  <input
-                    type="checkbox"
-                    checked={selectedValues.includes(value)}
-                    disabled={isDisabled}
-                    onChange={(event) => handleEnumToggle(field, value, event.target.checked)}
-                  />
-                  {value}
-                  {count !== undefined && count !== null ? ` (${count})` : ''}
-                </label>
-              );
-            })}
-          </fieldset>
+            <div
+              id={panelId}
+              className={
+                isExpanded ? `${styles.sectionBody} ${styles.sectionBodyExpanded}` : styles.sectionBody
+              }
+              inert={!isExpanded}
+            >
+              <div className={styles.sectionBodyClip}>
+                <div className={styles.sectionBodyInner}>
+                  {field.type === 'range' ? renderRangeBody(field) : renderEnumBody(field)}
+                </div>
+              </div>
+            </div>
+          </div>
         );
       })}
     </aside>
