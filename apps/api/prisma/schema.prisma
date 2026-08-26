@@ -1,0 +1,28 @@
+// Prisma 7: провайдер называется prisma-client (не prisma-client-js), output
+// обязателен, moduleFormat = "cjs" нужен потому, что apps/api компилируется в
+// CommonJS, а по умолчанию генерируется ESM.
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+// Блока url здесь нет: адрес для CLI задаётся в prisma.config.ts, для рантайма —
+// строкой подключения пула в PrismaService.
+datasource db {
+  provider = "postgresql"
+}
+
+model Category {
+  id        Int        @id @default(autoincrement())
+  parentId  Int?       @map("parent_id")
+  parent    Category?  @relation("CategoryTree", fields: [parentId], references: [id], onDelete: Restrict)
+  children  Category[] @relation("CategoryTree")
+  slug      String     @unique
+  name      String
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+
+  @@index([parentId])
+  @@map("categories")
+}
