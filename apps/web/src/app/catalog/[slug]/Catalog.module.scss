@@ -1,11 +1,31 @@
-.wrap{
+
+@use "../../../shared/styles/breakpoints" as *;
+
+
+.container_page{
     display: flex;
 }
 
+.section{
+    padding: 0 10px;
+}
+
+.name {
+    padding-bottom: 20px;
+    font-weight: bold;
+}
+
+.wrap{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    
+}
+
 .item{
-    flex: 1;
     padding: 16px;
     border-radius: 12px;
     border: 1px solid black;
     
+
 }
