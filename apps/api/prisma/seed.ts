@@ -51,13 +51,17 @@ async function main(): Promise<void> {
     // Вставка по возрастанию глубины: внешний ключ требует, чтобы родитель уже
     // существовал.
     const ordered = [...loadFixture()].sort((a, b) => depthOf(a) - depthOf(b));
-    const idMap = new Map<string, number>();
+    // Карта расширена с id на пару (id, path): путь потомка собирается из пути
+    // родителя, а не из id фикстуры — идентификаторы в базе назначает Postgres
+    // и они не совпадают с id из мока.
+    const idMap = new Map<string, { id: number; path: string }>();
 
     for (const category of ordered) {
       const mockId = String(category.id);
       const mockParentId = category.parent_id === null ? null : String(category.parent_id);
 
       let parentId: number | null = null;
+      let parentPath: string | null = null;
 
       if (mockParentId !== null) {
         const mapped = idMap.get(mockParentId);
@@ -68,15 +72,25 @@ async function main(): Promise<void> {
           );
         }
 
-        parentId = mapped;
+        parentId = mapped.id;
+        parentPath = mapped.path;
       }
 
+      // path достраивается вторым запросом: он требует собственного
+      // идентификатора, известного только после INSERT. Временный путь ''
+      // не виден другим строкам дольше одной итерации — цикл последовательный,
+      // и уникальность path не конфликтует, так как следующая вставка
+      // происходит уже после того, как эта строка получила настоящий путь.
       const created = await prisma.category.create({
-        data: { name: category.name, slug: category.slug, parentId },
+        data: { name: category.name, slug: category.slug, parentId, path: '' },
         select: { id: true },
       });
 
-      idMap.set(mockId, created.id);
+      const path = parentPath === null ? String(created.id) : `${parentPath}.${created.id}`;
+
+      await prisma.category.update({ where: { id: created.id }, data: { path } });
+
+      idMap.set(mockId, { id: created.id, path });
     }
 
     console.log(`seeded ${idMap.size} categories`);
