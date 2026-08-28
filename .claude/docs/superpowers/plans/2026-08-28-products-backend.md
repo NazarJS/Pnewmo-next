@@ -16,7 +16,9 @@
 - **Prisma 7, не 6.** Генератор `prisma-client`, `output` обязателен, рантайм требует `new PrismaClient({ adapter })` вокруг `pg.Pool`. `datasourceUrl` не работает. Примеры для шестой версии не заведутся.
 - **Zod пинится на 3.x**, TypeScript на 5.x. Версии не поднимать.
 - **Push не выполняется.** Работа живёт в локальной ветке `dev`.
-- **`@pnewmo/api` и `@pnewmo/api-contract` обязаны линтоваться чисто.** Ноль ошибок и ноль предупреждений. `pnpm lint` в целом падает с кодом 1 — это baseline фронтенда, его не трогаем.
+- **`@pnewmo/api` обязан линтоваться чисто** — ноль ошибок и ноль предупреждений: `pnpm --filter @pnewmo/api lint`.
+- **У `@pnewmo/api-contract` линтера нет.** Ни скрипта `lint`, ни eslint-конфига; `pnpm --filter @pnewmo/api-contract lint` отвечает «None of the selected packages has a lint script» и НИЧЕГО не проверяет. Не запускай её и не отчитывайся по ней. Качество кода контракта держится на `pnpm typecheck` и ревью. Ограничение в `CLAUDE.md` про чистый линт обоих пакетов на деле выполнимо только для `@pnewmo/api` — расхождение известно, заведение линтера для контракта вынесено за рамки плана.
+- `pnpm lint` в целом падает с кодом 1 — это baseline фронтенда, его не трогаем.
 - **Изменения только в `apps/api` и `packages/api-contract`.** `apps/web` не трогаем — это этап 4b.
 - Исходник выгрузки: `/Users/daniildalinchuk/Downloads/pneumax_pnewmatica.json`. В репозиторий не кладётся.
 - Комментарии в коде — на русском, объясняют «почему», а не «что». Соответствие стилю `apps/api/src/categories/`.
@@ -173,7 +175,7 @@ export * from './product.contract';
 
 - [ ] **Step 3: Проверить сборку**
 
-Run: `nvm use && pnpm --filter @pnewmo/api-contract build && pnpm --filter @pnewmo/api-contract lint && pnpm typecheck`
+Run: `nvm use && pnpm --filter @pnewmo/api-contract build && pnpm typecheck`
 Expected: всё зелёное. Новый роутер добавлен, но никем ещё не реализован — на типы это не влияет, `TsRestModule` не требует реализации всех маршрутов контракта.
 
 - [ ] **Step 4: Commit**
@@ -479,7 +481,7 @@ Run:
 ```bash
 nvm use && pnpm --filter @pnewmo/api-contract build && pnpm typecheck && pnpm build
 pnpm --filter @pnewmo/api test:e2e -- categories
-pnpm --filter @pnewmo/api lint && pnpm --filter @pnewmo/api-contract lint
+pnpm --filter @pnewmo/api lint
 ```
 Expected: всё зелёное, включая два новых теста на путь.
 
@@ -1802,7 +1804,7 @@ Expected: PASS — и товары, и категории (последние п
 
 - [ ] **Step 5: Проверить всё разом**
 
-Run: `nvm use && pnpm typecheck && pnpm build && pnpm --filter @pnewmo/api lint && pnpm --filter @pnewmo/api-contract lint && pnpm test`
+Run: `nvm use && pnpm typecheck && pnpm build && pnpm --filter @pnewmo/api lint && pnpm test`
 Expected: всё зелёное, линтеры пакетов бэкенда молчат.
 
 - [ ] **Step 6: Проверить руками на живых данных**
