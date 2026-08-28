@@ -800,7 +800,10 @@ import { flatten, SourceCategory } from './catalog-fixture.lib';
 /**
  * Пересборка фикстуры каталога из выгрузки.
  *
- *   pnpm --filter @pnewmo/api catalog:fixture -- ~/Downloads/pneumax_pnewmatica.json
+ *   pnpm --filter @pnewmo/api catalog:fixture ~/Downloads/pneumax_pnewmatica.json
+ *
+ * Без `--` перед путём: pnpm 10, в отличие от npm, передаёт разделитель в
+ * process.argv дословно, и скрипт пытается открыть файл с именем «--».
  *
  * Скрипт коммитится вместе с результатом. Без него фикстура становится
  * артефактом, который «однажды сконвертировали», и пересобрать её из новой
@@ -810,7 +813,7 @@ function main(): void {
   const source = process.argv[2];
 
   if (!source) {
-    throw new Error('Укажите путь к выгрузке: catalog:fixture -- <путь к json>');
+    throw new Error('Укажите путь к выгрузке: catalog:fixture <путь к json>');
   }
 
   const root = JSON.parse(readFileSync(source, 'utf8')) as SourceCategory;
@@ -845,7 +848,7 @@ main();
 Run:
 ```bash
 nvm use
-pnpm --filter @pnewmo/api catalog:fixture -- /Users/daniildalinchuk/Downloads/pneumax_pnewmatica.json
+pnpm --filter @pnewmo/api catalog:fixture /Users/daniildalinchuk/Downloads/pneumax_pnewmatica.json
 node -e "const f=require('./apps/api/prisma/seed/catalog.json');console.log('categories',f.categories.length,'products',f.products.length,'root',f.categories[0].name,f.categories[0].slug,'keys',new Set(f.products.flatMap(p=>Object.keys(p.specifications))).size)"
 ls -lh apps/api/prisma/seed/catalog.json
 ```
