@@ -6,3 +6,15 @@ onlyBuiltDependencies:
   - '@parcel/watcher'
   - sharp
   - unrs-resolver
+
+# @ts-rest/react-query 3.52.1 объявляет peer react "^16.8.0 || ^17 || ^18", но в проекте
+# React 19.2.6. Диапазон устарел: из React пакет использует только createContext,
+# useContext и useMemo (v5/internal/{use-tsr-query-client,provider-inner}) — ничего из
+# удалённого в 19 (forwardRef, defaultProps, legacy context, строковые ref).
+# Проверено на живом стенде 2026-08-28: /dev резолвит tsr.health.check.useQuery,
+# ошибок гидратации нет. Разрешение точечное — только react для этого пакета,
+# чтобы настоящие peer-конфликты по-прежнему были видны.
+# Снять, когда ts-rest расширит диапазон (апгрейд заблокирован: 3.53.x — только rc, см. CLAUDE.md).
+peerDependencyRules:
+  allowedVersions:
+    '@ts-rest/react-query>react': '19'
