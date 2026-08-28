@@ -289,11 +289,17 @@ CREATE UNIQUE INDEX "categories_path_key" ON "categories"("path");
 -- text в русской локали не применяется к LIKE 'x.%', и выборка поддерева
 -- превращается в seq scan по всей таблице.
 CREATE INDEX "categories_path_prefix_idx" ON "categories" ("path" text_pattern_ops);
+```
 
+**Порядок операций важен.** Блок выше заменяет только добавление колонки `path`. Индекс по `specifications` относится к таблице `products`, поэтому его строка ставится в КОНЕЦ файла, после сгенерированного Prisma `CREATE TABLE "products"` — иначе миграция падает с «relation "products" does not exist»:
+
+```sql
 -- GIN под будущие фасетные фильтры (этап 4c). Заводится сейчас, чтобы не
 -- строить индекс на живой таблице в 4842 строки потом.
 CREATE INDEX "products_specifications_idx" ON "products" USING GIN ("specifications");
 ```
+
+Прочитай сгенерированный файл целиком сверху вниз, прежде чем править: Prisma уже создаёт часть индексов сама, и дубль `CREATE UNIQUE INDEX categories_path_key` надо убрать, а не добавлять второй раз.
 
 - [ ] **Step 5: Применить и проверить**
 
