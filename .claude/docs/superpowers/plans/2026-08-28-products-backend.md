@@ -317,7 +317,15 @@ Run:
 ```bash
 pnpm db:psql -c "EXPLAIN SELECT id FROM categories WHERE path LIKE '1.%';"
 ```
-Expected: в плане `Index Scan` или `Bitmap Index Scan` по `categories_path_prefix_idx`, а не `Seq Scan`.
+Expected: см. примечание про `EXPLAIN` ниже — на таблице такого размера планировщик закономерно выбирает `Seq Scan`, и это не дефект.
+
+**Про `EXPLAIN`: проверяем пригодность индекса, а не выбор планировщика.** На этих данных обычный `EXPLAIN` покажет `Seq Scan`, и это верно: корень в фикстуре один, поэтому под `path LIKE '1.%'` подпадает 221 категория из 222, а вся таблица занимает 6 страниц — при такой выборке последовательное чтение объективно дешевле. Честная проверка требует селективного префикса и отключённого seq scan:
+
+```bash
+pnpm db:psql -c "SET enable_seqscan=off; EXPLAIN SELECT id FROM categories WHERE path LIKE '1.5.%';"
+```
+
+Ожидается `Index Scan` или `Bitmap Index Scan` по `categories_path_prefix_idx` с диапазонным условием — это доказывает, что класс операторов задан верно и индекс применим. Выбор `Seq Scan` на таблице в 222 строки дефектом не является.
 
 На сорока строках планировщик может выбрать `Seq Scan` просто потому, что таблица крошечная — это нормально. Тогда проверку повторить после Task 4, когда категорий станет 222, и зафиксировать результат там.
 
@@ -1141,7 +1149,15 @@ pnpm db:psql -c "SELECT count(*) FROM products;"
 pnpm db:psql -c "SELECT path, name FROM categories ORDER BY length(path), path LIMIT 8;"
 pnpm db:psql -c "EXPLAIN SELECT id FROM categories WHERE path LIKE '1.%';"
 ```
-Expected: 4842 товара; у корня путь равен его идентификатору, у детей — путь родителя плюс свой id; в плане запроса `Index Scan` по `categories_path_prefix_idx`.
+Expected: 4842 товара; у корня путь равен его идентификатору, у детей — путь родителя плюс свой id.
+
+**Про `EXPLAIN`: проверяем пригодность индекса, а не выбор планировщика.** На этих данных обычный `EXPLAIN` покажет `Seq Scan`, и это верно: корень в фикстуре один, поэтому под `path LIKE '1.%'` подпадает 221 категория из 222, а вся таблица занимает 6 страниц — при такой выборке последовательное чтение объективно дешевле. Честная проверка требует селективного префикса и отключённого seq scan:
+
+```bash
+pnpm db:psql -c "SET enable_seqscan=off; EXPLAIN SELECT id FROM categories WHERE path LIKE '1.5.%';"
+```
+
+Ожидается `Index Scan` или `Bitmap Index Scan` по `categories_path_prefix_idx` с диапазонным условием — это доказывает, что класс операторов задан верно и индекс применим. Выбор `Seq Scan` на таблице в 222 строки дефектом не является.
 
 - [ ] **Step 9: Commit**
 
