@@ -6,7 +6,10 @@ import { flatten, SourceCategory } from './catalog-fixture.lib';
 /**
  * Пересборка фикстуры каталога из выгрузки.
  *
- *   pnpm --filter @pnewmo/api catalog:fixture -- ~/Downloads/pneumax_pnewmatica.json
+ *   pnpm --filter @pnewmo/api catalog:fixture ~/Downloads/pneumax_pnewmatica.json
+ *
+ * Без `--` перед путём: в отличие от npm, pnpm 10 передаёт этот разделитель в
+ * process.argv дословно, и argv[2] становится строкой '--', а не путём к файлу.
  *
  * Скрипт коммитится вместе с результатом. Без него фикстура становится
  * артефактом, который «однажды сконвертировали», и пересобрать её из новой
@@ -16,7 +19,7 @@ function main(): void {
   const source = process.argv[2];
 
   if (!source) {
-    throw new Error('Укажите путь к выгрузке: catalog:fixture -- <путь к json>');
+    throw new Error('Укажите путь к выгрузке: catalog:fixture <путь к json>');
   }
 
   const root = JSON.parse(readFileSync(source, 'utf8')) as SourceCategory;
