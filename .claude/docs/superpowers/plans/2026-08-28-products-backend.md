@@ -306,8 +306,8 @@ CREATE INDEX "products_specifications_idx" ON "products" USING GIN ("specificati
 Run:
 ```bash
 nvm use && pnpm --filter @pnewmo/api db:deploy && pnpm --filter @pnewmo/api db:generate
-pnpm db:psql -- -c "\d categories"
-pnpm db:psql -- -c "\d products"
+pnpm db:psql -c "\d categories"
+pnpm db:psql -c "\d products"
 ```
 Expected: у `categories` видны `path`, `categories_path_key`, `categories_path_prefix_idx`; таблица `products` существует с индексами по `category_id` и GIN по `specifications`.
 
@@ -315,7 +315,7 @@ Expected: у `categories` видны `path`, `categories_path_key`, `categories_
 
 Run:
 ```bash
-pnpm db:psql -- -c "EXPLAIN SELECT id FROM categories WHERE path LIKE '1.%';"
+pnpm db:psql -c "EXPLAIN SELECT id FROM categories WHERE path LIKE '1.%';"
 ```
 Expected: в плане `Index Scan` или `Bitmap Index Scan` по `categories_path_prefix_idx`, а не `Seq Scan`.
 
@@ -1126,9 +1126,9 @@ Expected: `seed: пропущено, в базе уже 4842 товаров (--f
 
 Run:
 ```bash
-pnpm db:psql -- -c "SELECT count(*) FROM products;"
-pnpm db:psql -- -c "SELECT path, name FROM categories ORDER BY length(path), path LIMIT 8;"
-pnpm db:psql -- -c "EXPLAIN SELECT id FROM categories WHERE path LIKE '1.%';"
+pnpm db:psql -c "SELECT count(*) FROM products;"
+pnpm db:psql -c "SELECT path, name FROM categories ORDER BY length(path), path LIMIT 8;"
+pnpm db:psql -c "EXPLAIN SELECT id FROM categories WHERE path LIKE '1.%';"
 ```
 Expected: 4842 товара; у корня путь равен его идентификатору, у детей — путь родителя плюс свой id; в плане запроса `Index Scan` по `categories_path_prefix_idx`.
 
