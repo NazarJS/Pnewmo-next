@@ -15,6 +15,7 @@
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
     "db:seed": "prisma db seed",
+    "db:seed:reset": "prisma db seed -- --force",
     "db:studio": "prisma studio",
     "db:test:setup": "tsx prisma/setup-test-db.ts",
     "db:test:migrate": "tsx prisma/migrate-test-db.ts",

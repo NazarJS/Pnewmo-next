@@ -8,7 +8,7 @@
   },
   "scripts": {
     "bootstrap": "node scripts/bootstrap.mjs && pnpm install && pnpm db:generate",
-    "dev": "pnpm db:up && pnpm db:sync && turbo run dev mock",
+    "dev": "pnpm db:up && pnpm db:sync && pnpm db:seed && turbo run dev mock",
     "build": "turbo run build",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
@@ -22,6 +22,7 @@
     "db:generate": "pnpm --filter @pnewmo/api db:generate",
     "db:migrate": "pnpm --filter @pnewmo/api db:migrate",
     "db:seed": "pnpm --filter @pnewmo/api db:seed",
+    "db:seed:reset": "pnpm --filter @pnewmo/api db:seed:reset",
     "db:studio": "pnpm --filter @pnewmo/api db:studio",
     "db:test:setup": "pnpm --filter @pnewmo/api db:test:setup && pnpm --filter @pnewmo/api db:test:migrate"
   },
