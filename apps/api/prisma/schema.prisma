@@ -29,11 +29,16 @@ model Category {
   updatedAt DateTime   @updatedAt @map("updated_at")
 
   @@index([parentId])
-  // Индекс под префиксный поиск по path (LIKE 'x.%') объявлен вручную в SQL
-  // миграции как categories_path_prefix_idx с классом операторов
-  // text_pattern_ops. Prisma 7 не выражает operator class для BTree-индекса
-  // (ops поддерживается только у Gin/Brin/Gist/SpGist) — свериться с
-  // документацией через context7, прежде чем «чинить» этот комментарий.
+  // Индекс categories_path_prefix_idx (path text_pattern_ops) под префиксный
+  // поиск (LIKE 'x.%') создан вручную в SQL миграции и НЕ объявлен здесь:
+  // Prisma 7 не выражает operator class для BTree-индекса (ops поддерживается
+  // только у Gin/Brin/Gist/SpGist — проверено через context7, раздела
+  // «Supported Operator Classes for BTree» в документации нет).
+  // ВАЖНО: раз индекс не объявлен в модели, `prisma migrate dev` при каждой
+  // следующей миграции будет ПРЕДЛАГАТЬ `DROP INDEX "categories_path_prefix_idx"`
+  // как дрейф схемы. Это предложение нужно ОТКЛОНЯТЬ (не принимать
+  // сгенерированный шаг), иначе индекс пропадёт и выборка поддерева
+  // (WHERE path LIKE 'x.%') молча превратится в seq scan по всей таблице.
   @@map("categories")
 }
 
@@ -56,10 +61,11 @@ model Product {
   updatedAt          DateTime @updatedAt @map("updated_at")
 
   @@index([categoryId])
-  // GIN-индекс products_specifications_idx по specifications создан вручную в
-  // SQL миграции (под фасетные фильтры этапа 4c), а не через
-  // @@index(..., type: Gin) — проверено эмпирически (prisma migrate dev
-  // --create-only): без объявления в схеме Prisma предлагает DROP INDEX при
-  // следующей миграции. Это ожидаемо, индекс живёт вне модели Prisma.
+  // GIN-индекс под будущие фасетные фильтры (этап 4c). В отличие от
+  // categories_path_prefix_idx, Prisma 7 умеет объявлять GIN с классом
+  // операторов по умолчанию (JsonbOps) без raw() — поэтому индекс объявлен
+  // здесь, а не только в SQL миграции: так `prisma migrate dev` не будет
+  // предлагать его удалить как дрейф.
+  @@index([specifications], type: Gin)
   @@map("products")
 }
