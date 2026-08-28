@@ -5,13 +5,14 @@ import { PrismaService } from '../prisma/prisma.service';
 export interface CategoryRow {
   id: number;
   parentId: number | null;
+  path: string;
   slug: string;
   name: string;
 }
 
 // Явный select вместо выборки всей строки: createdAt и updatedAt наружу не
 // нужны, а то, что не выбрано, невозможно случайно отдать клиенту.
-const columns = { id: true, parentId: true, slug: true, name: true } as const;
+const columns = { id: true, parentId: true, path: true, slug: true, name: true } as const;
 
 @Injectable()
 export class CategoriesRepository {
@@ -40,8 +41,27 @@ export class CategoriesRepository {
     return this.prisma.category.count({ where: { parentId: id } });
   }
 
+  /**
+   * Вставка и достройка пути в одной транзакции: путь требует собственного
+   * идентификатора, который известен только после INSERT, а строка с пустым
+   * путём не должна быть видна другим запросам даже на мгновение.
+   */
   create(data: { name: string; slug: string; parentId: number | null }): Promise<CategoryRow> {
-    return this.prisma.category.create({ data, select: columns });
+    return this.prisma.$transaction(async (tx) => {
+      const parent =
+        data.parentId === null
+          ? null
+          : await tx.category.findUnique({ where: { id: data.parentId }, select: { path: true } });
+
+      const created = await tx.category.create({
+        data: { ...data, path: '' },
+        select: { id: true },
+      });
+
+      const path = parent === null ? String(created.id) : `${parent.path}.${created.id}`;
+
+      return tx.category.update({ where: { id: created.id }, data: { path }, select: columns });
+    });
   }
 
   update(

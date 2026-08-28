@@ -14,6 +14,7 @@ function toDto(row: CategoryRow): Category {
   return {
     id: row.id,
     parentId: row.parentId,
+    path: row.path,
     slug: row.slug,
     name: row.name,
   };

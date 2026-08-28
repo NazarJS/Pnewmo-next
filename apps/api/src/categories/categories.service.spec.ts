@@ -11,10 +11,10 @@ import { CategoriesService } from './categories.service';
  *   4 Пневматика (не связана с первой ветвью)
  */
 const rows: CategoryRow[] = [
-  { id: 1, parentId: null, slug: 'gidravlika', name: 'Гидравлика' },
-  { id: 2, parentId: 1, slug: 'smazka', name: 'Смазочная техника' },
-  { id: 3, parentId: 2, slug: 'stancii', name: 'Станции насосные' },
-  { id: 4, parentId: null, slug: 'pnevmatika', name: 'Пневматика' },
+  { id: 1, parentId: null, path: '1', slug: 'gidravlika', name: 'Гидравлика' },
+  { id: 2, parentId: 1, path: '1.2', slug: 'smazka', name: 'Смазочная техника' },
+  { id: 3, parentId: 2, path: '1.2.3', slug: 'stancii', name: 'Станции насосные' },
+  { id: 4, parentId: null, path: '4', slug: 'pnevmatika', name: 'Пневматика' },
 ];
 
 // Pick даёт литералу контекстную типизацию: без него параметры стали бы
@@ -36,7 +36,7 @@ function makeRepository(): CategoriesRepository {
       return Promise.resolve(row ? { parentId: row.parentId } : null);
     },
     countChildren: (id) => Promise.resolve(rows.filter((row) => row.parentId === id).length),
-    create: (data) => Promise.resolve({ id: 99, ...data }),
+    create: (data) => Promise.resolve({ id: 99, path: '99', ...data }),
     update: (id, data) => Promise.resolve({ ...(byId.get(id) as CategoryRow), ...data }),
     remove: (id) => Promise.resolve(byId.get(id) as CategoryRow),
   };

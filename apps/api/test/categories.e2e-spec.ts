@@ -32,16 +32,24 @@ describe('categories', () => {
     await prisma.$executeRawUnsafe('TRUNCATE TABLE categories RESTART IDENTITY CASCADE');
 
     const root = await prisma.category.create({
-      data: { name: 'Гидравлика', slug: 'gidravlika', parentId: null },
+      data: { name: 'Гидравлика', slug: 'gidravlika', parentId: null, path: '' },
       select: { id: true },
     });
+    await prisma.category.update({ where: { id: root.id }, data: { path: String(root.id) } });
+
     const mid = await prisma.category.create({
-      data: { name: 'Смазочная техника', slug: 'smazka', parentId: root.id },
+      data: { name: 'Смазочная техника', slug: 'smazka', parentId: root.id, path: '' },
       select: { id: true },
     });
+    await prisma.category.update({ where: { id: mid.id }, data: { path: `${root.id}.${mid.id}` } });
+
     const leaf = await prisma.category.create({
-      data: { name: 'Станции насосные', slug: 'stancii', parentId: mid.id },
+      data: { name: 'Станции насосные', slug: 'stancii', parentId: mid.id, path: '' },
       select: { id: true },
+    });
+    await prisma.category.update({
+      where: { id: leaf.id },
+      data: { path: `${root.id}.${mid.id}.${leaf.id}` },
     });
 
     rootId = root.id;
@@ -83,6 +91,28 @@ describe('categories', () => {
     const list = await request(app.getHttpServer()).get('/categories').expect(200);
 
     expect(categoryListSchema.parse(list.body)).toHaveLength(4);
+  });
+
+  it('считает путь создаваемой категории от родителя', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/categories')
+      .send({ name: 'Новая', slug: 'novaya', parentId: rootId })
+      .expect(201);
+
+    const created = categorySchema.parse(response.body);
+
+    expect(created.path).toBe(`${rootId}.${created.id}`);
+  });
+
+  it('у корневой категории путь равен её идентификатору', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/categories')
+      .send({ name: 'Корневая', slug: 'kornevaya', parentId: null })
+      .expect(201);
+
+    const created = categorySchema.parse(response.body);
+
+    expect(created.path).toBe(String(created.id));
   });
 
   it('возвращает 409 на занятый slug', async () => {

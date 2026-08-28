@@ -8,6 +8,10 @@ const c = initContract();
 export const categorySchema = z.object({
   id: z.number().int(),
   parentId: z.number().int().nullable(),
+  // Материализованный путь: собственные идентификаторы через точку, «2.14.87».
+  // Наружу отдаётся ради хлебных крошек — фронтенд по нему строит цепочку
+  // предков, не запрашивая каждую категорию отдельно.
+  path: z.string(),
   slug: z.string(),
   name: z.string(),
 });
