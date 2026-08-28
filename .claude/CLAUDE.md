@@ -45,10 +45,19 @@ PostgreSQL 16 · ts-rest 3.52 · Zod 3 · TypeScript 5.9 · Jest 30
 |---|---|
 | Команды, порты, онбординг | `README.md` |
 | Как писать код бэкенда | `.claude/context/backend-style-guide.md` |
+<<<<<<< HEAD
 | Принципы, паттерны, чеклист ревью | скилл `nestjs-expert` |
 | Куда положить React-компонент | скилл `component-structure` |
 | Почему сделано именно так | `docs/superpowers/specs/` |
 | Ревью изменений бэкенда | агент `backend-code-reviewer` |
+=======
+| Принципы, паттерны, чеклист ревью бэкенда | скилл `nestjs-expert` |
+| Принципы, паттерны, чеклист ревью фронтенда | скилл `react-expert` |
+| Куда положить React-компонент | скилл `component-structure` |
+| Почему сделано именно так | `docs/superpowers/specs/` |
+| Ревью изменений бэкенда | агент `backend-code-reviewer` |
+| Ревью изменений фронтенда | агент `frontend-code-reviewer` |
+>>>>>>> New-branch
 
 Решения в `docs/superpowers/specs/` содержат обоснования, а не только результат. Прежде
 чем переделывать что-то «странное», стоит проверить, нет ли там причины.

@@ -1,0 +1,21 @@
+
+export const LABELS: Record<string, { label: string; unit?: string }> = {
+  bore: { label: "Диаметр поршня", unit: "мм" },
+  diameter: { label: "Диаметр", unit: "мм" },
+  flow: { label: "Расход", unit: "л/мин" },
+  force: { label: "Усилие", unit: "Н" },
+  power: { label: "Мощность", unit: "кВт" },
+  pressure: { label: "Давление", unit: "бар" },
+  rod: { label: "Диаметр штока", unit: "мм" },
+  stroke: { label: "Ход штока", unit: "мм" },
+  temperature: { label: "Температура", unit: "°C" },
+  weight: { label: "Вес", unit: "кг" },
+  control: { label: "Управление" },
+  manual: { label: "Ручной дублёр" },
+  material: { label: "Материал" },
+  oil: { label: "Смазка" },
+  port: { label: "Присоединение" },
+  ports: { label: "Тип распределителя" },
+  thread: { label: "Резьба" },
+  voltage: { label: "Напряжение" },
+};

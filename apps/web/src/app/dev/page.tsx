@@ -1,23 +1,33 @@
-import { api } from '@/shared/api/client';
 
-export const dynamic = 'force-dynamic';
+'use client';
 
-const DevPage = async () => {
-  const response = await api.health.check();
+import { tsr } from '@/shared/api/tsr';
+
+const DevPage = () => {
+  const { data, isPending, error } = tsr.health.check.useQuery({
+    queryKey: ['health'],
+  });
+
 
   return (
     <section>
       <h1>Dev</h1>
 
-      {response.status === 200 ? (
+
+      {isPending && <p>Загрузка...</p>}
+
+      {error && <p>API недоступен</p>}
+
+      {data?.status === 200 && (
         <p>
-          API: {response.body.status}, uptime {response.body.uptime.toFixed(1)}s
+          API: {data.body.status}, uptime {data.body.uptime.toFixed(1)}s
         </p>
-      ) : (
-        <p>API недоступен, статус {response.status}</p>
+
       )}
     </section>
   );
 };
 
+
 export default DevPage;
+

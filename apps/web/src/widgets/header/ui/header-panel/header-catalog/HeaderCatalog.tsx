@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import Link from 'next/link';
+import { useEffect, useMemo, useState } from 'react';
 
-import HeaderInput from "../header-input/HeaderInput";
-import styles from "./HeaderCatalog.module.scss";
+import HeaderInput from '../header-input/HeaderInput';
+import styles from './HeaderCatalog.module.scss';
 
-import { buildCategoryTree, findCategoryById } from "@/entities/category/lib/categoryTree";
-import { useCategories } from "@/entities/category/hooks/useCategories";
-import { useIsDesktop } from "@/shared/hooks/useIsDesktop";
-import { useLockBodyScroll } from "@/shared/hooks/useLockBodyScroll";
+import { buildCategoryTree, findCategoryById } from '@/entities/category/lib/categoryTree';
+import { useCategories } from '@/entities/category/hooks/useCategories';
+import { useIsDesktop } from '@/shared/hooks/useIsDesktop';
+import { useLockBodyScroll } from '@/shared/hooks/useLockBodyScroll';
 
-import MegaMenu from "./ui/MegaMenu/MegaMenu";
-import CategoryItem from "./ui/CategoryItem/CategoryItem";
+import MegaMenu from './ui/MegaMenu/MegaMenu';
+import CategoryItem from './ui/CategoryItem/CategoryItem';
 
 interface HeaderCatalogProps {
   showSearch?: boolean;
@@ -32,16 +32,9 @@ const HeaderCatalog = ({
 
   const isDesktop = useIsDesktop();
 
-  const {
-    categories,
-    loading,
-    error,
-  } = useCategories();
+  const { categories, loading, error } = useCategories();
 
-  const categoryTree = useMemo(
-    () => buildCategoryTree(categories),
-    [categories]
-  );
+  const categoryTree = useMemo(() => buildCategoryTree(categories), [categories]);
 
   const activeCategory = useMemo(() => {
     if (catalogActive === null) {
@@ -61,9 +54,7 @@ const HeaderCatalog = ({
       return;
     }
 
-    const firstCategory = categories.find(
-      (category) => category.parent_id === null
-    );
+    const firstCategory = categories.find((category) => category.parent_id === null);
 
     if (firstCategory && catalogActive === null) {
       setCatalogActive(firstCategory.id);
@@ -83,9 +74,7 @@ const HeaderCatalog = ({
       return;
     }
 
-    setMobileCategoryActive((prev) =>
-      prev === id ? null : id
-    );
+    setMobileCategoryActive((prev) => (prev === id ? null : id));
   };
 
   if (loading) {
@@ -138,15 +127,11 @@ const HeaderCatalog = ({
           <nav className={styles.mega_menu}>
             <div className={styles.mega_menu_content}>
               <h3 className={styles.categories_title}>
-                <Link href={activeCategory.url}>
+                <Link href={activeCategory.url} onClick={handleClose}>
                   {activeCategory.name}
                 </Link>
               </h3>
-
-              <MegaMenu
-                category={activeCategory}
-                onClose={handleClose}
-              />
+              <MegaMenu category={activeCategory} onClose={handleClose} />
             </div>
           </nav>
         )}

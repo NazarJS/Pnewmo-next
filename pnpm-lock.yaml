@@ -147,9 +147,15 @@ importers:
       '@pnewmo/api-contract':
         specifier: workspace:*
         version: link:../../packages/api-contract
+      '@tanstack/react-query':
+        specifier: 5.101.4
+        version: 5.101.4(react@19.2.6)
       '@ts-rest/core':
         specifier: 3.52.1
         version: 3.52.1(@types/node@20.19.41)(zod@3.25.76)
+      '@ts-rest/react-query':
+        specifier: 3.52.1
+        version: 3.52.1(@tanstack/react-query@5.101.4(react@19.2.6))(@ts-rest/core@3.52.1(@types/node@20.19.41)(zod@3.25.76))(react@19.2.6)(zod@3.25.76)
       next:
         specifier: 16.2.6
         version: 16.2.6(@babel/core@7.29.7)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(sass@1.100.0)
@@ -166,6 +172,9 @@ importers:
       '@tailwindcss/postcss':
         specifier: ^4
         version: 4.3.0
+      '@tanstack/react-query-devtools':
+        specifier: 5.101.4
+        version: 5.101.4(@tanstack/react-query@5.101.4(react@19.2.6))(react@19.2.6)
       '@types/node':
         specifier: ^20
         version: 20.19.41
@@ -1635,6 +1644,23 @@ packages:
   '@tailwindcss/postcss@4.3.0':
     resolution: {integrity: sha512-Jm05Tjx+9yCLGv5qw1c+84Psds8MnyrEQYCB+FFk2lgGiUjlRqdxke4mVTuYrj2xnVZqKim2Apr5ySuQRYAw/w==}
 
+  '@tanstack/query-core@5.101.4':
+    resolution: {integrity: sha512-gNwcvOJcRbLWPOLG/2OBm+zM+Yv+MKsXKEOWC57USuZDEsI71hEErQsiEGx5wX9rzWWkfwM0fVSPoiIFSsxfiw==}
+
+  '@tanstack/query-devtools@5.101.4':
+    resolution: {integrity: sha512-z5IPHnDX3aUWeTWlRKLyooBQekaCAw4xRpZqPQ390RiWTDBcTynjpPT221BArw0u2+pnQMdGvPQI9YNNubBcmA==}
+
+  '@tanstack/react-query-devtools@5.101.4':
+    resolution: {integrity: sha512-VeK2gtmfj7kvRBjtxS7TKxt/6qKhn8VzabY4UiYMr7NV9CddjSRYRgeYyld+NpjAkgMV9dd+2Qdr8ah5I03NeA==}
+    peerDependencies:
+      '@tanstack/react-query': ^5.101.4
+      react: ^18 || ^19
+
+  '@tanstack/react-query@5.101.4':
+    resolution: {integrity: sha512-yRg2pfOCxIs4ZJW3XYYHU/WgtD04FHSnfHlpRT7h7pR77hwkdRG4wxbKe4aq6P0RvXUTBSQpQeadS1SUYUe+KA==}
+    peerDependencies:
+      react: ^18 || ^19
+
   '@tinyhttp/accepts@2.3.0':
     resolution: {integrity: sha512-hdKkMGAUqnagpWO1R8rVBYqbu4sWQ2Fo682gkJmO0nl54DPvnzxx81b2WZtV3VwB7EdLfUoasj2BAkyTcyZ5aw==}
     engines: {node: '>=14.13.1'}
@@ -1740,6 +1766,19 @@ packages:
     peerDependenciesMeta:
       zod:
         optional: true
+
+
+  '@ts-rest/react-query@3.52.1':
+    resolution: {integrity: sha512-Y4wx3oQwyEj7h3hVz2Wsrd8u7xWRqXc0K6YpKruZJg5G1pioKdlqqjKvv+JJbtgk+vImzha9z+NgeFnO4oYAkA==}
+    peerDependencies:
+      '@tanstack/react-query': ^4.0.0 || ^5.0.0
+      '@ts-rest/core': ~3.52.0
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+      zod: ^3.22.3
+    peerDependenciesMeta:
+      zod:
+        optional: true
+
 
   '@tsconfig/node10@1.0.12':
     resolution: {integrity: sha512-UCYBaeFvM11aU2y3YPZ//O5Rhj+xKyzy7mvcIoAjASbigy8mHMryP5cK7dgjlz2hWxh1g5pLw084E0a/wlUSFQ==}
@@ -6931,6 +6970,21 @@ snapshots:
       postcss: 8.5.15
       tailwindcss: 4.3.0
 
+  '@tanstack/query-core@5.101.4': {}
+
+  '@tanstack/query-devtools@5.101.4': {}
+
+  '@tanstack/react-query-devtools@5.101.4(@tanstack/react-query@5.101.4(react@19.2.6))(react@19.2.6)':
+    dependencies:
+      '@tanstack/query-devtools': 5.101.4
+      '@tanstack/react-query': 5.101.4(react@19.2.6)
+      react: 19.2.6
+
+  '@tanstack/react-query@5.101.4(react@19.2.6)':
+    dependencies:
+      '@tanstack/query-core': 5.101.4
+      react: 19.2.6
+
   '@tinyhttp/accepts@2.3.0':
     dependencies:
       mime: 4.1.0
@@ -7037,7 +7091,13 @@ snapshots:
       rxjs: 7.8.2
     optionalDependencies:
       zod: 3.25.76
-
+  '@ts-rest/react-query@3.52.1(@tanstack/react-query@5.101.4(react@19.2.6))(@ts-rest/core@3.52.1(@types/node@20.19.41)(zod@3.25.76))(react@19.2.6)(zod@3.25.76)':
+    dependencies:
+      '@tanstack/react-query': 5.101.4(react@19.2.6)
+      '@ts-rest/core': 3.52.1(@types/node@20.19.41)(zod@3.25.76)
+      react: 19.2.6
+    optionalDependencies:
+      zod: 3.25.76
   '@tsconfig/node10@1.0.12': {}
 
   '@tsconfig/node12@1.0.11': {}
@@ -8399,7 +8459,9 @@ snapshots:
       '@next/eslint-plugin-next': 16.2.6
       eslint: 9.39.4(jiti@2.7.0)
       eslint-import-resolver-node: 0.3.10
-      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0(eslint@9.39.4(jiti@2.7.0)))(eslint@9.39.4(jiti@2.7.0))
+
+      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0)(eslint@9.39.4(jiti@2.7.0))
+
       eslint-plugin-import: 2.32.0(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.4(jiti@2.7.0))
       eslint-plugin-jsx-a11y: 6.10.2(eslint@9.39.4(jiti@2.7.0))
       eslint-plugin-react: 7.37.5(eslint@9.39.4(jiti@2.7.0))
@@ -8441,7 +8503,8 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-module-utils@2.12.1(eslint-import-resolver-node@0.3.10)(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(eslint@9.39.4(jiti@2.7.0)))(eslint@9.39.4(jiti@2.7.0)))(eslint@9.39.4(jiti@2.7.0)):
+
+  eslint-module-utils@2.12.1(eslint-import-resolver-node@0.3.10)(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.4(jiti@2.7.0)):
     dependencies:
       debug: 3.2.7
     optionalDependencies:
@@ -8462,7 +8525,9 @@ snapshots:
       doctrine: 2.1.0
       eslint: 9.39.4(jiti@2.7.0)
       eslint-import-resolver-node: 0.3.10
-      eslint-module-utils: 2.12.1(eslint-import-resolver-node@0.3.10)(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(eslint@9.39.4(jiti@2.7.0)))(eslint@9.39.4(jiti@2.7.0)))(eslint@9.39.4(jiti@2.7.0))
+
+      eslint-module-utils: 2.12.1(eslint-import-resolver-node@0.3.10)(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.4(jiti@2.7.0))
+
       hasown: 2.0.3
       is-core-module: 2.16.2
       is-glob: 4.0.3
