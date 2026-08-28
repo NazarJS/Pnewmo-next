@@ -23,37 +23,19 @@
 
 ---
 
-### Task 1: Контракт товаров и `path` в категориях
+### Task 1: Контракт товаров
 
 **Files:**
 - Create: `packages/api-contract/src/product.contract.ts`
-- Modify: `packages/api-contract/src/category.contract.ts` (добавить `path` в `categorySchema`)
 - Modify: `packages/api-contract/src/index.ts`
 
 **Interfaces:**
 - Consumes: `appErrorSchema` из `./app-error`
 - Produces: `productContract`, `productSchema`, `Product`, `CreateProductInput`, `UpdateProductInput`, `productListQuerySchema`; `contract.products.*`
 
-- [ ] **Step 1: Добавить `path` в схему категории**
+`categorySchema` эта задача **не трогает**. Поле `path` добавляется в контракт вместе с его проброской в репозиторий и контроллер — одной задачей 3, после миграции. Разделять их нельзя: контракт, требующий `path`, при неизменённом `toDto` оставляет `apps/api` не компилирующимся, и все задачи между двумя правками пришлось бы принимать с красной сборкой.
 
-В `packages/api-contract/src/category.contract.ts`, в `categorySchema`, после `id`:
-
-```ts
-export const categorySchema = z.object({
-  id: z.number().int(),
-  parentId: z.number().int().nullable(),
-  // Материализованный путь: собственные идентификаторы через точку, «2.14.87».
-  // Наружу отдаётся ради хлебных крошек — фронтенд по нему строит цепочку
-  // предков, не запрашивая каждую категорию отдельно.
-  path: z.string(),
-  slug: z.string(),
-  name: z.string(),
-});
-```
-
-`createCategorySchema` и `updateCategorySchema` не трогать: путь считает сервер, клиент его не задаёт.
-
-- [ ] **Step 2: Создать контракт товаров**
+- [ ] **Step 1: Создать контракт товаров**
 
 `packages/api-contract/src/product.contract.ts`:
 
@@ -164,7 +146,7 @@ export const productContract = c.router({
 });
 ```
 
-- [ ] **Step 3: Подключить в корневой роутер**
+- [ ] **Step 2: Подключить в корневой роутер**
 
 `packages/api-contract/src/index.ts`:
 
@@ -189,18 +171,16 @@ export * from './health.contract';
 export * from './product.contract';
 ```
 
-- [ ] **Step 4: Проверить сборку контракта**
+- [ ] **Step 3: Проверить сборку**
 
-Run: `nvm use && pnpm --filter @pnewmo/api-contract build && pnpm --filter @pnewmo/api-contract lint`
-Expected: сборка проходит, линтер молчит.
+Run: `nvm use && pnpm --filter @pnewmo/api-contract build && pnpm --filter @pnewmo/api-contract lint && pnpm typecheck`
+Expected: всё зелёное. Новый роутер добавлен, но никем ещё не реализован — на типы это не влияет, `TsRestModule` не требует реализации всех маршрутов контракта.
 
-Сборка `apps/api` на этом шаге упадёт: контроллера товаров ещё нет, но `categorySchema` уже требует `path`, которого нет в `CategoryRow`. Это ожидаемо и чинится в Task 2 и Task 5.
-
-- [ ] **Step 5: Commit**
+- [ ] **Step 4: Commit**
 
 ```bash
 git add packages/api-contract/src
-git commit -m "feat(contract): add product routes and category path"
+git commit -m "feat(contract): add product routes"
 ```
 
 ---
@@ -213,6 +193,8 @@ git commit -m "feat(contract): add product routes and category path"
 
 **Interfaces:**
 - Produces: модель `Product` и поле `Category.path` в сгенерированном клиенте; таблица `products`, индексы `categories_path_key`, `categories_path_prefix_idx`, `products_specifications_idx`.
+
+Ожидаемое временное следствие: после этой задачи `pnpm --filter @pnewmo/api test:e2e` для категорий краснеет. Существующий `categories.e2e-spec.ts` создаёт дерево напрямую через Prisma без `path`, а колонка стала обязательной. Чинится в Task 3, Step 4 — раньше нельзя, потому что чинить надо вместе с проброской поля через контракт. Проверки этой задачи ограничены схемой и SQL и e2e не запускают.
 
 - [ ] **Step 1: Свериться с документацией Prisma 7 по классам операторов**
 
@@ -340,7 +322,177 @@ git commit -m "feat(api): add products table and materialized category path"
 
 ---
 
-### Task 3: Генератор фикстуры
+### Task 3: Проброс `path` в категориях
+
+**Files:**
+- Modify: `packages/api-contract/src/category.contract.ts`
+- Modify: `apps/api/src/categories/categories.repository.ts`
+- Modify: `apps/api/src/categories/categories.controller.ts`
+- Modify: `apps/api/test/categories.e2e-spec.ts`
+
+**Interfaces:**
+- Consumes: колонку `path` из Task 2
+- Produces: `path` в `categorySchema` и в `CategoryRow`; `CategoriesRepository.create` возвращает категорию с рассчитанным путём
+
+Три правки — контракт, репозиторий, контроллер — делаются одной задачей намеренно. Порознь каждая оставляет `apps/api` не компилирующимся: контракт требует поле, которого не отдаёт `toDto`. Разделение означало бы принимать промежуточные задачи с красной сборкой.
+
+- [ ] **Step 1: Добавить `path` в схему контракта**
+
+`packages/api-contract/src/category.contract.ts`, в `categorySchema`, после `parentId`:
+
+```ts
+export const categorySchema = z.object({
+  id: z.number().int(),
+  parentId: z.number().int().nullable(),
+  // Материализованный путь: собственные идентификаторы через точку, «2.14.87».
+  // Наружу отдаётся ради хлебных крошек — фронтенд по нему строит цепочку
+  // предков, не запрашивая каждую категорию отдельно.
+  path: z.string(),
+  slug: z.string(),
+  name: z.string(),
+});
+```
+
+`createCategorySchema` и `updateCategorySchema` не трогать: путь считает сервер, клиент его не задаёт.
+
+- [ ] **Step 2: Расширить репозиторий категорий**
+
+`apps/api/src/categories/categories.repository.ts` — интерфейс и `columns`:
+
+```ts
+export interface CategoryRow {
+  id: number;
+  parentId: number | null;
+  path: string;
+  slug: string;
+  name: string;
+}
+
+const columns = { id: true, parentId: true, path: true, slug: true, name: true } as const;
+```
+
+Метод `create` при этом ломается: `path` в базе обязателен, а вычислить его можно только после вставки, когда известен идентификатор. Заменить на транзакцию:
+
+```ts
+  /**
+   * Вставка и достройка пути в одной транзакции: путь требует собственного
+   * идентификатора, который известен только после INSERT, а строка с пустым
+   * путём не должна быть видна другим запросам даже на мгновение.
+   */
+  create(data: { name: string; slug: string; parentId: number | null }): Promise<CategoryRow> {
+    return this.prisma.$transaction(async (tx) => {
+      const parent =
+        data.parentId === null
+          ? null
+          : await tx.category.findUnique({ where: { id: data.parentId }, select: { path: true } });
+
+      const created = await tx.category.create({
+        data: { ...data, path: '' },
+        select: { id: true },
+      });
+
+      const path = parent === null ? String(created.id) : `${parent.path}.${created.id}`;
+
+      return tx.category.update({ where: { id: created.id }, data: { path }, select: columns });
+    });
+  }
+```
+
+`update` остаётся как есть: перемещение категории между родителями требует пересчёта путей всего поддерева — см. «Отложено в этом плане».
+
+- [ ] **Step 3: Добавить `path` в маппинг контроллера**
+
+`apps/api/src/categories/categories.controller.ts`, в `toDto`:
+
+```ts
+function toDto(row: CategoryRow): Category {
+  return {
+    id: row.id,
+    parentId: row.parentId,
+    path: row.path,
+    slug: row.slug,
+    name: row.name,
+  };
+}
+```
+
+- [ ] **Step 4: Починить e2e категорий**
+
+`apps/api/test/categories.e2e-spec.ts` создаёт дерево напрямую через Prisma, минуя репозиторий. После миграции `path` обязателен, и эти вставки падают. В `beforeEach` дописать путь каждой категории:
+
+```ts
+    const root = await prisma.category.create({
+      data: { name: 'Гидравлика', slug: 'gidravlika', parentId: null, path: '' },
+      select: { id: true },
+    });
+    await prisma.category.update({ where: { id: root.id }, data: { path: String(root.id) } });
+
+    const mid = await prisma.category.create({
+      data: { name: 'Смазочная техника', slug: 'smazka', parentId: root.id, path: '' },
+      select: { id: true },
+    });
+    await prisma.category.update({ where: { id: mid.id }, data: { path: `${root.id}.${mid.id}` } });
+
+    const leaf = await prisma.category.create({
+      data: { name: 'Станции насосные', slug: 'stancii', parentId: mid.id, path: '' },
+      select: { id: true },
+    });
+    await prisma.category.update({
+      where: { id: leaf.id },
+      data: { path: `${root.id}.${mid.id}.${leaf.id}` },
+    });
+```
+
+Остальные тесты файла не трогать: они проверяют поведение, а не форму строки.
+
+- [ ] **Step 5: Добавить тест на расчёт пути при создании**
+
+В `apps/api/test/categories.e2e-spec.ts` добавить:
+
+```ts
+  it('считает путь создаваемой категории от родителя', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/categories')
+      .send({ name: 'Новая', slug: 'novaya', parentId: rootId })
+      .expect(201);
+
+    const created = categorySchema.parse(response.body);
+
+    expect(created.path).toBe(`${rootId}.${created.id}`);
+  });
+
+  it('у корневой категории путь равен её идентификатору', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/categories')
+      .send({ name: 'Корневая', slug: 'kornevaya', parentId: null })
+      .expect(201);
+
+    const created = categorySchema.parse(response.body);
+
+    expect(created.path).toBe(String(created.id));
+  });
+```
+
+- [ ] **Step 6: Проверить**
+
+Run:
+```bash
+nvm use && pnpm --filter @pnewmo/api-contract build && pnpm typecheck && pnpm build
+pnpm --filter @pnewmo/api test:e2e -- categories
+pnpm --filter @pnewmo/api lint && pnpm --filter @pnewmo/api-contract lint
+```
+Expected: всё зелёное, включая два новых теста на путь.
+
+- [ ] **Step 7: Commit**
+
+```bash
+git add packages/api-contract/src apps/api/src/categories apps/api/test/categories.e2e-spec.ts
+git commit -m "feat(api): expose materialized category path through the contract"
+```
+
+---
+
+### Task 4: Генератор фикстуры
 
 **Files:**
 - Create: `apps/api/prisma/seed/build-catalog-fixture.mjs`
@@ -702,7 +854,7 @@ git commit -m "feat(api): add catalog fixture generator and fixture"
 
 ---
 
-### Task 4: Идемпотентный сид
+### Task 5: Идемпотентный сид
 
 **Files:**
 - Modify: `apps/api/prisma/seed.ts` (переписывается целиком)
@@ -981,7 +1133,7 @@ git commit -m "feat(api): seed catalog from fixture, idempotent by guard"
 
 ---
 
-### Task 5: Репозиторий и сервис товаров
+### Task 6: Репозиторий и сервис товаров
 
 **Files:**
 - Create: `apps/api/src/products/products.repository.ts`
@@ -993,52 +1145,7 @@ git commit -m "feat(api): seed catalog from fixture, idempotent by guard"
 - Consumes: `PrismaService`, `AppException`, `AppError`
 - Produces: `ProductRow`, `ProductsRepository` (`getList`, `getById`, `getCategoryPath`, `create`, `update`, `remove`), `ProductsService` (`getList`, `getById`, `create`, `update`, `remove`)
 
-- [ ] **Step 1: Добавить `path` в репозиторий категорий**
-
-`apps/api/src/categories/categories.repository.ts` — расширить интерфейс и `columns`:
-
-```ts
-export interface CategoryRow {
-  id: number;
-  parentId: number | null;
-  path: string;
-  slug: string;
-  name: string;
-}
-
-const columns = { id: true, parentId: true, path: true, slug: true, name: true } as const;
-```
-
-Метод `create` при этом ломается: `path` обязателен в базе, а вычислить его можно только после вставки. Заменить его на транзакцию:
-
-```ts
-  /**
-   * Вставка и достройка пути в одной транзакции: путь требует собственного
-   * идентификатора, который известен только после INSERT, а строка с пустым
-   * путём не должна быть видна другим запросам даже на мгновение.
-   */
-  create(data: { name: string; slug: string; parentId: number | null }): Promise<CategoryRow> {
-    return this.prisma.$transaction(async (tx) => {
-      const parent =
-        data.parentId === null
-          ? null
-          : await tx.category.findUnique({ where: { id: data.parentId }, select: { path: true } });
-
-      const created = await tx.category.create({
-        data: { ...data, path: '' },
-        select: { id: true },
-      });
-
-      const path = parent === null ? String(created.id) : `${parent.path}.${created.id}`;
-
-      return tx.category.update({ where: { id: created.id }, data: { path }, select: columns });
-    });
-  }
-```
-
-`update` пока оставить как есть: перемещение категории между родителями требует пересчёта путей всего поддерева, и это отдельная задача — см. «Отложено» в конце плана.
-
-- [ ] **Step 2: Написать падающие тесты сервиса**
+- [ ] **Step 1: Написать падающие тесты сервиса**
 
 Create `apps/api/src/products/products.service.spec.ts`:
 
@@ -1161,12 +1268,12 @@ describe('ProductsService.getById', () => {
 });
 ```
 
-- [ ] **Step 3: Запустить и убедиться, что падают**
+- [ ] **Step 2: Запустить и убедиться, что падают**
 
 Run: `nvm use && pnpm --filter @pnewmo/api test -- products.service`
 Expected: FAIL — модули не найдены.
 
-- [ ] **Step 4: Реализовать репозиторий**
+- [ ] **Step 3: Реализовать репозиторий**
 
 Create `apps/api/src/products/products.repository.ts`:
 
@@ -1306,7 +1413,7 @@ export class ProductsRepository {
 }
 ```
 
-- [ ] **Step 5: Реализовать сервис**
+- [ ] **Step 4: Реализовать сервис**
 
 Create `apps/api/src/products/products.service.ts`:
 
@@ -1406,12 +1513,12 @@ export class ProductsService {
 }
 ```
 
-- [ ] **Step 6: Запустить тесты**
+- [ ] **Step 5: Запустить тесты**
 
 Run: `nvm use && pnpm --filter @pnewmo/api test -- products.service`
 Expected: PASS, 7 тестов.
 
-- [ ] **Step 7: Commit**
+- [ ] **Step 6: Commit**
 
 ```bash
 git add apps/api/src/products apps/api/src/categories/categories.repository.ts
@@ -1420,7 +1527,7 @@ git commit -m "feat(api): add products repository and service with subtree looku
 
 ---
 
-### Task 6: Контроллер, модуль и e2e
+### Task 7: Контроллер, модуль и e2e
 
 **Files:**
 - Create: `apps/api/src/products/products.controller.ts`
@@ -1433,23 +1540,7 @@ git commit -m "feat(api): add products repository and service with subtree looku
 - Consumes: `ProductsService`, `contract.products`
 - Produces: HTTP-эндпоинты `/products`
 
-- [ ] **Step 1: Добавить `path` в маппинг категории**
-
-`apps/api/src/categories/categories.controller.ts`, в `toDto`:
-
-```ts
-function toDto(row: CategoryRow): Category {
-  return {
-    id: row.id,
-    parentId: row.parentId,
-    path: row.path,
-    slug: row.slug,
-    name: row.name,
-  };
-}
-```
-
-- [ ] **Step 2: Написать e2e-тесты**
+- [ ] **Step 1: Написать e2e-тесты**
 
 Create `apps/api/test/products.e2e-spec.ts`:
 
@@ -1593,12 +1684,12 @@ describe('products', () => {
 });
 ```
 
-- [ ] **Step 3: Запустить и убедиться, что падают**
+- [ ] **Step 2: Запустить и убедиться, что падают**
 
 Run: `nvm use && pnpm --filter @pnewmo/api db:test:setup && pnpm --filter @pnewmo/api db:test:migrate && pnpm --filter @pnewmo/api test:e2e -- products`
 Expected: FAIL — маршрутов `/products` нет, ответы 404.
 
-- [ ] **Step 4: Реализовать контроллер**
+- [ ] **Step 3: Реализовать контроллер**
 
 Create `apps/api/src/products/products.controller.ts`:
 
@@ -1704,17 +1795,17 @@ export class ProductsModule {}
 
 `apps/api/src/app.module.ts` — добавить `ProductsModule` в `imports` после `CategoriesModule`.
 
-- [ ] **Step 5: Запустить e2e**
+- [ ] **Step 4: Запустить e2e**
 
 Run: `nvm use && pnpm --filter @pnewmo/api test:e2e`
 Expected: PASS — и товары, и категории (последние проверяют, что `path` в ответе не сломал их схему).
 
-- [ ] **Step 6: Проверить всё разом**
+- [ ] **Step 5: Проверить всё разом**
 
 Run: `nvm use && pnpm typecheck && pnpm build && pnpm --filter @pnewmo/api lint && pnpm --filter @pnewmo/api-contract lint && pnpm test`
 Expected: всё зелёное, линтеры пакетов бэкенда молчат.
 
-- [ ] **Step 7: Проверить руками на живых данных**
+- [ ] **Step 6: Проверить руками на живых данных**
 
 Run:
 ```bash
@@ -1726,7 +1817,7 @@ curl -s "http://localhost:4000/products?categoryId=$ROOT&limit=1" | python3 -c "
 ```
 Expected: категорий 222; `total` в корне заметно больше нуля — это главная проверка того, что выборка идёт по поддереву, а не по собственным товарам.
 
-- [ ] **Step 8: Commit**
+- [ ] **Step 7: Commit**
 
 ```bash
 git add apps/api/src apps/api/test
@@ -1743,7 +1834,8 @@ git commit -m "feat(api): expose products CRUD over http"
 
 ## Self-review
 
-- Спека, раздел «Схема» → Task 2. «Дубли» → Task 3, Step 1 и тест в Step 2. «Сиды» → Task 4. «Контракт» → Task 1. «Слои модуля» → Task 5, Task 6. «Тесты» → Task 3, 4, 5, 6.
+- Спека, раздел «Схема» → Task 2 и Task 3. «Дубли» → Task 4, Step 1 и тест в Step 2. «Сиды» → Task 5. «Контракт» → Task 1 и Task 3. «Слои модуля» → Task 6, Task 7. «Тесты» → Task 3, 4, 5, 6, 7.
 - Заглушек нет: каждый шаг содержит код или команду с ожидаемым результатом.
-- Типы согласованы: `ProductRow` определён в Task 5 Step 4 и используется в Task 5 Step 5 и Task 6 Step 4 с тем же набором полей. `CategoryRow` расширяется в Task 5 Step 1 и потребляется в Task 6 Step 1.
+- Типы согласованы: `ProductRow` определён в Task 6 Step 3 и используется в Task 6 Step 4 и Task 7 Step 3 с тем же набором полей. `CategoryRow` расширяется в Task 3 Step 2 и потребляется контроллером в Task 3 Step 3.
 - Требование спеки «GIN по specifications» закрыто в Task 2, Step 4, хотя используется только этапом 4c.
+- Сборка остаётся зелёной после каждой задачи: контракт товаров (Task 1) никем не реализован, но типов не ломает, а связка «контракт + репозиторий + контроллер» для `path` идёт одной задачей 3.
