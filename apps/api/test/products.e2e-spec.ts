@@ -65,6 +65,9 @@ describe('products', () => {
           name: 'Цилиндр 2',
           imageUrl: 'b.webp',
           price: '200.00',
+          // Незначащий ноль в дробной части — регрессия на toRow(): String(Decimal)
+          // отбросил бы его («29829.6»), toFixed(3) обязан сохранить.
+          quantity: '29829.600',
         },
         {
           externalId: 'p3',
@@ -133,6 +136,16 @@ describe('products', () => {
       .expect(200);
 
     expect(listSchema.parse(response.body).items[0].price).toBe('100.00');
+  });
+
+  it('отдаёт количество строкой с исходным масштабом, без количества — null', async () => {
+    const response = await request(app.getHttpServer())
+      .get(`/products?categoryId=${midId}`)
+      .expect(200);
+    const items = listSchema.parse(response.body).items;
+
+    expect(items[0].quantity).toBeNull();
+    expect(items[1].quantity).toBe('29829.600');
   });
 
   it('создаёт товар', async () => {
