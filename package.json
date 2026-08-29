@@ -8,7 +8,7 @@
   },
   "scripts": {
     "bootstrap": "node scripts/bootstrap.mjs && pnpm install && pnpm db:generate",
-    "dev": "pnpm db:up && pnpm db:sync && pnpm db:seed && turbo run dev mock",
+    "dev": "pnpm db:up && pnpm db:sync && pnpm db:seed && turbo run dev",
     "build": "turbo run build",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",

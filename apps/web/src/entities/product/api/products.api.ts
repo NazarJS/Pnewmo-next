@@ -1,3 +1,12 @@
+/**
+ * ОТЦЕПЛЕНО, НЕ РАБОТАЕТ. Слой запросов панели фильтров, построенный поверх
+ * json-server; сам json-server выключен этапом 4b. Файл сохранён как основа для
+ * переезда на реальный API — см.
+ * `.claude/docs/superpowers/specs/2026-08-28-product-filter-migration-design.md`.
+ *
+ * Ничего отсюда не импортировать до завершения переезда: все запросы уйдут на
+ * порт 3001, где никто не слушает.
+ */
 
 import { Product, ProductId, FilterFiled, ProductFilters } from "@/entities/product/model/types";
 import { categoryDescendantsParam, categorySelfParam } from "@/entities/product/lib/buildCategoryPath";

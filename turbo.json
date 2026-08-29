@@ -10,10 +10,6 @@
       "cache": false,
       "persistent": true
     },
-    "mock": {
-      "cache": false,
-      "persistent": true
-    },
     "lint": {},
     "typecheck": {
       "dependsOn": ["^build"]
