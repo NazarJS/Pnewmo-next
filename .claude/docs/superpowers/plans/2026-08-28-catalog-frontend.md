@@ -205,9 +205,6 @@ interface UseCategoriesResult {
  * Форма возврата намеренно совпадает с прежним хуком на useEffect:
  * `{ categories, loading, error }`. Благодаря этому HeaderCatalog и остальные
  * потребители не меняются вовсе — меняется только источник данных.
- *
- * Заодно уходит причина двух ошибок react-hooks/set-state-in-effect из baseline
- * линтеров: setState в теле эффекта больше нет.
  */
 export const useCategories = (): UseCategoriesResult => {
   const { data, isPending, error } = tsr.categories.list.useQuery({
