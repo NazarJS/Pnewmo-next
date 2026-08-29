@@ -9,6 +9,22 @@ import { CATEGORY_LIST_GC_TIME, CATEGORY_LIST_QUERY_KEY } from '../lib/queryKey'
 export const CATEGORIES_CACHE_TAG = 'categories';
 
 /**
+ * Единственное место, где собираются fetchOptions для /categories. Тег и время
+ * ревалидации задаются здесь один раз и переиспользуются и префетчем (ниже), и
+ * страницей каталога (app/catalog/[slug]/page.tsx) — раньше страница делала
+ * свой вызов api.categories.list() без fetchOptions вовсе, мимо кеша и тега, и
+ * от дедупликации запросов Next её тоже никто не спасал: закешированный вызов
+ * layout обслуживается из Data Cache и до слоя дедупликации не доходит, так что
+ * у некешированного вызова страницы не с кем склеиться. Та же причина, по
+ * которой страница зовёт именно эту функцию, а не свой собственный api.categories.list().
+ */
+export function fetchCategoryList() {
+  return api.categories.list({
+    fetchOptions: { next: { revalidate: CACHE_REVALIDATE_SECONDS, tags: [CATEGORIES_CACHE_TAG] } },
+  });
+}
+
+/**
  * Серверный префетч. НЕ реэкспортируется из барреля: попав в клиентский бандл
  * через баррель, серверный код тянет за собой зависимости, которые в браузере
  * не работают, и ломается не на сборке, а в рантайме.
@@ -28,10 +44,7 @@ export const CATEGORIES_CACHE_TAG = 'categories';
 export async function prefetchCategories(queryClient: QueryClient): Promise<void> {
   await queryClient.prefetchQuery({
     queryKey: CATEGORY_LIST_QUERY_KEY,
-    queryFn: () =>
-      api.categories.list({
-        fetchOptions: { next: { revalidate: CACHE_REVALIDATE_SECONDS, tags: [CATEGORIES_CACHE_TAG] } },
-      }),
+    queryFn: fetchCategoryList,
     // Тот же gcTime, что у useCategories (см. queryKey.ts) — у этой записи
     // наблюдателя ещё нет, HeaderCatalog монтируется только по клику на
     // «Каталог». Без совпадающего значения запись жила бы по глобальному

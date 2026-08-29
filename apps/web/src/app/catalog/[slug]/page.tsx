@@ -1,10 +1,10 @@
 import { HydrationBoundary, dehydrate } from '@tanstack/react-query';
 import { notFound } from 'next/navigation';
 
+import { fetchCategoryList } from '@/entities/category/api/prefetch';
 import { prefetchProductList } from '@/entities/product/api/productPrefetch';
 import { DEFAULT_PAGE, PRODUCTS_PER_PAGE } from '@/entities/product/lib/constants';
 import { buildProductListQueryKey } from '@/entities/product/lib/queryKey';
-import { api } from '@/shared/api/client';
 import { tsr } from '@/shared/api/tsr';
 import { getQueryClient } from '@/shared/lib/getQueryClient';
 import { readNumberParam, resolveLimit, resolvePage, toOffset } from '@/shared/lib/pagination';
@@ -25,7 +25,10 @@ export default async function CatalogPage({ params, searchParams }: CatalogPageP
   const limit = resolveLimit(readNumberParam(rawSearchParams.limit), PRODUCTS_PER_PAGE);
   const offset = toOffset(page, limit);
 
-  const categoriesResponse = await api.categories.list();
+  // Тот же кешированный вызов, что у RootLayout (fetchCategoryList), а не свой
+  // api.categories.list(): раньше страница каталога обходила и кеш, и тег
+  // сброса — см. комментарий в entities/category/api/prefetch.ts.
+  const categoriesResponse = await fetchCategoryList();
 
   if (categoriesResponse.status !== 200) {
     throw new Error('Не удалось загрузить категории');
