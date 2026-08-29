@@ -53,8 +53,18 @@ export function makeQueryClient(): QueryClient {
           !(isTsRestError(error) && error.status < 500) && failureCount < 1,
       },
       dehydrate: {
-        shouldDehydrateQuery: (query) =>
-          defaultShouldDehydrateQuery(query) || query.state.status === 'pending',
+        // Только defaultShouldDehydrateQuery (успешные запросы). Вариант с
+        // `|| query.state.status === 'pending'` (потоковая SSR-гидрация
+        // незавершённых запросов) здесь не подходит: при вложенных
+        // HydrationBoundary внешняя граница дегидратирует товары ещё
+        // pending-запросом, кладёт его в кэш как pending с промисом, а
+        // внутренняя граница, найдя запись уже существующей, гидрирует
+        // свежий success через useEffect — который на сервере не
+        // выполняется. Итог — HTML с "Загрузка...", который на сервере уже
+        // нечем исправить. Ни один потребитель в проекте на потоковую
+        // дегидратацию не рассчитан, а её единственный наблюдаемый эффект
+        // здесь — порча SSR.
+        shouldDehydrateQuery: defaultShouldDehydrateQuery,
 
         shouldRedactErrors: () => false,
       },

@@ -3,7 +3,9 @@ import { notFound } from 'next/navigation';
 
 import { prefetchProductList } from '@/entities/product/api/productPrefetch';
 import { DEFAULT_PAGE, PRODUCTS_PER_PAGE } from '@/entities/product/lib/constants';
+import { buildProductListQueryKey } from '@/entities/product/lib/queryKey';
 import { api } from '@/shared/api/client';
+import { tsr } from '@/shared/api/tsr';
 import { getQueryClient } from '@/shared/lib/getQueryClient';
 import { readNumberParam, resolveLimit, resolvePage, toOffset } from '@/shared/lib/pagination';
 import ProductGrid from '@/widgets/product-grid/ProductGrid';
@@ -41,6 +43,21 @@ export default async function CatalogPage({ params, searchParams }: CatalogPageP
   const queryClient = getQueryClient();
 
   await prefetchProductList(queryClient, { categoryId: category.id, offset, limit });
+
+  const productListData = tsr
+    .initQueryClient(queryClient)
+    .products.list.getQueryData(buildProductListQueryKey({ categoryId: category.id, offset, limit }));
+
+  const total = productListData?.status === 200 ? productListData.body.total : 0;
+
+  // Страница за пределами диапазона (например ?page=999 при 202 реальных) —
+  // 404, а не пустая сетка с «Назад» в никуда: адрес достижим кривой
+  // ссылкой, и без этой проверки бот проиндексирует мусорную страницу как
+  // рабочую. page=1 не трогаем: пустая категория на первой странице —
+  // законное состояние (см. ProductGrid), не ошибка пагинации.
+  if (offset > 0 && offset >= total) {
+    notFound();
+  }
 
   return (
     <div className={styles.container_page}>
