@@ -40,8 +40,8 @@ const columns = {
 } as const;
 
 type RawRow = {
-  // Decimal, а не unknown: у него собственный toString(), и без точного типа
-  // линтер не поручится, что String() не даст «[object Object]».
+  // Decimal, а не unknown: у него собственный toFixed(), и без точного типа
+  // линтер не поручится, что вызов метода не уедет в [object Object].
   price: Prisma.Decimal | null;
   quantity: Prisma.Decimal | null;
   specifications: unknown;
@@ -52,12 +52,18 @@ type RawRow = {
  * Decimal и Json из Prisma приводятся к форме контракта здесь, а не в
  * контроллере: наружу из репозитория должен выходить обычный объект, иначе
  * Decimal утечёт в сервис и однажды попадёт в арифметику.
+ *
+ * price/quantity — toFixed(scale), а не String(): у Decimal собственный
+ * toString() отбрасывает незначащие нули («100.00» → «100»), а scale колонки
+ * (price — Decimal(12,2), quantity — Decimal(12,3)) для товара значим — это
+ * копейки цены. toFixed(scale) отдаёт ровно столько знаков после точки,
+ * сколько хранит колонка, независимо от того, были в значении нули или нет.
  */
 function toRow(raw: RawRow): ProductRow {
   return {
     ...raw,
-    price: raw.price === null ? null : String(raw.price),
-    quantity: raw.quantity === null ? null : String(raw.quantity),
+    price: raw.price === null ? null : raw.price.toFixed(2),
+    quantity: raw.quantity === null ? null : raw.quantity.toFixed(3),
     specifications: (raw.specifications ?? {}) as Record<string, string>,
     specificationsFull: (raw.specificationsFull ?? {}) as Record<string, string>,
   };
