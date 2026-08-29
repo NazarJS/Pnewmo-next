@@ -38,6 +38,13 @@ function main(): void {
   console.log(
     `fixture: ${fixture.categories.length} categories, ${fixture.products.length} products -> ${target}`,
   );
+
+  // parsePrice молча возвращает null и на пустой цене, и на неразборчивой —
+  // разница не в коде, а в глазах человека, который должен заметить потерю.
+  // Без этой строки будущий рост числа null прошёл бы незамеченным.
+  const unparsedPrices = fixture.products.filter((product) => product.price === null).length;
+
+  console.log(`fixture: ${unparsedPrices} price(s) parsed as null (empty or unreadable source)`);
 }
 
 main();

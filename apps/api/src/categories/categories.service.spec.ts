@@ -21,8 +21,20 @@ const rows: CategoryRow[] = [
 // неявными any и strict-режим отверг бы файл.
 type RepositoryStub = Pick<
   CategoriesRepository,
-  'getList' | 'getById' | 'getParentId' | 'countChildren' | 'create' | 'update' | 'remove'
+  | 'getList'
+  | 'getById'
+  | 'getParentId'
+  | 'countChildren'
+  | 'countProducts'
+  | 'create'
+  | 'update'
+  | 'remove'
 >;
+
+// Количество товаров по id категории: используется только в describe про
+// remove, остальным тестам безразлично — там везде 0. Категория 4 — лист без
+// подкатегорий, поэтому проверка countChildren её не остановит раньше времени.
+const productsByCategory = new Map<number, number>([[4, 3000]]);
 
 function makeRepository(): CategoriesRepository {
   const byId = new Map(rows.map((row) => [row.id, row]));
@@ -36,6 +48,7 @@ function makeRepository(): CategoriesRepository {
       return Promise.resolve(row ? { parentId: row.parentId } : null);
     },
     countChildren: (id) => Promise.resolve(rows.filter((row) => row.parentId === id).length),
+    countProducts: (id) => Promise.resolve(productsByCategory.get(id) ?? 0),
     create: (data) => Promise.resolve({ id: 99, path: '99', ...data }),
     update: (id, data) => Promise.resolve({ ...(byId.get(id) as CategoryRow), ...data }),
     remove: (id) => Promise.resolve(byId.get(id) as CategoryRow),
@@ -69,17 +82,41 @@ describe('CategoriesService.update — защита от цикла', () => {
   it('отклоняет потомка третьего уровня как родителя', async () => {
     await expectAppError(service.update(1, { parentId: 3 }), AppError.VALIDATION_FAILED);
   });
+});
 
-  it('разрешает несвязанную категорию как родителя', async () => {
-    const updated = await service.update(1, { parentId: 4 });
+describe('CategoriesService.update — запрет смены родителя', () => {
+  let service: CategoriesService;
 
-    expect(updated.parentId).toBe(4);
+  beforeEach(() => {
+    service = new CategoriesService(makeRepository());
   });
 
-  it('разрешает перенос в корень', async () => {
-    const updated = await service.update(2, { parentId: null });
+  it('отклоняет смену родителя на другую существующую категорию', async () => {
+    // Сама по себе валидная цель (не цикл, родитель существует) — отказ именно
+    // потому, что path поддерева не пересчитывается, а не из-за формы запроса.
+    await expectAppError(service.update(1, { parentId: 4 }), AppError.CONFLICT);
+  });
+
+  it('отклоняет перенос категории в корень', async () => {
+    await expectAppError(service.update(2, { parentId: null }), AppError.CONFLICT);
+  });
+
+  it('разрешает обновление, когда parentId совпадает с текущим', async () => {
+    const updated = await service.update(2, { parentId: 1 });
+
+    expect(updated.parentId).toBe(1);
+  });
+
+  it('разрешает обновление, когда текущий и переданный parentId — null', async () => {
+    const updated = await service.update(4, { parentId: null });
 
     expect(updated.parentId).toBeNull();
+  });
+
+  it('разрешает обновление без parentId в теле запроса', async () => {
+    const updated = await service.update(1, { name: 'Гидравлика и смазка' });
+
+    expect(updated.name).toBe('Гидравлика и смазка');
   });
 });
 
@@ -113,6 +150,10 @@ describe('CategoriesService.remove', () => {
 
   it('отклоняет удаление категории с потомками', async () => {
     await expectAppError(service.remove(1), AppError.CONFLICT);
+  });
+
+  it('отклоняет удаление категории с товарами', async () => {
+    await expectAppError(service.remove(4), AppError.CONFLICT);
   });
 
   it('удаляет лист', async () => {

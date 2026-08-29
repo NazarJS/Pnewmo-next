@@ -41,6 +41,10 @@ export class CategoriesRepository {
     return this.prisma.category.count({ where: { parentId: id } });
   }
 
+  countProducts(id: number): Promise<number> {
+    return this.prisma.product.count({ where: { categoryId: id } });
+  }
+
   /**
    * Вставка и достройка пути в одной транзакции: путь требует собственного
    * идентификатора, который известен только после INSERT, а строка с пустым

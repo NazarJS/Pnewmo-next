@@ -29,16 +29,13 @@ model Category {
   updatedAt DateTime   @updatedAt @map("updated_at")
 
   @@index([parentId])
-  // Индекс categories_path_prefix_idx (path text_pattern_ops) под префиксный
-  // поиск (LIKE 'x.%') создан вручную в SQL миграции и НЕ объявлен здесь:
-  // Prisma 7 не выражает operator class для BTree-индекса (ops поддерживается
-  // только у Gin/Brin/Gist/SpGist — проверено через context7, раздела
-  // «Supported Operator Classes for BTree» в документации нет).
-  // ВАЖНО: раз индекс не объявлен в модели, `prisma migrate dev` при каждой
-  // следующей миграции будет ПРЕДЛАГАТЬ `DROP INDEX "categories_path_prefix_idx"`
-  // как дрейф схемы. Это предложение нужно ОТКЛОНЯТЬ (не принимать
-  // сгенерированный шаг), иначе индекс пропадёт и выборка поддерева
-  // (WHERE path LIKE 'x.%') молча превратится в seq scan по всей таблице.
+  // Класс операторов text_pattern_ops (под префиксный поиск WHERE path LIKE
+  // 'x.%') живёт только в SQL-миграции — его применение Prisma не описывает.
+  // Здесь объявлено само существование индекса под тем же именем: этого
+  // достаточно, чтобы `prisma migrate diff` не считал его дрейфом схемы и не
+  // предлагал DROP INDEX. Без этой строки индекс выглядел бы для Prisma
+  // лишним и пропал бы при первой же последующей миграции.
+  @@index([path], map: "categories_path_prefix_idx")
   @@map("categories")
 }
 

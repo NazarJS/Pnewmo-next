@@ -15,6 +15,7 @@ describe('categories', () => {
   let app: INestApplication<App>;
   let prisma: PrismaService;
   let rootId: number;
+  let midId: number;
   let leafId: number;
 
   beforeAll(async () => {
@@ -53,6 +54,7 @@ describe('categories', () => {
     });
 
     rootId = root.id;
+    midId = mid.id;
     leafId = leaf.id;
   });
 
@@ -163,10 +165,45 @@ describe('categories', () => {
     expect(appErrorSchema.parse(response.body).errorCode).toBe('VALIDATION_FAILED');
   });
 
+  it('отклоняет смену родителя на другую, не связанную цикл категорию', async () => {
+    // leaf -> mid сейчас; перенос на rootId не создаёт цикл (root — предок, не
+    // потомок leaf), но всё равно запрещён: path поддерева не пересчитывается.
+    const response = await request(app.getHttpServer())
+      .patch(`/categories/${leafId}`)
+      .send({ parentId: rootId })
+      .expect(409);
+
+    expect(appErrorSchema.parse(response.body).errorCode).toBe('CONFLICT');
+  });
+
+  it('разрешает обновление, когда parentId совпадает с текущим', async () => {
+    const response = await request(app.getHttpServer())
+      .patch(`/categories/${leafId}`)
+      .send({ parentId: midId, name: 'Станции насосные и компрессорные' })
+      .expect(200);
+
+    expect(categorySchema.parse(response.body).name).toBe('Станции насосные и компрессорные');
+  });
+
   it('удаляет лист', async () => {
     const response = await request(app.getHttpServer()).delete(`/categories/${leafId}`).expect(200);
 
     expect(response.body).toEqual({ id: leafId });
+  });
+
+  it('возвращает 409 при удалении категории с товарами', async () => {
+    await prisma.product.create({
+      data: {
+        externalId: 'cat-e2e-product',
+        categoryId: leafId,
+        name: 'Станция насосная',
+        imageUrl: 'a.webp',
+      },
+    });
+
+    const response = await request(app.getHttpServer()).delete(`/categories/${leafId}`).expect(409);
+
+    expect(appErrorSchema.parse(response.body).errorCode).toBe('CONFLICT');
   });
 
   it('возвращает 409 при удалении категории с потомками', async () => {

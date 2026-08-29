@@ -1,6 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import { productSchema } from '@pnewmo/api-contract';
+import { appErrorSchema, productSchema } from '@pnewmo/api-contract';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { z } from 'zod';
@@ -174,6 +174,48 @@ describe('products', () => {
         specifications: {},
       })
       .expect(400);
+  });
+
+  it('PATCH меняет имя и не затирает specifications', async () => {
+    const created = await request(app.getHttpServer())
+      .post('/products')
+      .send({
+        name: 'До правки',
+        categoryId: siblingId,
+        imageUrl: 'n.webp',
+        price: null,
+        specifications: { Материал: 'Сталь' },
+      })
+      .expect(201);
+    const id = productSchema.parse(created.body).id;
+
+    const patched = await request(app.getHttpServer())
+      .patch(`/products/${id}`)
+      .send({ name: 'После правки' })
+      .expect(200);
+
+    const body = productSchema.parse(patched.body);
+
+    expect(body.name).toBe('После правки');
+    // createProductSchema.partial() оборачивает specifications (с .default({}))
+    // в ZodOptional: при отсутствующем ключе Zod возвращает значение до того,
+    // как успевает сработать default, поэтому в Prisma .update() ключ не
+    // попадает вовсе, а не приходит как «{}» — иначе характеристики бы стёрлись.
+    expect(body.specifications).toEqual({ Материал: 'Сталь' });
+  });
+
+  it('PATCH с несуществующим categoryId отвечает 400', async () => {
+    const list = await request(app.getHttpServer())
+      .get(`/products?categoryId=${midId}`)
+      .expect(200);
+    const id = listSchema.parse(list.body).items[0].id;
+
+    const response = await request(app.getHttpServer())
+      .patch(`/products/${id}`)
+      .send({ categoryId: 999999 })
+      .expect(400);
+
+    expect(appErrorSchema.parse(response.body).errorCode).toBe('VALIDATION_FAILED');
   });
 
   it('удаляет товар', async () => {

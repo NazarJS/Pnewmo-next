@@ -36,11 +36,24 @@ export class CategoriesService {
     id: number,
     data: { name?: string; slug?: string; parentId?: number | null },
   ): Promise<CategoryRow> {
-    await this.getById(id);
+    const category = await this.getById(id);
 
     if (data.parentId !== undefined) {
       await this.assertParentExists(data.parentId);
       await this.assertNoCycle(id, data.parentId);
+
+      // Пересчёт path поддерева сознательно отложен (следующие этапы). Без
+      // него смена родителя прошла бы молча: репозиторий обновил бы parentId,
+      // а path категории и всего её поддерева остался бы от старого родителя —
+      // выборка товаров по поддереву (WHERE path LIKE 'x.%') тогда тихо врёт,
+      // без единой ошибки в логах. Запрещаем явным отказом, а не тихим
+      // пропуском, до тех пор пока пересчёт не реализован.
+      if (data.parentId !== category.parentId) {
+        throw new AppException(
+          AppError.CONFLICT,
+          'Перемещение категории между родителями пока не поддерживается: путь поддерева не пересчитывается',
+        );
+      }
     }
 
     return this.repository.update(id, data);
@@ -59,6 +72,18 @@ export class CategoriesService {
       throw new AppException(
         AppError.CONFLICT,
         `Нельзя удалить категорию: у неё ${children} подкатегорий`,
+      );
+    }
+
+    // Та же логика, что и с подкатегориями: onDelete: Restrict у Product.category
+    // и так не даст удалить строку, но сообщение будет про «другие данные»,
+    // а не про товары — бесполезно для человека в форме админки.
+    const products = await this.repository.countProducts(id);
+
+    if (products > 0) {
+      throw new AppException(
+        AppError.CONFLICT,
+        `Нельзя удалить категорию: в ней ${products} товаров`,
       );
     }
 

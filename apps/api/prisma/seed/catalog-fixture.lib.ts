@@ -67,6 +67,13 @@ export function parsePrice(raw: string): number | null {
   return Number.isFinite(value) ? Math.round(value * 100) / 100 : null;
 }
 
+/**
+ * String(value), а не прямой перенос: тип обещает Record<string, string>, но
+ * источник — произвольный JSON, и следующая выгрузка может прислать число
+ * вместо строки для того же ключа. Без приведения оно доедет до базы как
+ * number, а `validateResponses: true` на ответе списка превратит это в 500 на
+ * всю страницу, а не в ошибку на одном товаре.
+ */
 export function cleanSpecifications(
   short: Record<string, string> | undefined,
 ): Record<string, string> {
@@ -74,7 +81,7 @@ export function cleanSpecifications(
 
   for (const [key, value] of Object.entries(short ?? {})) {
     if (!JUNK_SPEC_KEYS.has(key)) {
-      result[key] = value;
+      result[key] = String(value);
     }
   }
 

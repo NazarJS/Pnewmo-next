@@ -43,6 +43,14 @@ describe('cleanSpecifications', () => {
   it('переживает отсутствие характеристик', () => {
     expect(cleanSpecifications(undefined)).toEqual({});
   });
+
+  it('приводит нестроковое значение к строке', () => {
+    // Источник — произвольный JSON: тип Record<string, string> лишь
+    // обещание, следующая выгрузка может прислать число для того же ключа.
+    const dirty = { 'Диаметр поршня, мм': 63 } as unknown as Record<string, string>;
+
+    expect(cleanSpecifications(dirty)).toEqual({ 'Диаметр поршня, мм': '63' });
+  });
 });
 
 describe('flatten', () => {
