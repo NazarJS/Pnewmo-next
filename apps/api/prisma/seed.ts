@@ -48,80 +48,102 @@ async function main(): Promise<void> {
       return;
     }
 
-    // TRUNCATE, а не deleteMany: onDelete Restrict проверяется немедленно на
-    // каждой строке, поэтому массовое удаление самоссылающейся таблицы падает в
-    // зависимости от порядка строк. CASCADE снимает товары вместе с категориями.
-    await prisma.$executeRawUnsafe('TRUNCATE TABLE categories, products RESTART IDENTITY CASCADE');
-
     const fixture = loadFixture();
-    // Позиционный путь фикстуры -> идентификатор и настоящий путь в базе.
-    const inserted = new Map<string, { id: number; path: string }>();
 
-    for (const category of buildInsertOrder(fixture.categories)) {
-      const segments = category.path.split('.');
-      const parentFixturePath = segments.slice(0, -1).join('.');
-      const parent = parentFixturePath === '' ? null : inserted.get(parentFixturePath);
+    // Вся заливка — одна интерактивная транзакция, а не просто TRUNCATE +
+    // вставки подряд. Сторожевое условие выше отличает «пусто» от «не пусто»,
+    // но не отличает полную заливку от прерванной: крах процесса (Ctrl+C,
+    // OOM, обрыв соединения) между батчами товаров оставил бы
+    // `product.count()` ненулевым, но меньше ожидаемого — следующий запуск
+    // принял бы недозалитую базу за готовую и молча остановился бы на
+    // сторожевом условии. Откат всей транзакции гарантирует, что после краха
+    // в базе либо ничего нет, либо есть всё, и `product.count()` либо 0,
+    // либо равен числу товаров в фикстуре.
+    const { categoriesInserted, productsInserted } = await prisma.$transaction(
+      async (tx) => {
+        // TRUNCATE, а не deleteMany: onDelete Restrict проверяется немедленно
+        // на каждой строке, поэтому массовое удаление самоссылающейся
+        // таблицы падает в зависимости от порядка строк. CASCADE снимает
+        // товары вместе с категориями.
+        await tx.$executeRawUnsafe('TRUNCATE TABLE categories, products RESTART IDENTITY CASCADE');
 
-      if (parentFixturePath !== '' && parent === undefined) {
-        throw new Error(
-          `Родитель ${parentFixturePath} категории ${category.path} ещё не вставлен — проверьте порядок в фикстуре`,
-        );
-      }
+        // Позиционный путь фикстуры -> идентификатор и настоящий путь в базе.
+        const inserted = new Map<string, { id: number; path: string }>();
 
-      const created = await prisma.category.create({
-        data: {
-          name: category.name,
-          slug: category.slug,
-          parentId: parent?.id ?? null,
-          // Временное значение: настоящий путь требует собственного
-          // идентификатора, который известен только после вставки.
-          //
-          // Колонка `path` уникальна, и держится этот приём исключительно на
-          // последовательности цикла: каждая итерация проставляет настоящий
-          // путь до того, как вставится следующая строка, поэтому двух пустых
-          // значений одновременно не бывает. Переделка на пакетную вставку
-          // (`createMany`) сломает инвариант — один INSERT с несколькими
-          // пустыми путями упадёт на уникальном индексе. Упадёт громко, но
-          // знать об этом надо заранее.
-          path: '',
-        },
-        select: { id: true },
-      });
+        for (const category of buildInsertOrder(fixture.categories)) {
+          const segments = category.path.split('.');
+          const parentFixturePath = segments.slice(0, -1).join('.');
+          const parent = parentFixturePath === '' ? null : inserted.get(parentFixturePath);
 
-      const path = computePath(parent?.path ?? null, created.id);
+          if (parentFixturePath !== '' && parent === undefined) {
+            throw new Error(
+              `Родитель ${parentFixturePath} категории ${category.path} ещё не вставлен — проверьте порядок в фикстуре`,
+            );
+          }
 
-      await prisma.category.update({ where: { id: created.id }, data: { path } });
+          const created = await tx.category.create({
+            data: {
+              name: category.name,
+              slug: category.slug,
+              parentId: parent?.id ?? null,
+              // Временное значение: настоящий путь требует собственного
+              // идентификатора, который известен только после вставки.
+              //
+              // Колонка `path` уникальна, и держится этот приём исключительно на
+              // последовательности цикла: каждая итерация проставляет настоящий
+              // путь до того, как вставится следующая строка, поэтому двух пустых
+              // значений одновременно не бывает. Переделка на пакетную вставку
+              // (`createMany`) сломает инвариант — один INSERT с несколькими
+              // пустыми путями упадёт на уникальном индексе. Упадёт громко, но
+              // знать об этом надо заранее.
+              path: '',
+            },
+            select: { id: true },
+          });
 
-      inserted.set(category.path, { id: created.id, path });
-    }
+          const path = computePath(parent?.path ?? null, created.id);
 
-    let done = 0;
+          await tx.category.update({ where: { id: created.id }, data: { path } });
 
-    for (let i = 0; i < fixture.products.length; i += BATCH_SIZE) {
-      const batch = fixture.products.slice(i, i + BATCH_SIZE).map((product) => {
-        const category = inserted.get(product.categoryPath);
-
-        if (category === undefined) {
-          throw new Error(
-            `Категория ${product.categoryPath} товара ${product.externalId} не найдена`,
-          );
+          inserted.set(category.path, { id: created.id, path });
         }
 
-        return {
-          externalId: product.externalId,
-          categoryId: category.id,
-          name: product.name,
-          imageUrl: product.imageUrl,
-          price: product.price,
-          specifications: product.specifications,
-        };
-      });
+        let done = 0;
 
-      await prisma.product.createMany({ data: batch });
-      done += batch.length;
-    }
+        for (let i = 0; i < fixture.products.length; i += BATCH_SIZE) {
+          const batch = fixture.products.slice(i, i + BATCH_SIZE).map((product) => {
+            const category = inserted.get(product.categoryPath);
 
-    console.log(`seeded ${inserted.size} categories, ${done} products`);
+            if (category === undefined) {
+              throw new Error(
+                `Категория ${product.categoryPath} товара ${product.externalId} не найдена`,
+              );
+            }
+
+            return {
+              externalId: product.externalId,
+              categoryId: category.id,
+              name: product.name,
+              imageUrl: product.imageUrl,
+              price: product.price,
+              specifications: product.specifications,
+            };
+          });
+
+          await tx.product.createMany({ data: batch });
+          done += batch.length;
+        }
+
+        return { categoriesInserted: inserted.size, productsInserted: done };
+      },
+      // Таймаут с запасом: транзакция делает ~444 запроса на категории
+      // (create + update на каждую из 222) и ~10 createMany на товары.
+      // Замеренный успешный прогон укладывается в секунды, но запас на
+      // медленную машину или холодный диск не повредит.
+      { timeout: 120_000, maxWait: 10_000 },
+    );
+
+    console.log(`seeded ${categoriesInserted} categories, ${productsInserted} products`);
   } finally {
     await prisma.$disconnect();
     await pool.end();
