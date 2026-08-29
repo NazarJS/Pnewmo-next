@@ -1,38 +1,50 @@
-import { getProductId } from "@/entities/product/api/products.api";
-import { LABELS } from "@/entities/product/lib/labels";
+import Image from 'next/image';
+import { notFound } from 'next/navigation';
 
+import { formatPrice } from '@/entities/product/lib/formatPrice';
+import { api } from '@/shared/api/client';
 
 interface ProductPageProps {
-  params: Promise<{
-    id: string;
-  }>;
+  params: Promise<{ id: string }>;
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const { id } = await params;
+  const numericId = Number(id);
 
-  const product = await getProductId(id);
-  
-
-  if (!product) {
-    return <div>Товар не найден</div>;
+  if (!Number.isInteger(numericId) || numericId <= 0) {
+    notFound();
   }
 
+  const response = await api.products.getById({ params: { id: numericId } });
+
+  if (response.status !== 200) {
+    notFound();
+  }
+
+  const product = response.body;
+  const specifications = Object.entries(product.specifications);
+
   return (
-    <>
-      <h1>{product.title}</h1>
+    <article>
+      <h1>{product.name}</h1>
 
-      <p>{product.description}</p>
+      <Image src={product.imageUrl} alt={product.name} width={282} height={148} sizes="282px" />
 
-      <h3>Характеристики: </h3>
+      <p>{formatPrice(product.price)}</p>
 
-      <ul>
-        {Object.entries(product.specifications).map(([key, value]) => (
-          <li key={key}>
-            {LABELS[key]?.label ?? key }: {value}
-          </li>
-        ))}
-      </ul>
-    </>
+      {specifications.length > 0 && (
+        <table>
+          <tbody>
+            {specifications.map(([key, value]) => (
+              <tr key={key}>
+                <th scope="row">{key}</th>
+                <td>{value}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </article>
   );
 }
