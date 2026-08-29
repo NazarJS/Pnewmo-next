@@ -48,14 +48,13 @@ export default async function CatalogPage({ params, searchParams }: CatalogPageP
     .initQueryClient(queryClient)
     .products.list.getQueryData(buildProductListQueryKey({ categoryId: category.id, offset, limit }));
 
-  const total = productListData?.status === 200 ? productListData.body.total : 0;
-
-  // Страница за пределами диапазона (например ?page=999 при 202 реальных) —
-  // 404, а не пустая сетка с «Назад» в никуда: адрес достижим кривой
-  // ссылкой, и без этой проверки бот проиндексирует мусорную страницу как
-  // рабочую. page=1 не трогаем: пустая категория на первой странице —
-  // законное состояние (см. ProductGrid), не ошибка пагинации.
-  if (offset > 0 && offset >= total) {
+  // 404 — только при подтверждённом success с total меньше offset. Пустой
+  // кэш (productListData === undefined) значит либо то же самое «страница
+  // за диапазоном», либо что prefetchProductList вычистил упавший запрос
+  // (см. productPrefetch.ts) — отличить одно от другого без доступа к
+  // ошибке нечем, поэтому при отсутствии success-ответа страница не
+  // объявляется 404: рендерится как обычно, а клиент может повторить запрос.
+  if (offset > 0 && productListData?.status === 200 && offset >= productListData.body.total) {
     notFound();
   }
 
