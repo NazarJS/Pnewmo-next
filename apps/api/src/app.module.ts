@@ -5,6 +5,7 @@ import { TsRestModule } from '@ts-rest/nest';
 import { CategoriesModule } from './categories/categories.module';
 import { HealthModule } from './health/health.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { ProductsModule } from './products/products.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { PrismaModule } from './prisma/prisma.module';
     PrismaModule,
     HealthModule,
     CategoriesModule,
+    ProductsModule,
   ],
 })
 export class AppModule {}
