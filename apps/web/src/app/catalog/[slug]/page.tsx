@@ -1,15 +1,14 @@
+import { HydrationBoundary, dehydrate } from '@tanstack/react-query';
+import { notFound } from 'next/navigation';
 
-import Link from 'next/link';
+import { prefetchProductList } from '@/entities/product/api/productPrefetch';
+import { DEFAULT_PAGE, PRODUCTS_PER_PAGE } from '@/entities/product/lib/constants';
+import { api } from '@/shared/api/client';
+import { getQueryClient } from '@/shared/lib/getQueryClient';
+import { readNumberParam, resolveLimit, resolvePage, toOffset } from '@/shared/lib/pagination';
+import ProductGrid from '@/widgets/product-grid/ProductGrid';
+
 import styles from './Catalog.module.scss';
-import { fetchCategories } from '@/entities/category/api/category.api';
-import {
-  getCategoryFilterSchema,
-  getFilteredProducts,
-  getFilterFieldCounts,
-} from '@/entities/product/api/products.api';
-import { parseFiltersFromSearchParams } from '@/features/product-filter/model/parseFiltersFromSearchParams';
-import { Category } from '@/entities/category/model/types';
-import ProductFilterPanel from '@/features/product-filter/ui/ProductFilterPanel';
 
 interface CatalogPageProps {
   params: Promise<{ slug: string }>;
@@ -20,52 +19,37 @@ export default async function CatalogPage({ params, searchParams }: CatalogPageP
   const { slug } = await params;
   const rawSearchParams = await searchParams;
 
-  const rawCategories = await fetchCategories();
-  const categories = rawCategories ?? [];
+  const page = resolvePage(readNumberParam(rawSearchParams.page), DEFAULT_PAGE);
+  const limit = resolveLimit(readNumberParam(rawSearchParams.limit), PRODUCTS_PER_PAGE);
+  const offset = toOffset(page, limit);
 
-  const category = categories.find((item: Category) => item.slug === slug);
+  const categoriesResponse = await api.categories.list();
 
-  if (!category) {
-    return <h1>Категория не найдена</h1>;
+  if (categoriesResponse.status !== 200) {
+    throw new Error('Не удалось загрузить категории');
   }
 
+  const category = categoriesResponse.body.find((item) => item.slug === slug);
 
-  const schema = (await getCategoryFilterSchema(category.path)) ?? [];
-  const filters = parseFiltersFromSearchParams(rawSearchParams, schema);
-  const enumFields = schema.filter((field) => field.type === 'enum');
+  // notFound(), а не «Категория не найдена» в разметке: несуществующая
+  // категория обязана отдавать 404, иначе поисковик проиндексирует её как
+  // рабочую страницу.
+  if (!category) {
+    notFound();
+  }
 
-  const [rawProducts, countsList] = await Promise.all([
-    getFilteredProducts(category.path, filters),
-    Promise.all(enumFields.map((field) => getFilterFieldCounts(category.path, filters, field))),
-  ]);
+  const queryClient = getQueryClient();
 
-  const products = rawProducts ?? [];
-
-  const counts: Record<string, Record<string, number> | null> = {};
-  enumFields.forEach((field, index) => {
-    counts[field.key] = countsList[index];
-  });
+  await prefetchProductList(queryClient, { categoryId: category.id, offset, limit });
 
   return (
     <div className={styles.container_page}>
-      
-      <div className={styles.panel_container}>
-        <ProductFilterPanel schema={schema} counts={counts} activeFilters={filters} />
-      </div>
-      
-      {products.length === 0 && <p>Товаров нет</p>}
-
       <section className={styles.section}>
         <h1 className={styles.name}>{category.name}</h1>
-      <div className={styles.wrap}>
-        {products.map((product) => (
-          <Link key={product.id} href={`/product/${product.id}`} className={styles.item}>
-            <h2>{product.title}</h2>
 
-            <p>{product.description}</p>
-          </Link>
-        ))}
-      </div>
+        <HydrationBoundary state={dehydrate(queryClient)}>
+          <ProductGrid categoryId={category.id} page={page} offset={offset} limit={limit} />
+        </HydrationBoundary>
       </section>
     </div>
   );
