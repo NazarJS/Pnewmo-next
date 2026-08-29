@@ -1,15 +1,13 @@
 import type { QueryClient } from '@tanstack/react-query';
 
 import { tsr } from '@/shared/api/tsr';
+import { CACHE_REVALIDATE_SECONDS } from '@/shared/lib/cacheRevalidateSeconds';
 
 import { ProductListFilterState } from '../lib/productTypes';
 import { buildProductListQuery, buildProductListQueryKey } from '../lib/queryKey';
 
 /** Тег для сброса из мутаций админки. */
 export const PRODUCTS_CACHE_TAG = 'products';
-
-/** Пять минут: каталог правят штучно через админку, а та сбрасывает кеш тегом. */
-const REVALIDATE_SECONDS = 300;
 
 /**
  * Серверный префетч. НЕ реэкспортируется из барреля: серверный код, утёкший в
@@ -28,7 +26,8 @@ const REVALIDATE_SECONDS = 300;
  * пользу `fetchOptions.next`.
  *
  * HTML при этом собирается на каждый запрос — боты получают полную разметку, —
- * но база опрашивается раз в пять минут на комбинацию параметров.
+ * но база опрашивается раз в CACHE_REVALIDATE_SECONDS на комбинацию
+ * параметров (пять минут вне разработки; см. cacheRevalidateSeconds.ts).
  */
 export async function prefetchProductList(
   queryClient: QueryClient,
@@ -46,13 +45,20 @@ export async function prefetchProductList(
     queryKey: buildProductListQueryKey(filter),
     queryData: {
       query: buildProductListQuery(filter),
-      fetchOptions: { next: { revalidate: REVALIDATE_SECONDS, tags: [PRODUCTS_CACHE_TAG] } },
+      fetchOptions: { next: { revalidate: CACHE_REVALIDATE_SECONDS, tags: [PRODUCTS_CACHE_TAG] } },
     },
   });
 
-  // Ошибку в кэше не оставляем: дегидратированное состояние ошибки доедет до
-  // клиента и покажет сбой даже там, где повторный запрос прошёл бы успешно.
-  // Приём взят из panel-administration, entities/strapi-content/api/prefetch.ts.
+  // Ошибку в кэше не оставляем. Раньше это было нужно, чтобы дегидратированное
+  // состояние ошибки не доехало до клиента и не показало сбой там, где
+  // повторный запрос прошёл бы успешно — но после того, как shouldDehydrateQuery
+  // в queryClient.ts сузили до defaultShouldDehydrateQuery (дегидратируются
+  // только успешные запросы, см. комментарий там), этот сценарий физически
+  // невозможен: ошибке просто неоткуда взяться в дегидратированном состоянии.
+  // Строчку оставляем как защиту на будущее: если shouldDehydrateQuery
+  // когда-нибудь снова расширят до ошибок или pending-запросов, регрессия не
+  // повторится молча. Приём изначально взят из panel-administration,
+  // entities/strapi-content/api/prefetch.ts.
   const key = buildProductListQueryKey(filter);
 
   if (queryClient.getQueryState(key)?.status === 'error') {

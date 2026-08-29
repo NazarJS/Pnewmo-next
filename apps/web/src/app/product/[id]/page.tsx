@@ -10,16 +10,39 @@ interface ProductPageProps {
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const { id } = await params;
+
+  // /^\d+$/, а не Number.isInteger(Number(id)): у Number() научная нотация и
+  // шестнадцатеричные литералы — валидные числа. /product/1e2 и /product/0x10
+  // проходили старую проверку (Number('1e2') === 100, Number('0x10') === 16,
+  // оба целые и положительные) и отдавали 200 с товарами 100 и 16 — дубль
+  // индексируемого адреса на каждый такой id.
+  if (!/^\d+$/.test(id)) {
+    notFound();
+  }
+
   const numericId = Number(id);
 
-  if (!Number.isInteger(numericId) || numericId <= 0) {
+  // /^\d+$/ пропускает "0" (и "00" и т.д.) — цифра, но не положительное число.
+  // Товара с id 0 не бывает, и без этой проверки запрос ушёл бы в API вместо
+  // того, чтобы сразу остаться 404 на странице.
+  if (numericId <= 0) {
     notFound();
   }
 
   const response = await api.products.getById({ params: { id: numericId } });
 
   if (response.status !== 200) {
-    notFound();
+    // notFound() — это HTTP 404, «такой страницы не существует». Сбой
+    // бэкенда — другое: страница существует, просто сейчас недоступна.
+    // Смешивать их нельзя — проверено вживую: при погашенном API за прокси
+    // (502) запрос существующего товара отдавал 404 вместо 502. Для витрины,
+    // где боты — целевая аудитория, это худший вариант: 5xx поисковик
+    // переживёт и зайдёт позже, а 404 выбьет существующий товар из индекса.
+    if (response.status === 404) {
+      notFound();
+    }
+
+    throw new Error(`Не удалось загрузить товар: сервис ответил кодом ${response.status}`);
   }
 
   const product = response.body;

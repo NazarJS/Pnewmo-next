@@ -8,59 +8,13 @@ import { useCategories } from '@/entities/category/api/hook';
 import { tsr } from '@/shared/api/tsr';
 
 import { revalidateCatalog } from '../api/revalidate';
+import { describeServerError } from '../lib/describeServerError';
 import styles from './AdminForms.module.scss';
 
 interface CategoryFormValues {
   name: string;
   slug: string;
   parentId: string;
-}
-
-/**
- * Ошибку показываем ту, что пришла с сервера. Правило слага живёт в контракте
- * вместе с текстом («Допустимы только строчные латинские буквы, цифры, дефис и
- * подчёркивание») — дублировать его на клиенте значит завести второй источник
- * правды, который разойдётся с первым.
- *
- * Верхнеуровневое message при провале валидации — общая фраза «Некорректные
- * данные запроса» (AppExceptionFilter.describe): текст конкретного правила
- * лежит в issues[].message, а путь поля — в issues[].path. Поэтому issues
- * проверяется первым и с путём, а message — запасной вариант для ошибок без
- * issues (например 409, где message уже конкретное).
- *
- * Третья ветка — для ошибки без тела ответа: ts-rest не оборачивает сетевой
- * сбой (API недоступен, DNS, CORS) в объект с `body`, прилетает обычный
- * `Error`. Без этой ветки форма молчала бы при недоступном сервере.
- *
- * Текст здесь — фиксированная фраза, не `error.message`: проверено вживую —
- * реальный сетевой сбой (ECONNREFUSED) даёт `error.message === 'fetch
- * failed'`, а в браузере то же самое — «Failed to fetch» / «Load failed» в
- * зависимости от движка. Ни то ни другое ничего не говорит пользователю
- * админки.
- */
-function describeServerError(error: unknown): string | null {
-  if (!error) {
-    return null;
-  }
-
-  if (typeof error === 'object' && 'body' in error) {
-    const body = (error as { body?: unknown }).body;
-
-    if (typeof body === 'object' && body !== null) {
-      const { message, issues } = body as {
-        message?: unknown;
-        issues?: Array<{ path?: unknown; message?: unknown }>;
-      };
-
-      if (Array.isArray(issues) && issues.length > 0) {
-        return issues.map((issue) => `${String(issue.path)}: ${String(issue.message)}`).join('; ');
-      }
-
-      return String(message ?? 'Ошибка сохранения');
-    }
-  }
-
-  return 'Не удалось связаться с сервером';
 }
 
 const CategoryForm = () => {

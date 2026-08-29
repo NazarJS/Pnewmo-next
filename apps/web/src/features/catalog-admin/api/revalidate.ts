@@ -2,6 +2,7 @@
 
 import { updateTag } from 'next/cache';
 
+import { CATEGORIES_CACHE_TAG } from '@/entities/category/api/prefetch';
 import { PRODUCTS_CACHE_TAG } from '@/entities/product/api/productPrefetch';
 
 /**
@@ -13,8 +14,18 @@ import { PRODUCTS_CACHE_TAG } from '@/entities/product/api/productPrefetch';
  * прочих.
  *
  * invalidateQueries на клиенте этого не заменяет: он чистит кэш браузера, а
- * кеш списка товаров — тег на fetch через fetchOptions.next.tags (см.
- * productPrefetch.ts) — живёт на сервере и переживает перезагрузку страницы.
+ * кеш списков товаров и категорий — тег на fetch через fetchOptions.next.tags
+ * (см. productPrefetch.ts и entities/category/api/prefetch.ts) — живёт на
+ * сервере и переживает перезагрузку страницы.
+ *
+ * Сбрасываются оба тега разом, а не только тег той сущности, что менялась:
+ * функция общая для CategoryForm и ProductForm, а до этой правки она сбрасывала
+ * только PRODUCTS_CACHE_TAG — тега категорий не было вовсе, и вызов из формы
+ * категории был пустышкой. Новая категория не попадала в серверный HTML до
+ * следующего естественного протухания кеша (а на статически пререндеренных
+ * `/` и `/admin` — вообще до следующей сборки). Лишний сброс тега товаров при
+ * правке категории (и наоборот) не бесплатен, но безопасен: это просто более
+ * ранний повторный поход в базу, а не порча данных.
  *
  * updateTag, а не revalidateTag: у revalidateTag с профилем 'max' — тем,
  * что Next 16 предлагает по умолчанию, — семантика stale-while-revalidate:
@@ -27,4 +38,5 @@ import { PRODUCTS_CACHE_TAG } from '@/entities/product/api/productPrefetch';
  */
 export async function revalidateCatalog(): Promise<void> {
   updateTag(PRODUCTS_CACHE_TAG);
+  updateTag(CATEGORIES_CACHE_TAG);
 }
