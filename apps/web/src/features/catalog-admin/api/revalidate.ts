@@ -1,6 +1,6 @@
 'use server';
 
-import { revalidateTag } from 'next/cache';
+import { updateTag } from 'next/cache';
 
 import { PRODUCTS_CACHE_TAG } from '@/entities/product/api/productPrefetch';
 
@@ -14,12 +14,16 @@ import { PRODUCTS_CACHE_TAG } from '@/entities/product/api/productPrefetch';
  *
  * invalidateQueries на клиенте этого не заменяет: он чистит кэш браузера, а
  * unstable_cache живёт на сервере и переживает перезагрузку страницы.
+ *
+ * updateTag, а не revalidateTag: у revalidateTag с профилем 'max' — тем,
+ * что Next 16 предлагает по умолчанию, — семантика stale-while-revalidate:
+ * следующий запрос после вызова может отдать ещё старые данные, обновление
+ * происходит в фоне. Проверено запросом: товар после такого вызова появлялся
+ * не на первом же открытии страницы, а на одном из следующих — то есть «сразу»
+ * не гарантировано. updateTag вызывается только из Server Action (этот файл —
+ * ровно такой случай) и истекает кэш синхронно до возврата из действия —
+ * именно read-your-own-writes, которого требует бриф.
  */
 export async function revalidateCatalog(): Promise<void> {
-  // В Next 16 у revalidateTag обязателен второй аргумент — профиль давности
-  // кеша, который можно затронуть сбросом. Тег вешается на fetch с произвольным
-  // revalidate (см. productPrefetch.ts), а не через cacheLife(), поэтому под
-  // него нет предсказуемого профиля — 'max' сбрасывает тег независимо от того,
-  // насколько давно кеш был свежим.
-  revalidateTag(PRODUCTS_CACHE_TAG, 'max');
+  updateTag(PRODUCTS_CACHE_TAG);
 }
