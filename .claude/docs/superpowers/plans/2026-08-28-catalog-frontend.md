@@ -381,6 +381,22 @@ describe('resolvePage', () => {
   it('отбрасывает NaN', () => {
     expect(resolvePage(Number('abc'), 1)).toBe(1);
   });
+
+  /**
+   * Баг ревью: раньше `raw > 0` проверялась ДО Math.floor. Для входа из (0, 1)
+   * проверка проходила (0.5 > 0), а Math.floor(0.5) давал 0 — не дефолт.
+   * Дальше toOffset(0, limit) считал (0 - 1) * limit, отрицательный offset,
+   * который контракт (`.int().gte(0)`) отвергает 400-кой. Достижимо обычным
+   * ?page=0.5.
+   */
+  it('отбрасывает дробное значение из интервала (0, 1)', () => {
+    expect(resolvePage(0.5, 1)).toBe(1);
+    expect(resolvePage(0.9, 1)).toBe(1);
+  });
+
+  it('усекает дробное больше единицы вниз, а не подставляет дефолт', () => {
+    expect(resolvePage(2.7, 1)).toBe(2);
+  });
 });
 
 describe('resolveLimit', () => {
@@ -399,6 +415,20 @@ describe('resolveLimit', () => {
    */
   it('обрезает по потолку контракта', () => {
     expect(resolveLimit(100000, 24)).toBe(100);
+  });
+
+  /**
+   * Тот же баг ревью, симметрично: `raw <= 0` не отбраковывала 0.5 (0.5 <= 0
+   * ложно), а Math.floor(0.5) давал 0 — контракт требует limit.gt(0) и ответил
+   * бы 400.
+   */
+  it('отбрасывает дробное значение из интервала (0, 1)', () => {
+    expect(resolveLimit(0.5, 24)).toBe(24);
+    expect(resolveLimit(0.9, 24)).toBe(24);
+  });
+
+  it('усекает дробное больше единицы вниз, а не подставляет дефолт', () => {
+    expect(resolveLimit(2.7, 24)).toBe(2);
   });
 });
 
@@ -434,17 +464,32 @@ export const MAX_LIMIT = 100;
  * Number.isFinite здесь не украшение: Number('Infinity') даёт Infinity, и
  * проверка `raw > 0` его пропускает. Правило выровнено с
  * panel-administration, shared/hooks/table/utils/pagination.ts.
+ *
+ * Порядок операций важен: сначала Math.floor, потом проверка границы. Если
+ * проверить границу раньше floor, вход из (0, 1) — например 0.5 — проходит
+ * `raw > 0`, а Math.floor(0.5) даёт 0 вместо дефолта. 0 уходит в
+ * toOffset(0, limit) и даёт отрицательный offset, который контракт
+ * (`.int().gte(0)`) отвергает 400-кой. Достижимо обычным ?page=0.5.
  */
 export function resolvePage(raw: number | undefined, defaultPage: number): number {
-  return raw !== undefined && Number.isFinite(raw) && raw > 0 ? Math.floor(raw) : defaultPage;
+  if (raw === undefined || !Number.isFinite(raw)) {
+    return defaultPage;
+  }
+
+  const page = Math.floor(raw);
+
+  return page > 0 ? page : defaultPage;
 }
 
+/** Тот же порядок floor → граница, что и в resolvePage — см. её комментарий. */
 export function resolveLimit(raw: number | undefined, defaultLimit: number): number {
-  if (raw === undefined || !Number.isFinite(raw) || raw <= 0) {
+  if (raw === undefined || !Number.isFinite(raw)) {
     return defaultLimit;
   }
 
-  return Math.min(Math.floor(raw), MAX_LIMIT);
+  const limit = Math.floor(raw);
+
+  return limit > 0 ? Math.min(limit, MAX_LIMIT) : defaultLimit;
 }
 
 export function toOffset(page: number, limit: number): number {
@@ -462,7 +507,7 @@ export function readNumberParam(raw: string | string[] | undefined): number | un
 - [ ] **Step 4: Запустить тесты**
 
 Run: `nvm use && pnpm --filter @pnewmo/web test -- pagination`
-Expected: PASS, 11 тестов.
+Expected: PASS, 15 тестов.
 
 - [ ] **Step 5: Написать падающие тесты ключей и цены**
 
