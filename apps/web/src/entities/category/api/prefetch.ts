@@ -2,7 +2,7 @@ import type { QueryClient } from '@tanstack/react-query';
 
 import { api } from '@/shared/api/client';
 
-import { CATEGORY_LIST_QUERY_KEY } from '../lib/queryKey';
+import { CATEGORY_LIST_GC_TIME, CATEGORY_LIST_QUERY_KEY } from '../lib/queryKey';
 
 /**
  * Серверный префетч. НЕ реэкспортируется из барреля: попав в клиентский бандл
@@ -17,5 +17,10 @@ export async function prefetchCategories(queryClient: QueryClient): Promise<void
   await queryClient.prefetchQuery({
     queryKey: CATEGORY_LIST_QUERY_KEY,
     queryFn: () => api.categories.list(),
+    // Тот же gcTime, что у useCategories (см. queryKey.ts) — у этой записи
+    // наблюдателя ещё нет, HeaderCatalog монтируется только по клику на
+    // «Каталог». Без совпадающего значения запись жила бы по глобальному
+    // дефолту и могла вычиститься из кэша раньше, чем хук успел бы её прочитать.
+    gcTime: CATEGORY_LIST_GC_TIME,
   });
 }

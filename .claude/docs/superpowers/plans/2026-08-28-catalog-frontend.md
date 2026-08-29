@@ -315,7 +315,7 @@ Run:
 ```bash
 nvm use && pnpm --filter @pnewmo/web typecheck && pnpm --filter @pnewmo/web test && pnpm --filter @pnewmo/web lint:js
 ```
-Expected: typecheck и тесты зелёные; в выводе eslint **больше нет** двух ошибок `react-hooks/set-state-in-effect`.
+Expected: typecheck и тесты зелёные; вывод eslint не хуже прежнего — baseline из двух ошибок `react-hooks/set-state-in-effect` остаётся на месте (они живут в `HeaderCatalog.tsx`, к удаляемому хуку не относятся).
 
 Run: `pnpm dev` и открыть `http://localhost:3000` — меню открывается и содержит категории из базы (среди них «Цилиндры пневматические», которых в моке не было).
 
