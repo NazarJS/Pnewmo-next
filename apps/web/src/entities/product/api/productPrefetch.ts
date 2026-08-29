@@ -1,6 +1,7 @@
 import type { QueryClient } from '@tanstack/react-query';
 
 import { tsr } from '@/shared/api/tsr';
+import { classifyApiError, type ApiErrorClassification } from '@/shared/lib/apiError';
 import { CACHE_REVALIDATE_SECONDS } from '@/shared/lib/cacheRevalidateSeconds';
 
 import { ProductListFilterState } from '../lib/productTypes';
@@ -48,20 +49,27 @@ export async function prefetchProductList(
       fetchOptions: { next: { revalidate: CACHE_REVALIDATE_SECONDS, tags: [PRODUCTS_CACHE_TAG] } },
     },
   });
+}
 
-  // Ошибку в кэше не оставляем. Раньше это было нужно, чтобы дегидратированное
-  // состояние ошибки не доехало до клиента и не показало сбой там, где
-  // повторный запрос прошёл бы успешно — но после того, как shouldDehydrateQuery
-  // в queryClient.ts сузили до defaultShouldDehydrateQuery (дегидратируются
-  // только успешные запросы, см. комментарий там), этот сценарий физически
-  // невозможен: ошибке просто неоткуда взяться в дегидратированном состоянии.
-  // Строчку оставляем как защиту на будущее: если shouldDehydrateQuery
-  // когда-нибудь снова расширят до ошибок или pending-запросов, регрессия не
-  // повторится молча. Приём изначально взят из panel-administration,
-  // entities/strapi-content/api/prefetch.ts.
-  const key = buildProductListQueryKey(filter);
+/**
+ * Классифицирует сбой prefetchProductList после того, как он завершился:
+ * prefetchQuery не бросает (это его смысл — безопасно звать без try/catch),
+ * ошибка молча оседает в состоянии запроса, и без этой функции страница
+ * каталога не могла отличить «сбой сервера» от «страница за пределами
+ * выдачи» — обе давали одинаковый пустой кэш. Возвращает null при успехе.
+ *
+ * Ошибку в кэше держим осознанно, хотя раньше её вычищали removeQueries сразу
+ * после prefetchQuery: без записи в кэше эта функция ничего не увидит. Это
+ * безопасно и для гидрации — shouldDehydrateQuery в queryClient.ts сужен до
+ * defaultShouldDehydrateQuery (дегидратируются только успешные запросы, см.
+ * комментарий там), так что ошибке всё равно неоткуда попасть в состояние,
+ * которое уедет к клиенту.
+ */
+export function getProductListError(
+  queryClient: QueryClient,
+  filter: ProductListFilterState,
+): ApiErrorClassification | null {
+  const state = queryClient.getQueryState(buildProductListQueryKey(filter));
 
-  if (queryClient.getQueryState(key)?.status === 'error') {
-    queryClient.removeQueries({ queryKey: key });
-  }
+  return state?.status === 'error' ? classifyApiError(state.error) : null;
 }

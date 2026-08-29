@@ -1,4 +1,14 @@
+import { classifyApiError } from '@/shared/lib/apiError';
+
 /**
+ * Тонкая обёртка над classifyApiError (shared/lib/apiError.ts): формы не
+ * ветвятся по типу ошибки — им нужен один готовый текст на любую ошибку
+ * мутации, — поэтому берём только message. Раньше вся логика разбора тела
+ * ответа жила здесь же и была скопирована в описании ниже; теперь описание
+ * применимо к общему модулю, а этот файл остался как есть — CategoryForm и
+ * ProductForm ссылаются на describeServerError, менять оба места ради
+ * переименования не было причины.
+ *
  * Общая для CategoryForm и ProductForm функция: обе формы показывают ошибку
  * мутации одинаково, и раньше это было дословно продублировано в каждой —
  * ~25 строк кода и ~20 строк комментария на файл.
@@ -9,44 +19,19 @@
  * дублировать его на клиенте значит завести второй источник правды, который
  * разойдётся с первым.
  *
- * Верхнеуровневое message при провале валидации — общая фраза «Некорректные
- * данные запроса» (AppExceptionFilter.describe): текст конкретного правила
- * лежит в issues[].message, а путь поля — в issues[].path. У обеих форм
- * несколько полей, и без пути сообщение об одном неотличимо от сообщения о
- * другом. Поэтому issues проверяется первым и с путём, а message — запасной
- * вариант для ошибок без issues (например 409, где message уже конкретное).
- *
- * Третья ветка — для ошибки без тела ответа: ts-rest не оборачивает сетевой
- * сбой (API недоступен, DNS, CORS) в объект с `body`, прилетает обычный
- * `Error`. Без этой ветки форма молчала бы при недоступном сервере.
- *
- * Текст здесь — фиксированная фраза, не `error.message`: проверено вживую —
- * реальный сетевой сбой (ECONNREFUSED) даёт `error.message === 'fetch
- * failed'`, а в браузере то же самое — «Failed to fetch» / «Load failed» в
- * зависимости от движка. Ни то ни другое ничего не говорит пользователю
- * админки.
+ * Текст сбоя сервера (5xx или сеть недоступна) — та же фиксированная фраза,
+ * что и на витрине (SERVER_FAILURE_MESSAGE в apiError.ts), а не
+ * error.message и не body.message: проверено вживую — реальный сетевой сбой
+ * (ECONNREFUSED) даёт error.message === 'fetch failed', в браузере то же —
+ * «Failed to fetch» / «Load failed» в зависимости от движка, а message от
+ * сервера при 5xx может нести подробности, которые посетителю ни к чему.
+ * Раньше здесь была отдельная фраза «Не удалось связаться с сервером» —
+ * приведена к общей, чтобы приложение не говорило об одном и том же по-разному.
  */
 export function describeServerError(error: unknown): string | null {
   if (!error) {
     return null;
   }
 
-  if (typeof error === 'object' && 'body' in error) {
-    const body = (error as { body?: unknown }).body;
-
-    if (typeof body === 'object' && body !== null) {
-      const { message, issues } = body as {
-        message?: unknown;
-        issues?: Array<{ path?: unknown; message?: unknown }>;
-      };
-
-      if (Array.isArray(issues) && issues.length > 0) {
-        return issues.map((issue) => `${String(issue.path)}: ${String(issue.message)}`).join('; ');
-      }
-
-      return String(message ?? 'Ошибка сохранения');
-    }
-  }
-
-  return 'Не удалось связаться с сервером';
+  return classifyApiError(error).message;
 }

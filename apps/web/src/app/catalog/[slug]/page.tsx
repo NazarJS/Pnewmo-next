@@ -2,7 +2,7 @@ import { HydrationBoundary, dehydrate } from '@tanstack/react-query';
 import { notFound } from 'next/navigation';
 
 import { fetchCategoryList } from '@/entities/category/api/prefetch';
-import { prefetchProductList } from '@/entities/product/api/productPrefetch';
+import { getProductListError, prefetchProductList } from '@/entities/product/api/productPrefetch';
 import { DEFAULT_PAGE, PRODUCTS_PER_PAGE } from '@/entities/product/lib/constants';
 import { buildProductListQueryKey } from '@/entities/product/lib/queryKey';
 import { tsr } from '@/shared/api/tsr';
@@ -44,20 +44,36 @@ export default async function CatalogPage({ params, searchParams }: CatalogPageP
   }
 
   const queryClient = getQueryClient();
+  const filter = { categoryId: category.id, offset, limit };
 
-  await prefetchProductList(queryClient, { categoryId: category.id, offset, limit });
+  await prefetchProductList(queryClient, filter);
+
+  const productListError = getProductListError(queryClient, filter);
+
+  if (productListError && productListError.kind !== 'clientError') {
+    // 5xx или сеть недоступна — честный 500 через границу ошибок
+    // (app/error.tsx), а не «Загрузка...» на 200 (правило заказчика №1).
+    // notFound() здесь неприменим: категория уже найдена и существует, сбой
+    // — в ручке товаров, а не в адресе.
+    throw new Error(productListError.message);
+  }
 
   const productListData = tsr
     .initQueryClient(queryClient)
-    .products.list.getQueryData(buildProductListQueryKey({ categoryId: category.id, offset, limit }));
+    .products.list.getQueryData(buildProductListQueryKey(filter));
 
-  // 404 — только при подтверждённом success с total меньше offset. Пустой
-  // кэш (productListData === undefined) значит либо то же самое «страница
-  // за диапазоном», либо что prefetchProductList вычистил упавший запрос
-  // (см. productPrefetch.ts) — отличить одно от другого без доступа к
-  // ошибке нечем, поэтому при отсутствии success-ответа страница не
-  // объявляется 404: рендерится как обычно, а клиент может повторить запрос.
-  if (offset > 0 && productListData?.status === 200 && offset >= productListData.body.total) {
+  // 404 — только при подтверждённом success с total меньше offset. При
+  // productListError с kind 'clientError' (400 — контракт отверг offset/limit)
+  // страница остаётся на месте и показывает текст ошибки ниже, а не 404
+  // (правило №2): productListData в этом случае и так не станет success, но
+  // проверка написана явно — так инвариант виден в самом коде, а не только
+  // в поведении react-query.
+  if (
+    !productListError &&
+    offset > 0 &&
+    productListData?.status === 200 &&
+    offset >= productListData.body.total
+  ) {
     notFound();
   }
 
@@ -66,9 +82,13 @@ export default async function CatalogPage({ params, searchParams }: CatalogPageP
       <section className={styles.section}>
         <h1 className={styles.name}>{category.name}</h1>
 
-        <HydrationBoundary state={dehydrate(queryClient)}>
-          <ProductGrid categoryId={category.id} page={page} offset={offset} limit={limit} />
-        </HydrationBoundary>
+        {productListError ? (
+          <p>{productListError.message}</p>
+        ) : (
+          <HydrationBoundary state={dehydrate(queryClient)}>
+            <ProductGrid categoryId={category.id} page={page} offset={offset} limit={limit} />
+          </HydrationBoundary>
+        )}
       </section>
     </div>
   );

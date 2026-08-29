@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 
 import { formatPrice } from '@/entities/product/lib/formatPrice';
 import { api } from '@/shared/api/client';
+import { classifyApiError } from '@/shared/lib/apiError';
 
 interface ProductPageProps {
   params: Promise<{ id: string }>;
@@ -32,17 +33,28 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const response = await api.products.getById({ params: { id: numericId } });
 
   if (response.status !== 200) {
+    const classification = classifyApiError(response);
+
     // notFound() — это HTTP 404, «такой страницы не существует». Сбой
     // бэкенда — другое: страница существует, просто сейчас недоступна.
     // Смешивать их нельзя — проверено вживую: при погашенном API за прокси
     // (502) запрос существующего товара отдавал 404 вместо 502. Для витрины,
     // где боты — целевая аудитория, это худший вариант: 5xx поисковик
     // переживёт и зайдёт позже, а 404 выбьет существующий товар из индекса.
-    if (response.status === 404) {
+    if (classification.kind === 'notFound') {
       notFound();
     }
 
-    throw new Error(`Не удалось загрузить товар: сервис ответил кодом ${response.status}`);
+    if (classification.kind === 'server') {
+      // 5xx — честный 500 через границу ошибок (app/error.tsx), правило
+      // заказчика №1.
+      throw new Error(classification.message);
+    }
+
+    // 400 и подобное — текст ошибки от API показываем как есть, без подмены
+    // на 404 или 500 (правило №2). Страница отвечает обычным рендером, не
+    // бросает и не зовёт notFound().
+    return <p>{classification.message}</p>;
   }
 
   const product = response.body;
