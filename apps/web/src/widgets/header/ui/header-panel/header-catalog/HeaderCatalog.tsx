@@ -7,7 +7,7 @@ import HeaderInput from '../header-input/HeaderInput';
 import styles from './HeaderCatalog.module.scss';
 
 import { buildCategoryTree, findCategoryById } from '@/entities/category/lib/categoryTree';
-import { useCategories } from '@/entities/category/hooks/useCategories';
+import { useCategories } from '@/entities/category/api/hook';
 import { useIsDesktop } from '@/shared/hooks/useIsDesktop';
 import { useLockBodyScroll } from '@/shared/hooks/useLockBodyScroll';
 
