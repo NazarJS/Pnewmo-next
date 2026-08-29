@@ -13,10 +13,20 @@ import { ProductListFilterState } from './productTypes';
  * Правило и его обоснование взяты из panel-administration,
  * entities/pbn-pool/lib/queryKey.ts.
  */
-export type ProductListQueryKey = readonly ['product-list', number | null, number, number];
+
+/**
+ * Префикс ключа вынесен в константу: инвалидация по префиксу (например, после
+ * создания товара в админке) берёт его отсюда же, а не набирает строку заново.
+ * Опечатка в литерале разошлась бы с этим же литералом здесь молча — ни тесты,
+ * ни типы её не поймают, потому что совпадение строк для `invalidateQueries`
+ * проверяется в рантайме, а не компилятором.
+ */
+export const PRODUCT_LIST_QUERY_KEY_PREFIX = 'product-list' as const;
+
+export type ProductListQueryKey = readonly [typeof PRODUCT_LIST_QUERY_KEY_PREFIX, number | null, number, number];
 
 export const buildProductListQueryKey = (filter: ProductListFilterState): ProductListQueryKey => [
-  'product-list',
+  PRODUCT_LIST_QUERY_KEY_PREFIX,
   filter.categoryId ?? null,
   filter.offset,
   filter.limit,

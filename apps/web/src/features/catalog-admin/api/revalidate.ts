@@ -13,7 +13,8 @@ import { PRODUCTS_CACHE_TAG } from '@/entities/product/api/productPrefetch';
  * прочих.
  *
  * invalidateQueries на клиенте этого не заменяет: он чистит кэш браузера, а
- * unstable_cache живёт на сервере и переживает перезагрузку страницы.
+ * кеш списка товаров — тег на fetch через fetchOptions.next.tags (см.
+ * productPrefetch.ts) — живёт на сервере и переживает перезагрузку страницы.
  *
  * updateTag, а не revalidateTag: у revalidateTag с профилем 'max' — тем,
  * что Next 16 предлагает по умолчанию, — семантика stale-while-revalidate:
