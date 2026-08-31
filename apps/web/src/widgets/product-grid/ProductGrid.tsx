@@ -4,13 +4,10 @@ import { useProductList } from '@/entities/product/api/hook';
 import { useCatalogUrlState } from '@/entities/product/hooks/useCatalogUrlState';
 
 import { deriveProductGridState } from './lib/deriveProductGridState';
+import type { ProductGridProps } from './lib/types';
 import styles from './ProductGrid.module.scss';
 import Pagination from './ui/Pagination/Pagination';
 import ProductCard from './ui/ProductCard/ProductCard';
-
-interface ProductGridProps {
-  categoryId: number;
-}
 
 /**
  * Клиентский компонент, но за данными он не ходит: их положил в кэш серверный

@@ -10,15 +10,8 @@ import { isAllowedProductImageUrl, PRODUCT_IMAGE_URL_PREFIX } from '@/shared/con
 
 import { revalidateCatalog } from '../api/revalidate';
 import { describeServerError } from '../lib/describeServerError';
+import type { ProductFormValues } from '../lib/types';
 import styles from './AdminForms.module.scss';
-
-interface ProductFormValues {
-  name: string;
-  categoryId: string;
-  imageUrl: string;
-  price: string;
-  specifications: string;
-}
 
 /**
  * Характеристики вводятся построчно, «ключ: значение» — минимальный интерфейс

@@ -5,11 +5,8 @@ import { usePathname, useSearchParams } from 'next/navigation';
 
 import { useCatalogUrlState } from '@/entities/product/hooks/useCatalogUrlState';
 
+import type { PaginationProps } from '../../lib/types';
 import styles from './Pagination.module.scss';
-
-interface PaginationProps {
-  total: number;
-}
 
 /**
  * page/limit идут из useCatalogUrlState — того же хука и того же парсера,

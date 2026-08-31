@@ -2,13 +2,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 import { formatPrice } from '@/entities/product/lib/formatPrice';
-import type { Product } from '@/entities/product/lib/types';
 
+import type { ProductCardProps } from '../../lib/types';
 import styles from './ProductCard.module.scss';
-
-interface ProductCardProps {
-  product: Product;
-}
 
 const ProductCard = ({ product }: ProductCardProps) => {
   return (

@@ -5,9 +5,7 @@ import { formatPrice } from '@/entities/product/lib/formatPrice';
 import { api } from '@/shared/api/client';
 import { classifyApiError } from '@/shared/lib/apiError';
 
-interface ProductPageProps {
-  params: Promise<{ id: string }>;
-}
+import type { ProductPageProps } from './types';
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const { id } = await params;

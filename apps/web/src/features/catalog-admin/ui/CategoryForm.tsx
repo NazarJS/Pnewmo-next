@@ -9,13 +9,8 @@ import { tsr } from '@/shared/api/tsr';
 
 import { revalidateCatalog } from '../api/revalidate';
 import { describeServerError } from '../lib/describeServerError';
+import type { CategoryFormValues } from '../lib/types';
 import styles from './AdminForms.module.scss';
-
-interface CategoryFormValues {
-  name: string;
-  slug: string;
-  parentId: string;
-}
 
 const CategoryForm = () => {
   const queryClient = useQueryClient();
