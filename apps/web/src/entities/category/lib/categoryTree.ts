@@ -48,3 +48,34 @@ export function findCategoryById(
 
   return null;
 }
+
+/**
+ * Id корневой (первого уровня) категории-предка по slug открытой страницы —
+ * именно её подсвечивает меню каталога: ветку первого уровня, а не саму
+ * открытую (возможно, вложенную) категорию. null — когда slug не передан или
+ * не найден среди категорий (страница вне /catalog/[slug]).
+ */
+export function findRootCategoryIdBySlug(categories: Category[], slug: string | null): number | null {
+  if (slug === null) {
+    return null;
+  }
+
+  const byId = new Map(categories.map((category) => [category.id, category]));
+  let current = categories.find((category) => category.slug === slug);
+
+  if (!current) {
+    return null;
+  }
+
+  while (current.parent_id !== null) {
+    const parent = byId.get(current.parent_id);
+
+    if (!parent) {
+      break;
+    }
+
+    current = parent;
+  }
+
+  return current.id;
+}

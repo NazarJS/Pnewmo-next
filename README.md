@@ -468,13 +468,16 @@ Prisma 7, PostgreSQL 16. Две таблицы: `categories` — дерево ч
 
 **`pnpm lint` завершается с кодом 1 — это долг, а не поломка.** Линтеры падали на
 существующем коде фронтенда ещё до перестройки в монорепо. Зафиксированный baseline —
-2 ошибки и 7 предупреждений eslint, 18 ошибок stylelint, полный список в
+7 предупреждений eslint, 18 ошибок stylelint, полный список в
 `docs/superpowers/specs/2026-08-11-monorepo-infra-design.md`, раздел «Baseline линтеров».
-Любая ошибка **сверх** этого списка — новая, её надо исправлять. Пакеты `@pnewmo/api` и
-`@pnewmo/api-contract` линтуются чисто.
+`lint:js` теперь проходит без ошибок (0) — две ошибки `react-hooks/set-state-in-effect`
+в `HeaderCatalog` устранены переводом состояния каталога на URL. Любая ошибка **сверх**
+этого списка — новая, её надо исправлять. Пакеты `@pnewmo/api` и `@pnewmo/api-contract`
+линтуются чисто.
 
-В пакете `web` команда `lint` — это `eslint && stylelint`, поэтому пока eslint падает на
-baseline, до stylelint дело не доходит. Запускать по отдельности:
+В пакете `web` команда `lint` — это `eslint && stylelint`. Раньше eslint падал на
+baseline, и до stylelint дело не доходило; теперь eslint проходит, и `pnpm lint`
+падает уже на stylelint. Запускать по отдельности:
 `pnpm --filter @pnewmo/web lint:js` и `lint:css`.
 
 **Corepack на этой конфигурации сломан.** Под Node 20 закешированный pnpm 11 падает с

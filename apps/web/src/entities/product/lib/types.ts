@@ -8,3 +8,15 @@ export interface ProductListFilterState {
   offset: number;
   limit: number;
 }
+
+/**
+ * Состояние каталога, выведенное из адреса на клиенте. Слаг — единственное,
+ * что читается из пути (см. parseCatalogUrlState): категорию контроллер
+ * решил хранить в /catalog/[slug], а не в query.
+ */
+export interface CatalogUrlState {
+  categorySlug: string | null;
+  page: number;
+  limit: number;
+  offset: number;
+}

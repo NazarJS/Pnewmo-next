@@ -3,15 +3,24 @@
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 
+import { useCatalogUrlState } from '@/entities/product/lib/useCatalogUrlState';
+
 import styles from './Pagination.module.scss';
 
 interface PaginationProps {
-  page: number;
-  limit: number;
   total: number;
 }
 
-const Pagination = ({ page, limit, total }: PaginationProps) => {
+/**
+ * page/limit идут из useCatalogUrlState — того же хука и того же парсера,
+ * что использует ProductGrid для своего запроса. Раньше эти два числа
+ * приходили пропсами с сервера, а usePathname/useSearchParams читались здесь
+ * же по новой, для ссылок — два разных источника одного и того же состояния.
+ * usePathname/useSearchParams ниже остаются: они строят href, а не
+ * определяют текущую страницу.
+ */
+const Pagination = ({ total }: PaginationProps) => {
+  const { page, limit } = useCatalogUrlState();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const lastPage = Math.max(1, Math.ceil(total / limit));

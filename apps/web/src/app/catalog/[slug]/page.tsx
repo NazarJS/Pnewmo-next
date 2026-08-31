@@ -86,7 +86,12 @@ export default async function CatalogPage({ params, searchParams }: CatalogPageP
           <p>{productListError.message}</p>
         ) : (
           <HydrationBoundary state={dehydrate(queryClient)}>
-            <ProductGrid categoryId={category.id} page={page} offset={offset} limit={limit} />
+            {/* page/offset/limit ProductGrid больше не принимает пропами — он
+                читает их через useCatalogUrlState, тем же parseCatalogUrlState,
+                которым выше пользуется эта страница. categoryId остаётся
+                пропом: слаг лежит в пути, но резолвить его в id категории
+                на клиенте заново незачем — он уже есть здесь. */}
+            <ProductGrid categoryId={category.id} />
           </HydrationBoundary>
         )}
       </section>
