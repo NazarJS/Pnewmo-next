@@ -1,17 +1,8 @@
 import Link from "next/link";
-import { CategoryWithChildren } from "@/entities/category/lib/types";
 import MobileSubcategories from "../MobileSubcategories/MobileSubcategories";
 import styles from "./CategoryItem.module.scss";
 import { Arrow } from "@/shared/ui/icons/arrow/Arrow";
-
-
-interface CategoryItemProps {
-  category: CategoryWithChildren;
-  isActive: boolean;
-  onMouseEnter: () => void;
-  onClick: () => void;
-  onClose?: () => void;
-}
+import type { CategoryItemProps } from "../../../../../lib/types";
 
 
 const CategoryItem = ({

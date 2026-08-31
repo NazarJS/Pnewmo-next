@@ -1,12 +1,6 @@
 import Link from "next/link";
 import styles from "./MegaMenu.module.scss";
-import { CategoryWithChildren } from "@/entities/category/lib/types";
-
-interface MegaMenuProps {
-  category: CategoryWithChildren;
-  onClick?: ()=> void;
-  onClose?: () => void;
-}
+import type { MegaMenuProps } from "../../../../../lib/types";
 
 const MegaMenu = ({ category, onClose }: MegaMenuProps) => {
   return (

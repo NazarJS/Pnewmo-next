@@ -1,11 +1,6 @@
 import Link from "next/link";
 import styles from "./MobileSubcategories.module.scss";
-import { CategoryWithChildren } from "@/entities/category/lib/types";
-
-interface MobileSubcategoriesProps {
-  category: CategoryWithChildren;
-  onClose?: () => void;
-}
+import type { MobileSubcategoriesProps } from "../../../../../lib/types";
 
 const MobileSubcategories = ({
   category,

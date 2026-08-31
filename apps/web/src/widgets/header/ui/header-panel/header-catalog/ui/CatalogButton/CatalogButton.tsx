@@ -1,15 +1,9 @@
 "use client";
 
 import styles from "./CatalogButton.module.scss";
+import type { CatalogButtonProps } from "../../../../../lib/types";
 
-
-
-interface onClickProps {
-  isOpen: boolean;
-  onClick?: () => void;
-}
-
-const CatalogButton = ({ isOpen, onClick }: onClickProps) => {
+const CatalogButton = ({ isOpen, onClick }: CatalogButtonProps) => {
   return (
     <>
       <button onClick={onClick} className={styles.catalog_button} type="button">

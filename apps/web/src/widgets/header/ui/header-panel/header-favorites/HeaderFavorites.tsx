@@ -4,15 +4,12 @@ import CatalogButton from "@/widgets/header/ui/header-panel/header-catalog/ui/Ca
 import Heart from "@/shared/ui/icons/heart/Heart";
 import Baskets from "@/shared/ui/icons/baskets/Baskets";
 import Entrance from "@/shared/ui/icons/entrance/Entrance";
+import type { HeaderFavoritesProps } from "../../../lib/types";
 
-interface onClickProps {
-  onCatalogClick: () => void;
-  isMobileCatalogOpen: boolean;
-}
 const HeaderFavorites = ({
   isMobileCatalogOpen,
   onCatalogClick,
-}: onClickProps) => {
+}: HeaderFavoritesProps) => {
   return (
     <>
       <div className={`${styles.favorites_block} ${styles.hiddenOnMobile}`}>

@@ -14,13 +14,7 @@ import { useLockBodyScroll } from '@/shared/hooks/useLockBodyScroll';
 
 import MegaMenu from './ui/MegaMenu/MegaMenu';
 import CategoryItem from './ui/CategoryItem/CategoryItem';
-
-interface HeaderCatalogProps {
-  showSearch?: boolean;
-  isOpen: boolean;
-  onClose?: () => void;
-  mobile?: boolean;
-}
+import type { HeaderCatalogProps } from '../../../lib/types';
 
 const HeaderCatalog = ({
   showSearch = true,

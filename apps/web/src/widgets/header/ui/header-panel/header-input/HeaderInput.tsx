@@ -1,11 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import styles from "./HeaderInput.module.scss";
-
-
-interface HeaderInputProps {
-  ref?: React.Ref<HTMLInputElement>;
-  onClose?: () => void;
-}
+import type { HeaderInputProps } from "../../../lib/types";
 
 const HeaderInput = ({ ref, onClose }: HeaderInputProps) => {
   const [isOpen, setIsOpen] = useState(false);
