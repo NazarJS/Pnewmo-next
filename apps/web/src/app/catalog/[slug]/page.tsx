@@ -9,8 +9,12 @@ import { tsr } from '@/shared/api/tsr';
 import { getQueryClient } from '@/shared/lib/getQueryClient';
 import ProductGrid from '@/widgets/product-grid/ProductGrid';
 
-import type { CatalogPageProps } from './types';
 import styles from './Catalog.module.scss';
+
+interface CatalogPageProps {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
 
 export default async function CatalogPage({ params, searchParams }: CatalogPageProps) {
   const { slug } = await params;

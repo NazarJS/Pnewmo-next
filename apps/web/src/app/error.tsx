@@ -4,8 +4,12 @@ import { useEffect } from 'react';
 
 import { SERVER_FAILURE_MESSAGE } from '@/shared/lib/apiError';
 
-import type { ErrorPageProps } from './types';
 import styles from './Error.module.scss';
+
+interface ErrorPageProps {
+  error: Error & { digest?: string };
+  reset: () => void;
+}
 
 /**
  * Граница ошибок App Router (обязательный файл `error.tsx` на уровне сегмента,
