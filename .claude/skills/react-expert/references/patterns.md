@@ -2,19 +2,30 @@
 
 ---
 
-## Порядок создания фичи
+## Порядок создания слайса
 
-1. **Ключи запросов** в `features/<feature>/<feature>.keys.ts` — factory для
-   `queryKey`, используется и в хуке, и при инвалидации после мутаций.
-2. **Хук данных** в `features/<feature>/use-<feature>.ts` — `useQuery`/`useMutation`
-   поверх клиента API, ничего про JSX.
-3. **Presentational-компоненты** в `features/<feature>/*.tsx` — принимают данные и
-   колбэки пропсами, без "use client", если сами не используют хуки/эффекты.
-4. **Контейнер** в `features/<feature>/<feature>.container.tsx` — "use client",
-   вызывает хук данных, передаёт результат в presentational-компонент, обрабатывает
-   `isPending`/`isError`.
-5. **Страница** в `app/<route>/page.tsx` — Server Component, получает начальные
-   данные (если нужен SSR) и рендерит контейнер.
+Раскладка файлов, именование и то, куда класть тип пропсов — в скилле
+`component-structure`; здесь — порядок, в котором эти файлы имеет смысл писать.
+
+1. **Ключи запросов** в `lib/queryKey.ts` — билдер ключа (и, если у запроса есть
+   параметры тела помимо ключа, отдельный билдер тела), используется и в клиентском
+   хуке, и в серверном префетче, и при инвалидации после мутаций. Полное правило —
+   `.claude/context/frontend-data-layer.md`.
+2. **Хук данных** в `api/hook.ts` — `useQuery`/`useMutation` поверх ts-rest, ничего про
+   JSX. Живёт в сущности (`entities/`), если данные нужны больше чем одному
+   feature/widget, иначе — в фиче/виджете, который его единственный потребитель.
+3. **Presentational-компоненты** в `ui/<Name>/<Name>.tsx` — принимают данные и колбэки
+   пропсами, без `"use client"`, если сами не используют хуки/эффекты.
+4. **Композиция** — в корневом компоненте слайса (`<Widget>.tsx`/`<Feature>.tsx`).
+   Отдельного файла `*.container.tsx` в проекте нет: он же вызывает хук данных, он же
+   обрабатывает `isPending`/`isError` (через единую деривацию — см. «Шаблон деривации
+   состояний» ниже) и композирует presentational-часть. Разделяется на два файла не по
+   жёсткому правилу «контейнер отдельно», а когда компонент перерастает порог из
+   `principles.md` («Когда делить компонент»).
+5. **Страница** в `app/<route>/page.tsx` — Server Component, получает начальные данные
+   через серверный префетч (если нужен SSR) и рендерит виджет внутри
+   `HydrationBoundary`. Пропсы страницы — исключение из правила «типы не в `.tsx`»,
+   объявляются инлайн (`component-structure`).
 6. Стили — рядом с компонентом (`*.module.scss`) для нестандартной вёрстки, Tailwind
    для всего, что укладывается в утилиты.
 
@@ -23,71 +34,52 @@
 ProductFilterPanel;` — так зафиксировано в `component-structure` и подтверждено планом
 на `ProductFilterPanel` (`docs/superpowers/plans/2026-08-13-product-filter-ui-plan.md`,
 шаг 3). Хук (`useXxx`) — всегда именованный экспорт: `export const useCategories = ...`,
-как в `entities/category/hooks/useCategories.ts`. Это касается `entities/`, `features/`,
+как в `entities/category/api/hook.ts`. Это касается `entities/`, `features/`,
 `widgets/` и `shared/` одинаково — деления по слою здесь нет.
 
 ## Шаблон хука данных
 
 ```ts
-// features/categories/use-categories.ts
-export function useCategories() {
-  return useQuery({
-    queryKey: categoriesKeys.list(),
-    queryFn: () => apiClient.categories.list(),
+// entities/product/api/hook.ts
+export const useProductList = (filter: ProductListFilterState) =>
+  tsr.products.list.useQuery({
+    queryKey: buildProductListQueryKey(filter), // тот же билдер, что у серверного префетча
+    queryData: { query: buildProductListQuery(filter) },
+    staleTime: 60 * 1000,
+    placeholderData: keepPreviousData,
   });
-}
-
-export function useCreateCategory() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (input: CreateCategoryInput) => apiClient.categories.create(input),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: categoriesKeys.list() });
-    },
-  });
-}
 ```
 
-`queryKey` берётся из factory, а не набирается строкой — один источник правды на весь
-модуль, невозможно разойтись между хуком чтения и инвалидацией после мутации.
+Ключ строится билдером (`lib/queryKey.ts`), а не набирается строкой на месте — один
+источник правды и на клиентский хук, и на серверный префетч, и на инвалидацию после
+мутации. Почему тело запроса собирается отдельным вторым билдером, а не тем же самым —
+`.claude/context/frontend-data-layer.md`.
 
-Хук под задачу, а не универсальный:
+Хук под задачу, а не универсальный: `entities/product` не заводит `useProduct(id)`
+«на всякий случай» рядом с `useProductList` — страница товара сегодня читает данные
+напрямую через `api.products.getById` (server-side), без клиентского хука, потому что
+клиентской интерактивности там пока нет.
+
+## Шаблон деривации состояний
+
+Единая функция, а не ранние `return` внутри компонента:
 
 ```ts
-// Форме редактирования нужна только одна категория — не тянем весь список
-export function useCategory(id: number) {
-  return useQuery({
-    queryKey: categoriesKeys.detail(id),
-    queryFn: () => apiClient.categories.getById(id),
-  });
+// widgets/product-grid/lib/deriveProductGridState.ts
+export function deriveProductGridState({ isPending, data }: ProductListQueryState): ProductGridState {
+  const isLoading = isPending;
+  const isError = !isLoading && !isSuccessResponse(data);
+  const isEmpty = !isLoading && isSuccessResponse(data) && data.body.total === 0;
+  const message = isLoading ? 'Загрузка...' : isError ? 'Не удалось загрузить товары' : isEmpty ? '...' : null;
+
+  return { isLoading, isError, isEmpty, message, data: message === null && isSuccessResponse(data) ? data.body : null };
 }
 ```
 
-## Шаблон контейнера
-
-```tsx
-'use client';
-
-const CategoryListContainer = ({ initialData }: { initialData?: CategoryRow[] }) => {
-  const { data, isPending, isError } = useCategories({ initialData });
-
-  if (isError) {
-    return <CategoryListError />;
-  }
-
-  if (isPending) {
-    return <CategoryListSkeleton />;
-  }
-
-  return <CategoryList categories={data} />;
-};
-
-export default CategoryListContainer;
-```
-
-Состояния загрузки и ошибки обрабатываются явно, каждое своим presentational-компонентом,
-а не одной веткой `{isPending ? 'Загрузка...' : ...}` внутри вёрстки списка.
+Компонент рендерит по `message`/`data`, не по трём отдельным `isPending`/`isError`/
+`isEmpty`, каждое своей веткой JSX — деривация уже решила, что показывать. Подробнее,
+включая почему функция типизирована минимальной формой хука, а не
+`ReturnType<typeof useProductList>` целиком — `.claude/context/frontend-data-layer.md`.
 
 ## Обход дерева со страховкой
 
@@ -117,6 +109,10 @@ function buildTree(categories: CategoryRow[]): CategoryTreeNode[] {
 
 Любая сборка дерева из плоского списка, пришедшего с сервера, получает `visited` —
 клиент не должен зависать из-за данных, которые могли испортиться до появления проверки.
+Не гипотетическое правило — применено буквально в
+`entities/category/lib/categoryTree.ts`, `findRootCategoryIdBySlug`: обход вверх по
+`parent_id` от текущей категории к корню держит `visited`, а комментарий в файле прямо
+ссылается на этот пункт скилла.
 
 ---
 
@@ -160,14 +156,15 @@ export function CategoriesPage() {
 }
 ```
 
-Разделить на контейнеры по фиче и presentational-компоненты по назначению.
+Разделить: хуки данных — в сущность/фичу, фильтрация и сортировка — в чистую функцию
+или `useMemo`, вёрстка — на presentational-компоненты по назначению.
 
 ### Протекающая абстракция
 
 ```ts
 // ❌ Хук отдаёт наружу сырой результат useQuery целиком
 function useCategories() {
-  return useQuery({ queryKey: categoriesKeys.list(), queryFn: fetchCategories });
+  return tsr.categories.list.useQuery({ queryKey: CATEGORY_LIST_QUERY_KEY, queryData: {} });
 }
 
 // Компонент вынужден знать про isPending/isError/isFetching/данные TanStack Query
@@ -277,7 +274,7 @@ function normalize(category: CategoryRow): CategoryRow {
 
 ### Данные (TanStack Query)
 
-- [ ] `queryKey` берётся из factory, не строковый литерал
+- [ ] `queryKey` берётся из билдера в `lib/queryKey.ts`, не строковый литерал
 - [ ] Мутация инвалидирует связанные запросы через `onSuccess`
 - [ ] Есть обработка `isPending` и `isError`, каждое — явным состоянием UI
 - [ ] Нет `useEffect` + `fetch` там, где должен быть `useQuery`
@@ -303,7 +300,8 @@ function normalize(category: CategoryRow): CategoryRow {
 ### Типы
 
 - [ ] Нет `any`; для неизвестной формы — `unknown` с проверками
-- [ ] Пропсы компонента типизированы явно, тип объявлен рядом с компонентом
+- [ ] Пропсы компонента типизированы явно, тип лежит в `lib/types.ts` слайса (кроме
+      файлов маршрутов Next — там инлайн, `component-structure`)
 - [ ] Приведение типа объяснено комментарием
 
 ### Доступность

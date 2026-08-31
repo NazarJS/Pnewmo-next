@@ -111,11 +111,31 @@ interface ErrorPageProps {
 }
 ```
 
-Not an oversight — the reference project does the same in all 28 of its `page.tsx`
-files: the props shape is dictated by the framework (`params`/`searchParams`/`error`/
-`reset`), not by the slice's domain, so extracting it buys nothing. An earlier attempt to
-move route props into a shared `app/types.ts` was reverted for exactly this reason —
-verified by diffing back to byte-identical with the pre-change state.
+**What the reference project actually does** (checked directly against its 61
+`page.tsx` files, not inherited from an earlier report): 26 import one shared
+`DefaultPageProps` type from `shared/lib/types.ts` — a fixed shape,
+`{ params: Promise<{ slug: string }>; searchParams: Promise<{...}> }` — and every one of
+those 26 is a page with no dynamic segment of its own, or one that happens to be
+literally named `slug`. The moment a page's dynamic segment has a different name
+(`taskId`, `id`, `projectId`, `instanceId`, `uid`, `entryId`) or a shape the shared type
+doesn't cover, it declares its own type on the spot instead — 12 pages as a named
+`interface Props`/`PageProps`, at least 6 more as an anonymous inline type right in the
+function signature. The remaining pages take no props at all. So the reference project
+isn't "always inline" (an earlier report claimed all 28 surveyed pages were — that
+count was wrong, never re-verified before landing in this skill, and is corrected here)
+— it's "one shared type for the one shape that repeats 26 times, inline everywhere the
+shape doesn't match."
+
+That's the same reasoning we're applying, just with a threshold of one dynamic-segment
+shape used once each: our three route files have three different shapes (catalog —
+`slug` + `searchParams`; product — `id` only; the error boundary — `error` + `reset`,
+not even a `params`/`searchParams` shape at all), so a shared type would fit none of
+them and buys nothing yet. An earlier attempt to move route props into a shared
+`app/types.ts` anyway was reverted — verified by diffing back to byte-identical with the
+pre-change state. If this project ever grows several pages that share one real
+params/searchParams shape, the reference project's own practice says to extract a
+shared type then, the same way it did at 26 repeats — not to keep declaring the same
+shape inline out of habit.
 
 ## Barrel (`index.ts`)
 

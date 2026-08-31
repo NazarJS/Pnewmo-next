@@ -45,7 +45,7 @@ Server Component или `useQuery`, а не `useEffect` + `fetch`. Презен�
 `@tailwind base/components/utilities` заменена одной строкой `@import "tailwindcss"`.
 Прежде чем предлагать «добавь в tailwind.config.js», проверь, что в проекте
 действительно есть JS-конфиг, а не CSS-first подход. Подробности — в разделе
-«Токены дизайна» `patterns.md`.
+«Токены дизайна» `principles.md`.
 
 ## React 19, а не 18
 

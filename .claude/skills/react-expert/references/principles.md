@@ -21,45 +21,67 @@
 стоит разделить на контейнер и presentational-часть.
 
 ```bash
-grep -rln 'useQuery\|useMutation' apps/web/src/components --include='*.tsx' \
-  | xargs grep -l 'className=' 
+grep -rln 'useQuery\|useMutation' apps/web/src/{entities,features,widgets} --include='*.tsx' \
+  | xargs grep -l 'className='
 ```
 
 Если файл одновременно дёргает запрос и содержит развёрнутую вёрстку — слой протёк.
 Не обязательно ошибка, но повод посмотреть, не пора ли выделить presentational-компонент.
 
-### Правильно: контейнер решает, компонент показывает
+### Правильно: хук и композиция в одном компоненте, презентационная часть — отдельно
+
+Проект не заводит отдельный файл `*.container.tsx` на каждую фичу — «контейнерная»
+роль (вызов хука, состояния загрузки/ошибки, композиция) и верхнеуровневая разметка
+живут в одном клиентском компоненте, а отдельным файлом выносится вложенная
+презентационная часть, когда она достаточно самостоятельна для переиспользования.
+Реальный пример — `widgets/product-grid`:
 
 ```tsx
-// features/categories/category-list.container.tsx
+// widgets/product-grid/ProductGrid.tsx
 'use client';
 
-export function CategoryListContainer() {
-  const { data, isPending, isError } = useCategories();
+const ProductGrid = ({ categoryId }: ProductGridProps) => {
+  const { offset, limit } = useCatalogUrlState();
+  const query = useProductList({ categoryId, offset, limit }); // хук — из entities/product/api/hook.ts
 
-  if (isPending) return <CategoryListSkeleton />;
-  if (isError) return <CategoryListError />;
+  // Одна деривация состояний вместо трёх ранних return — lib/deriveProductGridState.ts
+  const { message, data } = deriveProductGridState(query);
 
-  return <CategoryList categories={data} />;
-}
-
-// features/categories/category-list.tsx — presentational, без "use client"
-type CategoryListProps = { categories: CategoryRow[] };
-
-export function CategoryList({ categories }: CategoryListProps) {
   return (
-    <ul className="flex flex-col gap-2">
-      {categories.map((category) => (
-        <li key={category.id}>{category.name}</li>
-      ))}
-    </ul>
+    <>
+      {message && <p>{message}</p>}
+      {data && (
+        <div className={styles.grid}>
+          {data.items.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </div>
+      )}
+    </>
   );
-}
+};
+
+export default ProductGrid;
 ```
 
-Контейнер знает про запрос и состояния загрузки. Presentational-компонент получает
-готовые данные пропсами и переиспользуется, например, в Storybook или в другом месте
-с другим источником данных.
+```tsx
+// widgets/product-grid/ui/ProductCard/ProductCard.tsx — presentational, без "use client"
+const ProductCard = ({ product }: ProductCardProps) => (
+  <Link href={`/product/${product.id}`} className={styles.card}>
+    ...
+  </Link>
+);
+
+export default ProductCard;
+```
+
+`ProductGrid` знает про `useProductList`/`useCatalogUrlState` и состояния загрузки.
+`ProductCard` получает готовый `product` пропом и не знает, откуда он взялся — его можно
+отрендерить в тесте без сети и без `QueryClient`. Деривация состояний загрузки/ошибки/
+пустого списка — чистая функция в `lib/`, а не ранние `return` внутри компонента,
+подробнее — `.claude/context/frontend-data-layer.md`. GET-хук лежит в сущности
+(`entities/product`), а не в виджете — виджет его только вызывает; правило и причина —
+скилл `component-structure`.
 
 ### Неправильно: всё в одном компоненте
 
@@ -104,25 +126,19 @@ return, либо кусок вёрстки используется в друг�
 ## DIP: зависеть от того, что можешь подменить
 
 Presentational-компонент зависит от формы пропсов, а не от `useQuery` или конкретного
-эндпоинта. Практическое следствие — компонент можно отрендерить в Storybook или в тесте
-без сети:
+эндпоинта. Практическое следствие — компонент можно отрендерить в тесте без сети и без
+`QueryClient` (Storybook в проекте не подключён — граница проверяется рендер-тестом,
+`@testing-library/react` на jsdom-проекте Jest, как `HeaderCatalog.spec.tsx`):
 
 ```tsx
-// category-list.stories.tsx
-export const Default = {
-  args: {
-    categories: [
-      { id: 1, name: 'Электроника', parentId: null },
-      { id: 2, name: 'Ноутбуки', parentId: 1 },
-    ],
-  },
-};
+// widgets/product-grid/ui/ProductCard/ProductCard.spec.tsx (пример, файла пока нет)
+render(<ProductCard product={{ id: '1', name: 'Насос', price: 12000, imageUrl: '/x.jpg' }} />);
 ```
 
-Хук `useCategories` при этом не оборачивается в отдельный интерфейс «на случай замены
-TanStack Query» — сам хук служит границей. Абстракция над клиентом данных появится,
-когда реально появится вторая реализация (например, второй источник данных), а не
-заранее.
+Хук `useProductList`/`useCategories` при этом не оборачивается в отдельный интерфейс
+«на случай замены TanStack Query» — сам хук служит границей. Абстракция над клиентом
+данных появится, когда реально появится вторая реализация (например, второй источник
+данных), а не заранее.
 
 ---
 
@@ -186,20 +202,21 @@ function useDataFetcher<T>(key: string, fetcher: () => Promise<T>) {
 Значение, продублированное как произвольное `bg-[#3b5bdb]` в другом компоненте,
 разойдётся с токеном при первой же правке дизайна.
 
-**Ключи запросов.** Один `queryKey` factory на фичу, а не строка, набранная руками в
-каждом месте вызова:
+**Ключи запросов.** Один билдер `lib/queryKey.ts` на сущность — его зовут и клиентский
+хук, и серверный префетч, а не строка, набранная руками в каждом месте вызова:
 
 ```ts
-// features/categories/categories.keys.ts
-export const categoriesKeys = {
-  all: ['categories'] as const,
-  list: () => [...categoriesKeys.all, 'list'] as const,
-  detail: (id: number) => [...categoriesKeys.all, 'detail', id] as const,
-};
+// entities/product/lib/queryKey.ts
+export const PRODUCT_LIST_QUERY_KEY_PREFIX = 'product-list' as const;
+
+export const buildProductListQueryKey = (filter: ProductListFilterState) =>
+  [PRODUCT_LIST_QUERY_KEY_PREFIX, filter.categoryId ?? null, filter.offset, filter.limit] as const;
 ```
 
-Опечатка в строковом литерале ключа в одном месте — и инвалидация после мутации молча
-перестаёт работать.
+Опечатка в строковом литерале префикса в одном месте — и инвалидация после мутации молча
+перестаёт работать. Ключ — позиционный массив, а не объектная factory с
+`JSON.stringify`; полное правило (включая отдельный билдер тела запроса и почему их
+два) — `.claude/context/frontend-data-layer.md`.
 
 ### Где дублирование осознанное
 
@@ -242,12 +259,21 @@ export function CategoryForm({ defaultValues, onSubmit, isSubmitting }: Category
 эффекты), а не на весь поддерево вверх по дереву компонентов «на всякий случай».
 
 ```tsx
-// app/categories/page.tsx — Server Component, без "use client"
-export default async function CategoriesPage() {
-  const categories = await getCategories(); // серверный fetch, без хука
-  return <CategoryListContainer initialData={categories} />;
+// app/catalog/[slug]/page.tsx — Server Component, без "use client"
+export default async function CatalogPage({ params, searchParams }: CatalogPageProps) {
+  // ...разбор params/searchParams, поиск категории...
+  await prefetchProductList(queryClient, filter); // серверный префетч, не хук и не fetch в теле компонента
+  return (
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <ProductGrid categoryId={category.id} /> {/* клиентский компонент читает уже прогретый кэш */}
+    </HydrationBoundary>
+  );
 }
 ```
+
+Виджет не получает данные пропом (`initialData`) — он читает их из уже прогретого
+кэша тем же ключом, которым его наполнил префетч; механика —
+`.claude/context/frontend-data-layer.md`.
 
 ---
 
@@ -265,8 +291,11 @@ export default async function CategoriesPage() {
 const node = ref.current as HTMLDivElement;
 ```
 
-Тип пропсов компонента объявляется явно рядом с компонентом, а не выводится из
-использования — так его видно в одном месте и можно переиспользовать в тестах/сторис.
+Тип пропсов компонента объявляется явно, а не выводится из использования — так его
+видно в одном месте и можно переиспользовать в тестах. Где именно объявляется
+(`lib/types.ts` слайса, с одним исключением для файлов маршрутов Next) — не повторяется
+здесь во избежание второй копии, которая разойдётся с первой; правило — скилл
+`component-structure`.
 
 ---
 
