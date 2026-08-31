@@ -14,6 +14,11 @@ export const JUNK_SPEC_KEYS = new Set([
 ]);
 
 export interface SourceProduct {
+  // 'product' у настоящего товара. Выгрузка смазки кладёт в тот же массив
+  // ещё и описания категорий (type: 'category_info') без id/url/price —
+  // поле нужно, чтобы flattenAll могла отличить одно от другого до того,
+  // как обратится к остальным полям.
+  type?: string;
   id: string;
   fullTitle: string;
   image: string;
@@ -56,6 +61,17 @@ export function slugFromUrl(url: string): string {
  * «бесплатно», а не «неизвестно».
  */
 export function parsePrice(raw: string): number | null {
+  // Изредка источник склеивает две цены в одну строку без разделителя —
+  // «1 029 314 ₽\n                    720 519.80 ₽», похоже на «было/стало»
+  // без разметки (найдено в гидравлике, 23 из 2139). Различить, где
+  // кончается первое число и начинается второе, нельзя: наивная склейка
+  // цифр даёт абсурдное значение, которое к тому же не помещается в
+  // NUMERIC(12,2) и роняет вставку в базу. Больше одного «₽» в строке —
+  // надёжный признак такой склейки на всех трёх выгрузках.
+  if ((raw.match(/₽/g) ?? []).length > 1) {
+    return null;
+  }
+
   const digits = raw.replace(/[^\d.,]/g, '').replace(',', '.');
 
   if (digits === '') {
@@ -88,22 +104,41 @@ export function cleanSpecifications(
   return result;
 }
 
-/**
- * Обход дерева в глубину. Путь позиционный — он лишь задаёт структуру и
- * порядок вставки, настоящие пути из идентификаторов базы считает сид.
- *
- * Дубли externalId схлопываются: побеждает первое вхождение. В источнике их 20
- * из 4862 — один товар лежит в двух категориях. Честной моделью была бы связь
- * многие-ко-многим, но она добавляет таблицу и усложняет подсчёт total ради
- * 0.4% записей.
- */
-export function flatten(root: SourceCategory): {
+export interface FlattenResult {
   categories: FixtureCategory[];
   products: FixtureProduct[];
-} {
+  /** Элементы products с type, отличным от 'product' — счётчик для скрипта. */
+  droppedNonProducts: number;
+  /** Схлопнутые дубли externalId — счётчик для скрипта. */
+  duplicatesCollapsed: number;
+}
+
+/**
+ * Обход одного или нескольких деревьев в глубину, в один плоский набор.
+ * Путь позиционный — он лишь задаёт структуру и порядок вставки, настоящие
+ * пути из идентификаторов базы считает сид. Счётчик путей общий на все
+ * переданные корни и не начинается заново на каждом: иначе категории из
+ * разных выгрузок получали бы одинаковые позиционные пути и конфликтовали
+ * бы при связывании родитель-потомок в сиде.
+ *
+ * Элементы products с type, отличным от 'product', отбрасываются: выгрузка
+ * смазки кладёт в тот же массив описания категорий без id/url/price, и без
+ * фильтра они уехали бы в фикстуру как товары с пустыми обязательными
+ * полями.
+ *
+ * Дубли externalId схлопываются глобально по всем переданным корням, а не
+ * только внутри одного: побеждает первое вхождение, порядок корней —
+ * порядок аргументов вызывающего. В пневматике таких дублей 20 из 4862 —
+ * один товар лежит в двух категориях; между выгрузками добавляются ещё.
+ * Честной моделью была бы связь многие-ко-многим, но она добавляет таблицу
+ * и усложняет подсчёт total ради долей процента записей.
+ */
+export function flattenAll(roots: SourceCategory[]): FlattenResult {
   const categories: FixtureCategory[] = [];
   const products: FixtureProduct[] = [];
   const seen = new Set<string>();
+  let droppedNonProducts = 0;
+  let duplicatesCollapsed = 0;
 
   const walk = (node: SourceCategory, parentPath: string): void => {
     const path =
@@ -112,7 +147,13 @@ export function flatten(root: SourceCategory): {
     categories.push({ path, slug: slugFromUrl(node.url), name: node.name });
 
     for (const product of node.products ?? []) {
+      if (product.type !== 'product') {
+        droppedNonProducts += 1;
+        continue;
+      }
+
       if (seen.has(product.id)) {
+        duplicatesCollapsed += 1;
         continue;
       }
 
@@ -136,7 +177,19 @@ export function flatten(root: SourceCategory): {
     }
   };
 
-  walk(root, '');
+  for (const root of roots) {
+    walk(root, '');
+  }
 
-  return { categories, products };
+  return { categories, products, droppedNonProducts, duplicatesCollapsed };
+}
+
+/**
+ * Одна выгрузка — частный случай flattenAll с единственным корнем. Оставлена
+ * отдельной функцией ради вызывающего кода и тестов, которые говорят об
+ * одном дереве: так вызов `catalog:fixture` с одним путём не меняет форму
+ * вызова, только поведение под капотом.
+ */
+export function flatten(root: SourceCategory): FlattenResult {
+  return flattenAll([root]);
 }

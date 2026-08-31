@@ -97,7 +97,7 @@ pnpm db:seed
 ```
 
 Ожидаемый вывод по очереди: `Healthy`, затем `Applying migration` и
-`Generated Prisma Client`, затем `seeded 222 categories, 4842 products`.
+`Generated Prisma Client`, затем `seeded 621 categories, 7572 products`.
 
 Порядок важен: таблицы создаются до запуска проекта, иначе API будет отвечать ошибкой на
 запросы каталога.
@@ -235,7 +235,7 @@ pnpm db:seed
 ```
 
 Ожидаемый вывод по очереди: `Healthy`, затем `Applying migration` и
-`Generated Prisma Client`, затем `seeded 222 categories, 4842 products`.
+`Generated Prisma Client`, затем `seeded 621 categories, 7572 products`.
 
 Порядок важен: таблицы создаются до запуска проекта, иначе API будет отвечать ошибкой на
 запросы каталога.
@@ -265,7 +265,7 @@ pnpm dev
 |---|---|
 | http://localhost:3000 | витрину магазина, в шапке работает меню каталога |
 | http://localhost:3000/dev | строку вида `API: ok, uptime 12.4s` |
-| http://localhost:4000/categories | текст, начинающийся с `[{"id":` — это 222 категории |
+| http://localhost:4000/categories | текст, начинающийся с `[{"id":` — это 621 категория |
 
 Если открылись все три — проект запущен правильно.
 
@@ -337,7 +337,7 @@ apps/api/.env      DATABASE_URL_TEST=postgresql://pnewmo:pnewmo_local_dev@localh
 | `pnpm db:sync` | применить новые миграции и перегенерировать клиент. Вызывается автоматически при `pnpm dev` |
 | `pnpm db:migrate` | создать **новую** миграцию после правки `schema.prisma` |
 | `pnpm db:generate` | перегенерировать клиент базы |
-| `pnpm db:seed` | залить 222 категории и 4842 товара из фикстуры; пропускает заливку, если в базе уже есть товары |
+| `pnpm db:seed` | залить 621 категорию и 7572 товара из фикстуры; пропускает заливку, если в базе уже есть товары |
 | `pnpm db:seed:reset` | то же самое, но **принудительно**: стирает текущие категории и товары (включая введённые руками через API) и заливает фикстуру заново |
 | `pnpm db:studio` | открыть базу в браузере |
 | `pnpm db:psql` | консоль psql внутри контейнера |
