@@ -15,12 +15,14 @@ description: Use when writing or reviewing frontend code in apps/web or packages
 |---|---|
 | `references/principles.md` | любая задача по фронтенду: где чему место и почему |
 | `references/patterns.md` | создание компонента/страницы, рефакторинг, код-ревью |
-| скилл `component-structure` | компонент в `widgets/`/`shared/` — там своя конвенция именования и экспорта |
+| скилл `component-structure` | новый компонент/слайс — раскладка файлов, именование, где лежат типы, барели |
+| `.claude/context/frontend-data-layer.md` | работа с запросом/мутацией/SSR-префетчем — ключи запросов, кеш, ошибки API |
 
 Для любой задачи достаточно `principles.md`. При создании нового компонента или ревью
-добавляется `patterns.md`. Отдельного `frontend-style-guide.md` пока нет — готовые
-шаблоны кода смотри в `patterns.md` (для `entities/`/`features/`) или в скилле
-`component-structure` (для `widgets/`/`shared/`).
+добавляется `patterns.md` и `component-structure`. Слой данных (TanStack Query, ts-rest,
+серверный префетч, кеш, классификация ошибок) описан отдельно в
+`.claude/context/frontend-data-layer.md` — тем же приёмом, каким `nestjs-expert`
+выносит конкретные шаблоны в `backend-style-guide.md`.
 
 ## Главное в одном абзаце
 
@@ -33,7 +35,7 @@ Server Component или `useQuery`, а не `useEffect` + `fetch`. Презен�
 **Экспорт зависит от типа файла, не от слоя.** Компонент (`.tsx`) — `export default`
 снизу файла, конвенция зафиксирована в скилле `component-structure` и действует
 одинаково в `widgets/`, `shared/`, `entities/`, `features/`. Хук (`useXxx`) — всегда
-именованный экспорт, как в `entities/category/hooks/useCategories.ts`. Не смешивать
+именованный экспорт, как в `entities/category/api/hook.ts` (`useCategories`). Не смешивать
 это с делением по слоям — деления тут нет, только компонент vs хук.
 
 ## Tailwind CSS 4, а не 3

@@ -53,6 +53,7 @@ PostgreSQL 16 · ts-rest 3.52 · Zod 3 · TypeScript 5.9 · Jest 30
 | Принципы, паттерны, чеклист ревью бэкенда | скилл `nestjs-expert` |
 | Принципы, паттерны, чеклист ревью фронтенда | скилл `react-expert` |
 | Куда положить React-компонент | скилл `component-structure` |
+| Как устроен слой данных фронтенда (ключи запросов, префетч, кеш, ошибки API) | `.claude/context/frontend-data-layer.md` |
 | Почему сделано именно так | `.claude/docs/superpowers/specs/` |
 | Ревью изменений бэкенда | агент `backend-code-reviewer` |
 | Ревью изменений фронтенда | агент `frontend-code-reviewer` |
