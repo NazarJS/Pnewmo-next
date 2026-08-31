@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CategoryWithChildren } from "@/entities/category/model/types";
+import { CategoryWithChildren } from "@/entities/category/lib/types";
 import MobileSubcategories from "../MobileSubcategories/MobileSubcategories";
 import styles from "./CategoryItem.module.scss";
 import { Arrow } from "@/shared/ui/icons/arrow/Arrow";

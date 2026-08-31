@@ -4,7 +4,7 @@ import { tsr } from '@/shared/api/tsr';
 import { classifyApiError, type ApiErrorClassification } from '@/shared/lib/apiError';
 import { CACHE_REVALIDATE_SECONDS } from '@/shared/lib/cacheRevalidateSeconds';
 
-import { ProductListFilterState } from '../lib/productTypes';
+import { ProductListFilterState } from '../lib/types';
 import { buildProductListQuery, buildProductListQueryKey } from '../lib/queryKey';
 
 /** Тег для сброса из мутаций админки. */

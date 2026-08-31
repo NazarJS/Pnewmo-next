@@ -2,7 +2,7 @@ import { HydrationBoundary, dehydrate } from '@tanstack/react-query';
 import { notFound } from 'next/navigation';
 
 import { fetchCategoryList } from '@/entities/category/api/prefetch';
-import { getProductListError, prefetchProductList } from '@/entities/product/api/productPrefetch';
+import { getProductListError, prefetchProductList } from '@/entities/product/api/prefetch';
 import { DEFAULT_PAGE, PRODUCTS_PER_PAGE } from '@/entities/product/lib/constants';
 import { buildProductListQueryKey } from '@/entities/product/lib/queryKey';
 import { tsr } from '@/shared/api/tsr';

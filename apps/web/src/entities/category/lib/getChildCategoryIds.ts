@@ -1,4 +1,4 @@
-import { Category } from "../model/types";
+import { Category } from "./types";
 
 export default function getChildCategoryIds(
   categories: Category[],

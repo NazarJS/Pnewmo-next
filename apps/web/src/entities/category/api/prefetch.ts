@@ -37,7 +37,7 @@ export function fetchCategoryList() {
  * который ждёт его на каждой странице (см. layout.tsx), — то есть каждый
  * рендер любой страницы бил по /categories, даже там, где меню не открыто.
  * Кеш вешается на сам fetch через fetchOptions.next — тем же приёмом, что и
- * в prefetchProductList (см. entities/product/api/productPrefetch.ts) и по
+ * в prefetchProductList (см. entities/product/api/prefetch.ts) и по
  * той же причине: `export const revalidate` на layout не годится, а кешировать
  * нужно данные, а не роут.
  */

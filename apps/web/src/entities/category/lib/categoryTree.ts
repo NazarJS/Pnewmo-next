@@ -1,4 +1,4 @@
-import { Category, CategoryWithChildren } from "../model/types";
+import { Category, CategoryWithChildren } from "./types";
 
 export function buildCategoryTree(categories: Category[]): CategoryWithChildren[] {
   const map = new Map<number, CategoryWithChildren>();

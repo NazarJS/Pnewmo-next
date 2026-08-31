@@ -1,7 +1,7 @@
 'use client';
 
-import { useProductList } from '@/entities/product/api/productHook';
-import type { Product } from '@/entities/product/lib/productTypes';
+import { useProductList } from '@/entities/product/api/hook';
+import type { Product } from '@/entities/product/lib/types';
 
 import styles from './ProductGrid.module.scss';
 import Pagination from './ui/Pagination/Pagination';

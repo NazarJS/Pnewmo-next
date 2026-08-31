@@ -1,4 +1,4 @@
-import { ProductListFilterState } from './productTypes';
+import { ProductListFilterState } from './types';
 
 /**
  * Ключ — позиционный массив с явным перечислением полей, а не

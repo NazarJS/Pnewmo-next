@@ -1,6 +1,6 @@
 import Link from "next/link";
 import styles from "./MegaMenu.module.scss";
-import { CategoryWithChildren } from "@/entities/category/model/types";
+import { CategoryWithChildren } from "@/entities/category/lib/types";
 
 interface MegaMenuProps {
   category: CategoryWithChildren;

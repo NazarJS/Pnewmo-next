@@ -1,6 +1,6 @@
 import type { Category as CategoryDto } from '@pnewmo/api-contract';
 
-import { Category } from '../model/types';
+import { Category } from './types';
 
 /**
  * Маппинг обязателен и неочевиден. API отдаёт parentId, а дерево в

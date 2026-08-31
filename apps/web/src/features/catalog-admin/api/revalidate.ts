@@ -3,7 +3,7 @@
 import { updateTag } from 'next/cache';
 
 import { CATEGORIES_CACHE_TAG } from '@/entities/category/api/prefetch';
-import { PRODUCTS_CACHE_TAG } from '@/entities/product/api/productPrefetch';
+import { PRODUCTS_CACHE_TAG } from '@/entities/product/api/prefetch';
 
 /**
  * Сброс серверного кеша данных после мутации.
@@ -15,7 +15,7 @@ import { PRODUCTS_CACHE_TAG } from '@/entities/product/api/productPrefetch';
  *
  * invalidateQueries на клиенте этого не заменяет: он чистит кэш браузера, а
  * кеш списков товаров и категорий — тег на fetch через fetchOptions.next.tags
- * (см. productPrefetch.ts и entities/category/api/prefetch.ts) — живёт на
+ * (см. entities/product/api/prefetch.ts и entities/category/api/prefetch.ts) — живёт на
  * сервере и переживает перезагрузку страницы.
  *
  * Сбрасываются оба тега разом, а не только тег той сущности, что менялась:

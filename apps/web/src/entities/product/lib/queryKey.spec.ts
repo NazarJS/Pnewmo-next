@@ -1,5 +1,5 @@
 import { buildProductListQuery, buildProductListQueryKey } from './queryKey';
-import { ProductListFilterState } from './productTypes';
+import { ProductListFilterState } from './types';
 
 describe('buildProductListQueryKey', () => {
   it('собирает позиционный массив', () => {

@@ -2,7 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 import { formatPrice } from '@/entities/product/lib/formatPrice';
-import type { Product } from '@/entities/product/lib/productTypes';
+import type { Product } from '@/entities/product/lib/types';
 
 import styles from './ProductCard.module.scss';
 

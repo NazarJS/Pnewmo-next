@@ -3,7 +3,7 @@
 import { tsr } from '@/shared/api/tsr';
 
 import { mapCategory } from '../lib/mapCategory';
-import { Category } from '../model/types';
+import { Category } from '../lib/types';
 import { CATEGORY_LIST_GC_TIME, CATEGORY_LIST_QUERY_KEY } from '../lib/queryKey';
 
 interface UseCategoriesResult {

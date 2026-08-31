@@ -4,7 +4,7 @@ import { keepPreviousData } from '@tanstack/react-query';
 
 import { tsr } from '@/shared/api/tsr';
 
-import { ProductListFilterState } from '../lib/productTypes';
+import { ProductListFilterState } from '../lib/types';
 import { buildProductListQuery, buildProductListQueryKey } from '../lib/queryKey';
 
 /**
