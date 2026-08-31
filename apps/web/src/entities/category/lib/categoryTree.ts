@@ -67,13 +67,21 @@ export function findRootCategoryIdBySlug(categories: Category[], slug: string | 
     return null;
   }
 
+  // Страховка от цикла в испорченных данных (A.parent_id → B, B.parent_id →
+  // A): без visited это while зависает навсегда, а обход идёт в useMemo
+  // прямо в шапке — вкладка замерла бы на любой странице. Правило скилла
+  // react-expert: любая сборка дерева из плоского списка с сервера получает
+  // visited, без исключений.
+  const visited = new Set<number>([current.id]);
+
   while (current.parent_id !== null) {
     const parent = byId.get(current.parent_id);
 
-    if (!parent) {
+    if (!parent || visited.has(parent.id)) {
       break;
     }
 
+    visited.add(parent.id);
     current = parent;
   }
 

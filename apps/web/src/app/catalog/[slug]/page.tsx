@@ -3,11 +3,10 @@ import { notFound } from 'next/navigation';
 
 import { fetchCategoryList } from '@/entities/category/api/prefetch';
 import { getProductListError, prefetchProductList } from '@/entities/product/api/prefetch';
-import { DEFAULT_PAGE, PRODUCTS_PER_PAGE } from '@/entities/product/lib/constants';
+import { parseCatalogUrlState, toSearchParamsGetter } from '@/entities/product/lib/parseCatalogUrlState';
 import { buildProductListQueryKey } from '@/entities/product/lib/queryKey';
 import { tsr } from '@/shared/api/tsr';
 import { getQueryClient } from '@/shared/lib/getQueryClient';
-import { readNumberParam, resolveLimit, resolvePage, toOffset } from '@/shared/lib/pagination';
 import ProductGrid from '@/widgets/product-grid/ProductGrid';
 
 import styles from './Catalog.module.scss';
@@ -21,9 +20,12 @@ export default async function CatalogPage({ params, searchParams }: CatalogPageP
   const { slug } = await params;
   const rawSearchParams = await searchParams;
 
-  const page = resolvePage(readNumberParam(rawSearchParams.page), DEFAULT_PAGE);
-  const limit = resolveLimit(readNumberParam(rawSearchParams.limit), PRODUCTS_PER_PAGE);
-  const offset = toOffset(page, limit);
+  // Та же композиция, что и клиентский useCatalogUrlState — единственный
+  // parseCatalogUrlState на обе стороны (см. entities/product/lib/
+  // parseCatalogUrlState.ts). toSearchParamsGetter адаптирует Record,
+  // которым Next отдаёт searchParams серверному компоненту, под
+  // Pick<URLSearchParams, 'get'>, который эта функция уже принимает.
+  const { limit, offset } = parseCatalogUrlState(toSearchParamsGetter(rawSearchParams));
 
   // Тот же кешированный вызов, что у RootLayout (fetchCategoryList), а не свой
   // api.categories.list(): раньше страница каталога обходила и кеш, и тег

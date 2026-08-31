@@ -3,29 +3,44 @@ import { readNumberParam, resolveLimit, resolvePage, toOffset } from '@/shared/l
 import { DEFAULT_PAGE, PRODUCTS_PER_PAGE } from './constants';
 import { CatalogUrlState } from './types';
 
-/** /catalog/[slug] — слаг всегда первый сегмент сразу после /catalog. */
-const CATALOG_PATH_PATTERN = /^\/catalog\/([^/]+)/;
-
 /**
- * Чистая функция, без хуков next/navigation внутри — та же связка
- * readNumberParam/resolvePage/resolveLimit/toOffset, которой app/catalog/[slug]/page.tsx
- * резолвит page/offset/limit для префетча. Второй, независимой реализации
- * разбора здесь нет и не должно быть: разойдись она с серверной хоть в одном
- * поле — клиент при гидрации либо тихо перезапросит те же данные под другим
- * ключом, либо (хуже) увидит чужие данные под ключом, который совпал случайно.
+ * Единственная композиция page/limit/offset из query-параметров адреса.
+ * Сервер (app/catalog/[slug]/page.tsx, через toSearchParamsGetter ниже) и
+ * клиент (entities/product/hooks/useCatalogUrlState) зовут ровно эту
+ * функцию, а не readNumberParam/resolvePage/resolveLimit/toOffset каждый
+ * по отдельности: разойдись порядок вызовов или имена параметров хоть в
+ * одном из двух мест — сервер отрендерит одну страницу, а клиент после
+ * гидрации покажет другую.
  *
- * usePathname/useSearchParams вынесены в useCatalogUrlState.ts, чтобы эту
- * функцию можно было тестировать в testEnvironment: 'node' без React и DOM.
+ * Слаг категории сюда не входит: он не участвует в подсчёте page/limit/
+ * offset и вычисляется отдельной чистой функцией
+ * entities/category/lib/parseCategorySlugFromPath — так меню каталога
+ * читает свою ветку, не зная о сущности товара вовсе (см. отчёт задачи 3,
+ * п.6).
  */
-export function parseCatalogUrlState(
-  pathname: string,
-  searchParams: Pick<URLSearchParams, 'get'>,
-): CatalogUrlState {
-  const categorySlug = pathname.match(CATALOG_PATH_PATTERN)?.[1] ?? null;
-
+export function parseCatalogUrlState(searchParams: Pick<URLSearchParams, 'get'>): CatalogUrlState {
   const page = resolvePage(readNumberParam(searchParams.get('page') ?? undefined), DEFAULT_PAGE);
   const limit = resolveLimit(readNumberParam(searchParams.get('limit') ?? undefined), PRODUCTS_PER_PAGE);
   const offset = toOffset(page, limit);
 
-  return { categorySlug, page, limit, offset };
+  return { page, limit, offset };
+}
+
+/**
+ * Next.js App Router отдаёт searchParams серверному компоненту объектом
+ * Record<string, string | string[] | undefined>, а не URLSearchParams.
+ * Адаптер даёт app/catalog/[slug]/page.tsx звать тот же parseCatalogUrlState,
+ * что и клиент, вместо повторной (и рискующей разойтись) композиции
+ * readNumberParam/resolvePage/resolveLimit/toOffset по месту.
+ */
+export function toSearchParamsGetter(
+  searchParams: Record<string, string | string[] | undefined>,
+): Pick<URLSearchParams, 'get'> {
+  return {
+    get(key: string) {
+      const value = searchParams[key];
+
+      return (Array.isArray(value) ? value[0] : value) ?? null;
+    },
+  };
 }

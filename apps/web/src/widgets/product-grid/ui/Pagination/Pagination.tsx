@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 
-import { useCatalogUrlState } from '@/entities/product/lib/useCatalogUrlState';
+import { useCatalogUrlState } from '@/entities/product/hooks/useCatalogUrlState';
 
 import styles from './Pagination.module.scss';
 

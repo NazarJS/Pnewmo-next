@@ -1,8 +1,7 @@
 'use client';
 
 import { useProductList } from '@/entities/product/api/hook';
-import { useCatalogUrlState } from '@/entities/product/lib/useCatalogUrlState';
-import type { Product } from '@/entities/product/lib/types';
+import { useCatalogUrlState } from '@/entities/product/hooks/useCatalogUrlState';
 
 import { deriveProductGridState } from './lib/deriveProductGridState';
 import styles from './ProductGrid.module.scss';
@@ -28,21 +27,23 @@ const ProductGrid = ({ categoryId }: ProductGridProps) => {
 
   // Одна деривация вместо трёх ранних return: загрузка/ошибка/пустая
   // категория рисуются внутри тела компонента, а не обрывают его рендер.
-  const { message } = deriveProductGridState(query);
+  // data уже сужена деривацией до { items, total } — компонент не решает
+  // data?.status === 200 второй раз поверх уже готового message.
+  const { message, data } = deriveProductGridState(query);
 
   return (
     <>
       {message && <p>{message}</p>}
 
-      {!message && query.data?.status === 200 && (
+      {data && (
         <>
           <div className={styles.grid}>
-            {query.data.body.items.map((product: Product) => (
+            {data.items.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
 
-          <Pagination total={query.data.body.total} />
+          <Pagination total={data.total} />
         </>
       )}
     </>

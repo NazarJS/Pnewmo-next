@@ -1,3 +1,11 @@
+import type { Product } from '@/entities/product/lib/types';
+
+/** Суженное тело успешного ответа — ровно то, что нужно гриду для отрисовки. */
+interface ProductListBody {
+  items: Product[];
+  total: number;
+}
+
 /**
  * Минимальная форма useProductList, которой хватает деривации: своя
  * маленькая структура, а не ReturnType<typeof useProductList> — тот же приём,
@@ -8,7 +16,7 @@
  */
 export interface ProductListQueryState {
   isPending: boolean;
-  data: { status: 200; body: { total: number } } | { status: number; body: unknown } | undefined;
+  data: { status: 200; body: ProductListBody } | { status: number; body: unknown } | undefined;
 }
 
 export interface ProductGridState {
@@ -17,6 +25,13 @@ export interface ProductGridState {
   isEmpty: boolean;
   /** Готовый текст для рендера; null — значит показывать сетку карточек. */
   message: string | null;
+  /**
+   * Суженные данные для отрисовки сетки; null ровно тогда, когда message
+   * непустой. ProductGrid рендерит грид по этому полю одному — ему больше не
+   * нужно самому решать data?.status === 200 повторно поверх уже готовой
+   * деривации.
+   */
+  data: ProductListBody | null;
 }
 
 /**
@@ -28,7 +43,7 @@ export interface ProductGridState {
  */
 function isSuccessResponse(
   data: ProductListQueryState['data'],
-): data is { status: 200; body: { total: number } } {
+): data is { status: 200; body: ProductListBody } {
   return data !== undefined && data.status === 200;
 }
 
@@ -51,5 +66,14 @@ export function deriveProductGridState({ isPending, data }: ProductListQueryStat
         ? 'В этой категории пока нет товаров'
         : null;
 
-  return { isLoading, isError, isEmpty, message };
+  return {
+    isLoading,
+    isError,
+    isEmpty,
+    message,
+    // message === null ровно тогда, когда isSuccessResponse(data) истинно и
+    // total > 0 — но переповторять это условие незачем: guard уже сузил тип,
+    // а isSuccessResponse безопасно вызвать ещё раз для сужения data.body.
+    data: message === null && isSuccessResponse(data) ? data.body : null,
+  };
 }

@@ -10,12 +10,13 @@ export interface ProductListFilterState {
 }
 
 /**
- * Состояние каталога, выведенное из адреса на клиенте. Слаг — единственное,
- * что читается из пути (см. parseCatalogUrlState): категорию контроллер
- * решил хранить в /catalog/[slug], а не в query.
+ * Пагинация каталога, выведенная из query-параметров адреса — то же самое,
+ * что резолвит сервер для префетча (см. parseCatalogUrlState). Слаг
+ * категории сюда не входит: им занимается entities/category (см.
+ * parseCategorySlugFromPath) — так меню каталога не зависит от сущности
+ * товара только ради поля, которое товару не нужно.
  */
 export interface CatalogUrlState {
-  categorySlug: string | null;
   page: number;
   limit: number;
   offset: number;
