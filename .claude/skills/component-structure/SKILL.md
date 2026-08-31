@@ -115,8 +115,9 @@ interface ErrorPageProps {
 `page.tsx` files, not inherited from an earlier report): 26 import one shared
 `DefaultPageProps` type from `shared/lib/types.ts` — a fixed shape,
 `{ params: Promise<{ slug: string }>; searchParams: Promise<{...}> }` — and every one of
-those 26 is a page with no dynamic segment of its own, or one that happens to be
-literally named `slug`. The moment a page's dynamic segment has a different name
+those 26 is a page with no dynamic segment of its own — the shared type is written for a
+`slug` segment, but no page that actually has one uses it today. The moment a page's
+dynamic segment has a different name
 (`taskId`, `id`, `projectId`, `instanceId`, `uid`, `entryId`) or a shape the shared type
 doesn't cover, it declares its own type on the spot instead — 12 pages as a named
 `interface Props`/`PageProps`, at least 6 more as an anonymous inline type right in the
